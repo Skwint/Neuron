@@ -5,9 +5,9 @@
 #include <qtimer.h>
 
 #include "NeuronSim/Net.h"
-#include "NetControl.h"
+#include "ToolBox.h"
 
-class Neuron : public QMainWindow, public NetControl::Listener
+class Neuron : public QMainWindow
 {
 	Q_OBJECT
 
@@ -16,7 +16,7 @@ public:
 
 	void tick();
 
-private: // from NetControl::Listener
+private:
 	void buildNet(int width, int height);
 
 private:
@@ -25,6 +25,6 @@ private:
 private:
 	Ui::NeuronClass ui;
 	std::unique_ptr<QTimer> mTimer;
-	std::unique_ptr<NetControl> mNetControl;
 	std::unique_ptr<Net> mNet;
+	std::unique_ptr<ToolBox> mToolBox;
 };

@@ -34,7 +34,7 @@
     <ClCompile Include="View.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="NetControl.cpp">
+    <ClCompile Include="ToolBox.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -45,7 +45,7 @@
     <QtMoc Include="View.h">
       <Filter>Header Files</Filter>
     </QtMoc>
-    <QtMoc Include="NetControl.h">
+    <QtMoc Include="ToolBox.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>
@@ -56,7 +56,7 @@
     <QtUic Include="View.ui">
       <Filter>Form Files</Filter>
     </QtUic>
-    <QtUic Include="NetControl.ui">
+    <QtUic Include="ToolBox.ui">
       <Filter>Form Files</Filter>
     </QtUic>
   </ItemGroup>

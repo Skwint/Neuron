@@ -95,16 +95,16 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="NetControl.cpp" />
     <ClCompile Include="Neuron.cpp" />
+    <ClCompile Include="ToolBox.cpp" />
     <ClCompile Include="View.cpp" />
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="Neuron.h" />
   </ItemGroup>
   <ItemGroup>
-    <QtUic Include="NetControl.ui" />
     <QtUic Include="Neuron.ui" />
+    <QtUic Include="ToolBox.ui" />
     <QtUic Include="View.ui" />
   </ItemGroup>
   <ItemGroup>
@@ -117,7 +117,7 @@
     <QtMoc Include="View.h" />
   </ItemGroup>
   <ItemGroup>
-    <QtMoc Include="NetControl.h" />
+    <QtMoc Include="ToolBox.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">

@@ -3,14 +3,17 @@
 #include <qtimer.h>
 
 #include "NeuronSim/Life.h"
+#include "ToolBox.h"
 
 Neuron::Neuron(QWidget *parent)
 	: QMainWindow(parent)
 {
 	ui.setupUi(this);
 
-	mNetControl = std::make_unique<NetControl>(this, this);
 	mNet = std::make_unique<Life>();
+	mToolBox = std::make_unique<ToolBox>();
+	QMainWindow::addDockWidget(Qt::RightDockWidgetArea, mToolBox.get());
+	connect(mToolBox.get(), &ToolBox::netBuild, this, &Neuron::buildNet);
 }
 
 // We wait until the show event to do these initialisations because otherwise the opengl

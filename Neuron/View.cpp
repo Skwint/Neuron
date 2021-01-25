@@ -6,7 +6,6 @@
 #include <QOpenGLTexture>
 #include <qtimer.h>
 
-#include "NetControl.h"
 #include "NeuronSim/Constants.h"
 
 View::View(QWidget *parent)
