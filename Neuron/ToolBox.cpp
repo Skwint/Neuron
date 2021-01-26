@@ -37,3 +37,8 @@ void ToolBox::simToggle()
 	ui.simPanel->setVisible(ui.simGroup->isChecked());
 }
 
+void ToolBox::displayZoom(int zoom)
+{
+	ui.lblViewZoom->setText(QString::number(zoom * 100) + "%");
+}
+

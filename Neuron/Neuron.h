@@ -18,6 +18,12 @@ public:
 
 private:
 	void buildNet(int width, int height);
+	void zoomFitToWindow();
+	void zoomOneToOne();
+	void zoomIn();
+	void zoomOut();
+	void centerNet();
+	void setZoom(int zoom);
 
 private:
 	void showEvent(QShowEvent *event);
@@ -27,4 +33,7 @@ private:
 	std::unique_ptr<QTimer> mTimer;
 	std::unique_ptr<Net> mNet;
 	std::unique_ptr<ToolBox> mToolBox;
+	int mZoom;
+	int mLeft;
+	int mTop;
 };

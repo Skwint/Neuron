@@ -10,7 +10,8 @@
 
 View::View(QWidget *parent)
 	: QOpenGLWidget(parent),
-	mProgram(0)
+	mProgram(0),
+	mZoom(1.0f)
 {
 	ui.setupUi(this);
 }
@@ -35,46 +36,29 @@ void View::resizeTexture(int width, int height)
 	mTexture->setFormat(QOpenGLTexture::RGBA8_UNorm);
 	mTexture->allocateStorage();
 
-	fixQuadAspectRatio(width, height);
+	//fixQuadAspectRatio(width, height);
 }
 
 void View::updateTexture(uint32_t * data)
 {
-	mTexture->bind();
-	mTexture->setData(QOpenGLTexture::RGBA, QOpenGLTexture::UInt8, data);
+	if (mTexture)
+	{
+		mTexture->bind();
+		mTexture->setData(QOpenGLTexture::RGBA, QOpenGLTexture::UInt8, data);
+	}
 }
 
 void View::resizeGL(int width, int height)
 {
-	float cellWidth = 512.0f;
-	float cellHeight = 512.0f;
-	if (mTexture)
-	{
-		cellWidth = mTexture->width();
-		cellHeight = mTexture->height();
-	}
-	float cellAspect = cellWidth / cellHeight;
-	float windowAspect = float(width) / float(height);
+	resizeTexture(width, height);
+	setOrtho();
+}
 
-	float left = -1.0f;
-	float right = 1.0f;
-	float top = -1.0f;
-	float bottom = 1.0f;
-	if (windowAspect > cellAspect)
-	{
-		left = -windowAspect;
-		right = windowAspect;
-	}
-	else
-	{
-		float aspect = 1.0f / windowAspect;
-		top = -aspect;
-		bottom = aspect;
-	}
-
+void View::setOrtho()
+{
 	mModelView.setToIdentity();
-	mModelView.ortho(left, right, bottom, top, -1.0f, 1.0f);
-	mModelView.scale(0.9f);
+	mModelView.ortho(-1.0f, 1.0f, 1.0f, -1.0f, -1.0f, 1.0f);
+	mModelView.scale(mZoom);
 }
 
 void View::initializeGL()
@@ -133,7 +117,7 @@ void View::paintGL()
 
 	mProgram->bind();
 	mProgram->setUniformValue(mAttrMatrix, mModelView);
-	paintTexturedCube();
+	paintTexture();
 	mProgram->release();
 
 	painter.endNativePainting();
@@ -149,12 +133,12 @@ void View::createQuad()
 {
 	mVertices =
 	{
-		{-0.5f, -0.5f, 0.0f, 0.0f, 0.0f},
-		{ 0.5f,  0.5f, 0.0f, 1.0f, 1.0f},
-		{-0.5f,  0.5f, 0.0f, 0.0f, 1.0f},
-		{-0.5f, -0.5f, 0.0f, 0.0f, 0.0f},
-		{ 0.5f, -0.5f, 0.0f, 1.0f, 0.0f},
-		{ 0.5f,  0.5f, 0.0f, 1.0f, 1.0f}
+		{-1.0f, -1.0f, 0.0f, 0.0f, 0.0f},
+		{ 1.0f,  1.0f, 0.0f, 1.0f, 1.0f},
+		{-1.0f,  1.0f, 0.0f, 0.0f, 1.0f},
+		{-1.0f, -1.0f, 0.0f, 0.0f, 0.0f},
+		{ 1.0f, -1.0f, 0.0f, 1.0f, 0.0f},
+		{ 1.0f,  1.0f, 0.0f, 1.0f, 1.0f}
 	};
 
 	mVertexBuffer.create();
@@ -205,7 +189,7 @@ void View::fixQuadAspectRatio(int width, int height)
 	mVertexBuffer.release();
 }
 
-void View::paintTexturedCube()
+void View::paintTexture()
 {
 	if (mTexture)
 	{
@@ -228,3 +212,8 @@ void View::paintTexturedCube()
 	}
 }
 
+void View::setZoom(float zoom)
+{
+	mZoom = zoom;
+	setOrtho();
+}

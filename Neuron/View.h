@@ -34,6 +34,8 @@ public:
 
 	void resizeTexture(int width, int height);
 	void updateTexture(uint32_t * data);
+	void setZoom(float zoom);
+	void setOrtho();
 
 private: // from QOpenGLWidget
 	void resizeGL(int w, int h) override;
@@ -42,7 +44,7 @@ private: // from QOpenGLWidget
 
 private:
 	void createQuad();
-	void paintTexturedCube();
+	void paintTexture();
 	void fixQuadAspectRatio(int width, int height);
 
 private:
@@ -58,4 +60,5 @@ private:
 	int mAttrTexCoord;
 	int mAttrMatrix;
 	int mAttrTexture;
+	float mZoom;
 };

@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>268</width>
+    <width>284</width>
     <height>667</height>
    </rect>
   </property>
@@ -18,8 +18,8 @@
   </property>
   <property name="minimumSize">
    <size>
-    <width>192</width>
-    <height>258</height>
+    <width>284</width>
+    <height>331</height>
    </size>
   </property>
   <property name="features">
@@ -177,10 +177,7 @@
       <property name="checkable">
        <bool>true</bool>
       </property>
-      <layout class="QVBoxLayout" name="verticalLayout_3">
-       <property name="spacing">
-        <number>0</number>
-       </property>
+      <layout class="QVBoxLayout" name="verticalLayout_6">
        <property name="leftMargin">
         <number>0</number>
        </property>
@@ -195,7 +192,7 @@
        </property>
        <item>
         <widget class="QWidget" name="viewPanel" native="true">
-         <layout class="QVBoxLayout" name="verticalLayout_6">
+         <layout class="QVBoxLayout" name="verticalLayout_3">
           <property name="leftMargin">
            <number>0</number>
           </property>
@@ -209,17 +206,57 @@
            <number>0</number>
           </property>
           <item>
-           <widget class="QSpinBox" name="spinBox">
-            <property name="buttonSymbols">
-             <enum>QAbstractSpinBox::PlusMinus</enum>
-            </property>
-            <property name="minimum">
-             <number>1</number>
-            </property>
-            <property name="maximum">
-             <number>1024</number>
-            </property>
-           </widget>
+           <layout class="QHBoxLayout" name="horizontalLayout_3">
+            <item>
+             <widget class="QLabel" name="label_5">
+              <property name="text">
+               <string>Zoom:</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="lblViewZoom">
+              <property name="text">
+               <string>100%</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_2">
+            <item>
+             <widget class="QToolButton" name="btnViewZoomFitToWindow">
+              <property name="text">
+               <string>Fit to window</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QToolButton" name="btnViewZoomOut">
+              <property name="text">
+               <string>Zoom Out</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QToolButton" name="btnViewZoomOneToOne">
+              <property name="text">
+               <string>1:1</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QToolButton" name="btnViewZoomIn">
+              <property name="text">
+               <string>Zoom In</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </item>
          </layout>
         </widget>

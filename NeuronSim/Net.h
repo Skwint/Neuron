@@ -17,11 +17,13 @@ public:
 	int rowStep() { return mWidth + 2; }
 	int width() { return mWidth; }
 	int height() { return mHeight; }
-	uint32_t * image();
+	uint32_t * image(int width, int height, int left, int top);
 protected:
 	int mWidth;
 	int mHeight;
 	std::vector<Cell> cells;
+	int mImageWidth;
+	int mImageHeight;
 	std::vector<uint32_t> mImage;
 };
 

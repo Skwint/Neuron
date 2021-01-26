@@ -3,8 +3,11 @@
 #include <random>
 
 static std::mt19937 rnd;
+static const uint32_t outsideColour(0xFF202020);
 
-Net::Net(int width, int height)
+Net::Net(int width, int height) :
+	mImageWidth(0),
+	mImageHeight(0)
 {
 	resize(width, height);
 }
@@ -25,7 +28,6 @@ void Net::resize(int width, int height)
 	mHeight = height;
 	int size = (mWidth + 2) * (mHeight + 2);
 	cells.resize(size);
-	mImage.resize(mWidth * mHeight);
 	for (int rr = 0; rr < mHeight; ++rr)
 	{
 		Cell * cell = row(rr);
@@ -37,17 +39,39 @@ void Net::resize(int width, int height)
 	}
 }
 
-uint32_t * Net::image()
+uint32_t * Net::image(int texWidth, int texHeight, int left, int top)
 {
-	uint32_t * pixel = &mImage[0];
-	for (int rr = 0; rr < mHeight; ++rr)
+	if (texWidth != mImageWidth || texHeight != mImageHeight)
 	{
-		Cell * cell = row(rr);
-		for (int cc = 0; cc < mWidth; ++cc)
+		// TODO - I need to repaint the outside if left or top change too
+		mImage.resize(texWidth * texHeight);
+		uint32_t * pixel = &mImage[0];
+		for (int rr = 0; rr < texHeight; ++rr)
+		{
+			for (int cc = 0; cc < texWidth; ++cc)
+			{
+				*pixel = outsideColour;
+				++pixel;
+			}
+		}
+	}
+
+	int bottom = std::min(texHeight, mHeight);
+	int right = std::min(texWidth, mWidth);
+	int texOffsetX = std::max(-left, 0);
+	int texOffsetY = std::max(-top, 0);
+	int cellOffsetX = std::max(left, 0);
+	int cellOffsetY = std::max(top, 0);
+
+	for (int rr = cellOffsetY; rr < bottom; ++rr)
+	{
+		uint32_t * pixel = &mImage[0] + texOffsetX + (texOffsetY + rr) * texWidth;
+		Cell * cell = row(rr) + cellOffsetX;
+		for (int cc = cellOffsetX; cc < right; ++cc)
 		{
 			*pixel = cell->colour();
-			++cell;
 			++pixel;
+			++cell;
 		}
 	}
 	return &mImage[0];

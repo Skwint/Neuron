@@ -11,6 +11,13 @@ public:
 	ToolBox(QWidget *parent = Q_NULLPTR);
 	~ToolBox();
 
+	auto zoomFitToWindow() { return ui.btnViewZoomFitToWindow; }
+	auto zoomOneToOne() { return ui.btnViewZoomOneToOne; }
+	auto zoomIn() { return ui.btnViewZoomIn; }
+	auto zoomOut() { return ui.btnViewZoomOut; }
+
+	void displayZoom(int zoom);
+
 signals:
 	void netBuild(int width, int height);
 
