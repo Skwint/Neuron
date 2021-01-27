@@ -5,6 +5,7 @@
 
 #include <QOpenGLWidget>
 #include <QOpenGLFunctions>
+#include <QOpenGLVertexArrayObject>
 #include <QOpenGLBuffer>
 #include <QVector3D>
 #include <QMatrix4x4>
@@ -28,6 +29,22 @@ private:
 		GLfloat u;
 		GLfloat v;
 	};
+	enum Style
+	{
+		STYLE_SIMPLE = 0,
+		STYLE_TILED,
+		STYLE_DONUT,
+
+		STYLE_COUNT
+	};
+	struct StyleData
+	{
+		QOpenGLVertexArrayObject mVao;
+		QOpenGLBuffer mVertexBuffer;
+		int mIndexCount;
+		GLuint mIndexBuffer;
+		bool m3D;
+	};
 public:
 	View(QWidget *parent = Q_NULLPTR);
 	~View();
@@ -35,7 +52,12 @@ public:
 	void resizeTexture(int width, int height);
 	void updateTexture(uint32_t * data);
 	void setZoom(float zoom);
+	void setProjection();
 	void setOrtho();
+	void setPerspective();
+
+public slots:
+	void setStyle(const QString & style);
 
 private: // from QOpenGLWidget
 	void resizeGL(int w, int h) override;
@@ -43,9 +65,12 @@ private: // from QOpenGLWidget
 	void initializeGL() override;
 
 private:
-	void createQuad();
+	void createMesh();
+	void createSimpleStyle();
+	void createTiledStyle();
+	void createDonutStyle();
 	void paintTexture();
-	void fixQuadAspectRatio(int width, int height);
+	void checkGlError();
 
 private:
 	Ui::View ui;
@@ -54,11 +79,12 @@ private:
 	QOpenGLShader *mFragmentShader;
 	QOpenGLShaderProgram *mProgram;
 	std::unique_ptr<QOpenGLTexture> mTexture;
-	QOpenGLBuffer mVertexBuffer;
-	std::vector<Vertex> mVertices;
 	int mAttrVertex;
 	int mAttrTexCoord;
 	int mAttrMatrix;
 	int mAttrTexture;
 	float mZoom;
+	float mAspect;
+	Style mStyle;
+	StyleData mStyleData[STYLE_COUNT];
 };

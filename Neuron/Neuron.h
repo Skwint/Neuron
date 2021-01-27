@@ -45,4 +45,5 @@ private:
 	int mTop;
 	bool mTimerTicked;
 	bool mWaitingForSwap;
+	std::vector<uint32_t> mImage;
 };

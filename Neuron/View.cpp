@@ -5,13 +5,19 @@
 #include <QOpenGLShaderProgram>
 #include <QOpenGLTexture>
 #include <qtimer.h>
+#include <iostream>
+#include <GL/glu.h>
 
 #include "NeuronSim/Constants.h"
+#include "Mat33f.h"
+#include "Vec3f.h"
 
 View::View(QWidget *parent)
 	: QOpenGLWidget(parent),
 	mProgram(0),
-	mZoom(1.0f)
+	mZoom(1.0f),
+	mAspect(1.0f),
+	mStyle(STYLE_TILED)
 {
 	ui.setupUi(this);
 }
@@ -22,12 +28,22 @@ View::~View()
 	delete mProgram;
 	delete mVertexShader;
 	delete mFragmentShader;
-	mVertexBuffer.destroy();
+	for (int style = 0; style < STYLE_COUNT; ++style)
+	{
+		mStyleData[style].mVao.destroy();
+		mStyleData[style].mVertexBuffer.destroy();
+	}
+	mTexture.release();
 	doneCurrent();
 }
 
 void View::resizeTexture(int width, int height)
 {	
+	if (mTexture)
+	{
+		mTexture.release();
+	}
+
 	mTexture = std::make_unique<QOpenGLTexture>(QOpenGLTexture::Target2D);
 	mTexture->setMinMagFilters(QOpenGLTexture::Linear, QOpenGLTexture::Linear);
 	mTexture->create();
@@ -35,30 +51,77 @@ void View::resizeTexture(int width, int height)
 	mTexture->setSize(width, height, 1);
 	mTexture->setFormat(QOpenGLTexture::RGBA8_UNorm);
 	mTexture->allocateStorage();
+	mTexture->setWrapMode(QOpenGLTexture::Repeat);
 
-	//fixQuadAspectRatio(width, height);
+	checkGlError();
 }
 
 void View::updateTexture(uint32_t * data)
 {
 	if (mTexture)
 	{
+		/*
+		uint32_t * d = data;
+		for (int y = 0; y < 512; ++y)
+		{
+			for (int x = 0; x < 512; ++x)
+			{
+				*d = 0x000000FF + ((x & 0xFF) << 8) + ((y & 0xFF) << 16);
+				++d;
+			}
+		}
+		*/
 		mTexture->bind();
 		mTexture->setData(QOpenGLTexture::RGBA, QOpenGLTexture::UInt8, data);
+		checkGlError();
 	}
 }
 
 void View::resizeGL(int width, int height)
 {
-	resizeTexture(width, height);
-	setOrtho();
+	mAspect = double(width) / double(height);
+	setProjection();
+}
+
+void View::setProjection()
+{
+	if (mStyleData[mStyle].m3D)
+	{
+		setPerspective();
+	}
+	else
+	{
+		setOrtho();
+	}
+}
+
+void View::setPerspective()
+{
+	mModelView.setToIdentity();
+	mModelView.perspective(90.0f, mAspect, 0.1f, 100.0f);
 }
 
 void View::setOrtho()
 {
+	float left = -1.0f;
+	float right = 1.0f;
+	float bottom = 1.0f;
+	float top = -1.0f;
+	if (mAspect > 1.0f)
+	{
+		left *= mAspect;
+		right *= mAspect;
+	}
+	else
+	{
+		top *= mAspect;
+		bottom *= mAspect;
+	}
 	mModelView.setToIdentity();
-	mModelView.ortho(-1.0f, 1.0f, 1.0f, -1.0f, -1.0f, 1.0f);
+	mModelView.ortho(left, right, top, bottom, -2.0f, 2.0f);
 	mModelView.scale(mZoom);
+
+	checkGlError();
 }
 
 void View::initializeGL()
@@ -98,9 +161,13 @@ void View::initializeGL()
 	mAttrMatrix = mProgram->uniformLocation("matrix");
 	mAttrTexture = mProgram->uniformLocation("tex");
 
-	createQuad();
+	createMesh();
 
-	glClearColor(0x00, 0x00, 0x00, 0xFF);
+	glClearColor(0.1, 0.1, 0.1, 1.0);
+	glCullFace(GL_FRONT);
+	glEnable(GL_CULL_FACE);
+
+	checkGlError();
 }
 
 void View::paintGL()
@@ -111,104 +178,274 @@ void View::paintGL()
 
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	// Eventually we want to zoom in and scroll, and this will be how we do that.
-	//mModelView.scale(mScale);
+	// Eventually we want to scroll, and this will be how we do that.
 	//mModelView.translate(0.0f, 0.0f, 0.0f);
 
 	mProgram->bind();
-	mProgram->setUniformValue(mAttrMatrix, mModelView);
+	if (mStyleData[mStyle].m3D)
+	{
+		QMatrix4x4 matrix;
+		matrix.lookAt(QVector3D(0.0f, 0.7f, -1.4f), QVector3D(0.0f, -0.7f, 0.0f), QVector3D(0.0f, 0.707f, 0.707f));
+		mProgram->setUniformValue(mAttrMatrix, mModelView * matrix);
+	}
+	else
+	{
+		mProgram->setUniformValue(mAttrMatrix, mModelView);
+	}
 	paintTexture();
 	mProgram->release();
 
 	painter.endNativePainting();
 	painter.end();
-}
 
-void View::createQuad()
-{
-	mVertices =
-	{
-		{-1.0f, -1.0f, 0.0f, 0.0f, 0.0f},
-		{ 1.0f,  1.0f, 0.0f, 1.0f, 1.0f},
-		{-1.0f,  1.0f, 0.0f, 0.0f, 1.0f},
-		{-1.0f, -1.0f, 0.0f, 0.0f, 0.0f},
-		{ 1.0f, -1.0f, 0.0f, 1.0f, 0.0f},
-		{ 1.0f,  1.0f, 0.0f, 1.0f, 1.0f}
-	};
-
-	mVertexBuffer.create();
-	mVertexBuffer.bind();
-	mVertexBuffer.allocate(mVertices.size() * sizeof(Vertex));
-	mVertexBuffer.write(0, &mVertices[0], mVertices.size() * sizeof(Vertex));
-	mVertexBuffer.release();
-}
-
-void View::fixQuadAspectRatio(int width, int height)
-{
-	mVertexBuffer.bind();
-	GLfloat* vertices = static_cast<GLfloat*>(mVertexBuffer.map(QOpenGLBuffer::WriteOnly));
-	assert(vertices);
-	if (vertices)
-	{
-		float left = -1.0;
-		float right = 1.0;
-		float top = -1.0;
-		float bottom = 1.0;
-		if (width > height)
-		{
-			float aspect = float(height) / float(width);
-			top = -aspect;
-			bottom = aspect;
-		}
-		else
-		{
-			float aspect = float(width) / float(height);
-			left = -aspect;
-			right = aspect;
-		}
-		mVertices[0].x = left;
-		mVertices[0].y = top;
-		mVertices[1].x = right;
-		mVertices[1].y = bottom;
-		mVertices[2].x = left;
-		mVertices[2].y = bottom;
-		mVertices[3].x = left;
-		mVertices[3].y = top;
-		mVertices[4].x = right;
-		mVertices[4].y = top;
-		mVertices[5].x = right;
-		mVertices[5].y = bottom;
-		memcpy(vertices, &mVertices[0], mVertices.size() * sizeof(Vertex));
-		mVertexBuffer.unmap();
-	}
-	mVertexBuffer.release();
+	checkGlError();
 }
 
 void View::paintTexture()
 {
 	if (mTexture)
 	{
+		StyleData * data = &mStyleData[mStyle];
+
 		mTexture->bind();
 
-		mProgram->setUniformValue(mAttrTexture, 0);
+		data->mVao.bind();
 
-		mProgram->enableAttributeArray(mAttrVertex);
-		mProgram->enableAttributeArray(mAttrTexCoord);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, data->mIndexBuffer);
+		glDrawElements(GL_TRIANGLES, data->mIndexCount, GL_UNSIGNED_SHORT, 0);
 
-		mVertexBuffer.bind();
-		mProgram->setAttributeBuffer(mAttrVertex, GL_FLOAT, 0, 3, sizeof(Vertex));
-		mProgram->setAttributeBuffer(mAttrTexCoord, GL_FLOAT, 3 * sizeof(GLfloat), 2, sizeof(Vertex));
-		mVertexBuffer.release();
-
-		glDrawArrays(GL_TRIANGLES, 0, 6);
-
-		mProgram->disableAttributeArray(mAttrVertex);
-		mProgram->disableAttributeArray(mAttrTexCoord);
+		mStyleData[mStyle].mVao.release();
 	}
+}
+
+void View::createMesh()
+{
+	createSimpleStyle();
+	createTiledStyle();
+	createDonutStyle();
+}
+
+void View::createSimpleStyle()
+{
+	int vertexCount = 4;
+	Vertex quad[] =
+	{
+		{-1.0f, -1.0f, 0.0f, 0.0f, 0.0f},
+		{ 1.0f,  1.0f, 0.0f, 1.0f, 1.0f},
+		{-1.0f,  1.0f, 0.0f, 0.0f, 1.0f},
+		{ 1.0f, -1.0f, 0.0f, 1.0f, 0.0f},
+	};
+
+	StyleData * data = &mStyleData[STYLE_SIMPLE];
+	data->m3D = false;
+	data->mVao.create();
+	data->mVao.bind();
+
+	data->mVertexBuffer.create();
+	data->mVertexBuffer.bind();
+	data->mVertexBuffer.setUsagePattern(QOpenGLBuffer::StaticDraw);
+	data->mVertexBuffer.allocate(vertexCount * sizeof(Vertex));
+	data->mVertexBuffer.write(0, &quad[0], vertexCount * sizeof(Vertex));
+
+	mProgram->enableAttributeArray(mAttrVertex);
+	mProgram->enableAttributeArray(mAttrTexCoord);
+	mProgram->setAttributeBuffer(mAttrVertex, GL_FLOAT, 0, 3, sizeof(Vertex));
+	mProgram->setAttributeBuffer(mAttrTexCoord, GL_FLOAT, 3 * sizeof(GLfloat), 2, sizeof(Vertex));
+
+	data->mVertexBuffer.release();
+	data->mVao.release();
+
+	GLushort indices[] = { 0,2,1,3,0,1 };
+	data->mIndexCount = sizeof(indices);
+	glGenBuffers(1, &data->mIndexBuffer);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, data->mIndexBuffer);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, data->mIndexCount * sizeof(GLushort), &indices[0], GL_STATIC_DRAW);
+
+	checkGlError();
+}
+
+void View::createTiledStyle()
+{
+	StyleData * data = &mStyleData[STYLE_TILED];
+	data->m3D = false;
+
+	const int tiles = 3;
+	std::vector<Vertex> vertices;
+	int vertexCount = (tiles + 1) * (tiles + 1);
+	vertices.reserve(vertexCount);
+	double rowPos = -tiles;
+	for (int row = 0; row <= tiles; ++row)
+	{
+		double colPos = -tiles;
+		double rowOff = double(row - (tiles / 2));
+		for (int col = 0; col <= tiles; ++col)
+		{
+			Vertex vert;
+			vert.x = colPos;
+			vert.y = rowPos;
+			vert.z = 0.0f;
+			vert.u = 0.5f + 0.5 * colPos;
+			vert.v = 0.5f + 0.5 * rowPos;
+			vertices.push_back(vert);
+			colPos += 2.0;
+		}
+		rowPos += 2.0;
+	}
+
+	data->mVao.create();
+	data->mVao.bind();
+
+	data->mVertexBuffer.create();
+	data->mVertexBuffer.bind();
+	data->mVertexBuffer.setUsagePattern(QOpenGLBuffer::StaticDraw);
+	data->mVertexBuffer.allocate(vertices.size() * sizeof(Vertex));
+	data->mVertexBuffer.write(0, &vertices[0], vertices.size() * sizeof(Vertex));
+
+	mProgram->enableAttributeArray(mAttrVertex);
+	mProgram->enableAttributeArray(mAttrTexCoord);
+	mProgram->setAttributeBuffer(mAttrVertex, GL_FLOAT, 0, 3, sizeof(Vertex));
+	mProgram->setAttributeBuffer(mAttrTexCoord, GL_FLOAT, 3 * sizeof(GLfloat), 2, sizeof(Vertex));
+
+	data->mVertexBuffer.release();
+	data->mVao.release();
+
+	std::vector<GLushort> indices;
+	for (int row = 0; row < tiles; ++row)
+	{
+		for (int col = 0; col < tiles; ++col)
+		{
+			int idx = row * (tiles + 1) + col;
+			indices.push_back(idx);
+			indices.push_back(idx + tiles + 1);
+			indices.push_back(idx + 1);
+			indices.push_back(idx + tiles + 2);
+			indices.push_back(idx + 1);
+			indices.push_back(idx + tiles + 1);
+		}
+	}
+	data->mIndexCount = indices.size();
+	glGenBuffers(1, &data->mIndexBuffer);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, data->mIndexBuffer);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, data->mIndexCount * sizeof(GLushort), &indices[0], GL_STATIC_DRAW);
+
+	checkGlError();
+}
+
+void View::createDonutStyle()
+{
+	const float majorRadius(1.0);
+	const float minorRadius(0.3);
+	const int segmentCount(32);
+	const int stripCount(32);
+
+	std::vector<Vertex> vertices;
+	vertices.reserve((segmentCount + 1) * (stripCount + 1));
+	float deltaTheta = PI * 2.0f / segmentCount;
+	float deltaPhi = PI * 2.0f / stripCount;
+	Mat33f rotateMajor = Mat33f::rotationAroundY(deltaTheta);
+	Mat33f rotateMinor = Mat33f::rotationAroundZ(deltaPhi);
+	Mat33f orientMajor;
+	Vec3f major(majorRadius, 0.0f, 0.0f);
+	Vertex vert;
+	for (int segment = 0; segment < segmentCount + 1; ++segment)
+	{
+		Mat33f orientMinor;
+		Vec3f minor(minorRadius, 0.0f, 0.0f);
+		for (int strip = 0; strip < stripCount + 1; ++strip)
+		{
+			Vec3f pos = orientMajor * (major + orientMinor * minor);
+			vert.x = pos.x;
+			vert.y = pos.y;
+			vert.z = pos.z;
+			vert.u = float(segment) / float(segmentCount);
+			vert.v = float(strip) / float(stripCount);
+			vertices.push_back(vert);
+			orientMinor = rotateMinor * orientMinor;
+		}
+		orientMajor = rotateMajor * orientMajor;
+	}
+
+	auto * data = &mStyleData[STYLE_DONUT];
+	data->m3D = true;
+
+	data->mVao.create();
+	data->mVao.bind();
+
+	data->mVertexBuffer.create();
+	data->mVertexBuffer.bind();
+	data->mVertexBuffer.setUsagePattern(QOpenGLBuffer::StaticDraw);
+	data->mVertexBuffer.allocate(vertices.size() * sizeof(Vertex));
+	data->mVertexBuffer.write(0, &vertices[0], vertices.size() * sizeof(Vertex));
+
+	mProgram->enableAttributeArray(mAttrVertex);
+	mProgram->enableAttributeArray(mAttrTexCoord);
+	mProgram->setAttributeBuffer(mAttrVertex, GL_FLOAT, 0, 3, sizeof(Vertex));
+	mProgram->setAttributeBuffer(mAttrTexCoord, GL_FLOAT, 3 * sizeof(GLfloat), 2, sizeof(Vertex));
+
+	data->mVertexBuffer.release();
+	data->mVao.release();
+
+	std::vector<GLushort> indices;
+	for (int segment = 0; segment < segmentCount; ++segment)
+	{
+		Mat33f orientMinor;
+		Vec3f minor(minorRadius, 0.0f, 0.0f);
+		for (int strip = 0; strip < stripCount; ++strip)
+		{
+			int idx = segment * (stripCount + 1) + strip;
+			indices.push_back(idx);
+			indices.push_back(idx + stripCount + 1);
+			indices.push_back(idx + 1);
+			indices.push_back(idx + stripCount + 2);
+			assert(idx + stripCount + 2 < vertices.size());
+			indices.push_back(idx + 1);
+			indices.push_back(idx + stripCount + 1);
+		}
+	}
+	assert(indices.size() < pow(2, 16));
+
+	data->mIndexCount = indices.size();
+	glGenBuffers(1, &data->mIndexBuffer);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, data->mIndexBuffer);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, data->mIndexCount * sizeof(GLushort), &indices[0], GL_STATIC_DRAW);
+
+	checkGlError();
 }
 
 void View::setZoom(float zoom)
 {
 	mZoom = zoom;
-	setOrtho();
+	setProjection();
+}
+
+void View::checkGlError()
+{
+	GLenum errCode;
+	const GLubyte *errString;
+	if ((errCode = glGetError()) != GL_NO_ERROR)
+	{
+		errString = gluErrorString(errCode);
+	}
+}
+
+void View::setStyle(const QString & style)
+{
+	if (!style.compare("Simple"))
+	{
+		mStyle = STYLE_SIMPLE;
+	}
+	else if (!style.compare("Infinite Tiles"))
+	{
+		mStyle = STYLE_TILED;
+	}
+	else if (!style.compare("Donut"))
+	{
+		mStyle = STYLE_DONUT;
+	}
+	else
+	{
+		assert(false);
+		return;
+	}
+	setProjection();
 }

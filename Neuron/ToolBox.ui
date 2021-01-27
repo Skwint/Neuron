@@ -19,7 +19,7 @@
   <property name="minimumSize">
    <size>
     <width>284</width>
-    <height>331</height>
+    <height>346</height>
    </size>
   </property>
   <property name="features">
@@ -236,16 +236,16 @@
              </widget>
             </item>
             <item>
-             <widget class="QToolButton" name="btnViewZoomOut">
+             <widget class="QToolButton" name="btnViewZoomOneToOne">
               <property name="text">
-               <string>Zoom Out</string>
+               <string>1:1</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QToolButton" name="btnViewZoomOneToOne">
+             <widget class="QToolButton" name="btnViewZoomOut">
               <property name="text">
-               <string>1:1</string>
+               <string>Zoom Out</string>
               </property>
              </widget>
             </item>
@@ -262,6 +262,31 @@
         </widget>
        </item>
       </layout>
+     </widget>
+    </item>
+    <item>
+     <widget class="QComboBox" name="cmbViewStyle">
+      <property name="currentText">
+       <string>Infinite Tiles</string>
+      </property>
+      <property name="currentIndex">
+       <number>1</number>
+      </property>
+      <item>
+       <property name="text">
+        <string>Simple</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Infinite Tiles</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>Donut</string>
+       </property>
+      </item>
      </widget>
     </item>
     <item>

@@ -22,12 +22,12 @@ Neuron::Neuron(QWidget *parent)
 	connect(mTimer.get(), &QTimer::timeout, this, QOverload<>::of(&Neuron::tick));
 	connect(ui.view, &QOpenGLWidget::frameSwapped, this, &Neuron::onFrameSwapped);
 
-
 	connect(mToolBox.get(), &ToolBox::netBuild, this, &Neuron::buildNet);
 	connect(mToolBox->zoomOneToOne(), &QToolButton::clicked, this, &Neuron::zoomOneToOne);
 	connect(mToolBox->zoomFitToWindow(), &QToolButton::clicked, this, &Neuron::zoomFitToWindow);
 	connect(mToolBox->zoomIn(), &QToolButton::clicked, this, &Neuron::zoomIn);
 	connect(mToolBox->zoomOut(), &QToolButton::clicked, this, &Neuron::zoomOut);
+	connect(mToolBox->style(), &QComboBox::currentTextChanged, [this]() { ui.view->setStyle(mToolBox->style()->currentText()); });
 
 	connect(mToolBox->speed(), &QComboBox::currentTextChanged, this, &Neuron::simSpeed);
 	connect(mToolBox->pause(), &QPushButton::clicked, this, &Neuron::simPause);
@@ -49,8 +49,8 @@ void Neuron::step()
 	mTimerTicked = false;
 	mWaitingForSwap = mToolBox->showAllFrames();
 	mNet->tick();
-	uint32_t * image = mNet->image(ui.view->width(), ui.view->height(), mLeft, mTop);
-	ui.view->updateTexture(image);
+	mNet->paint(&mImage[0]);
+	ui.view->updateTexture(&mImage[0]);
 	ui.view->update();
 }
 
@@ -84,9 +84,11 @@ Build a net of cells with a given width and height, and arrange the view of it t
 void Neuron::buildNet(int width, int height)
 {
 	mNet->resize(width, height);
+	ui.view->resizeTexture(width, height);
+	mImage.resize(width * height);
 	centerNet();
-	auto image = mNet->image(ui.view->width(), ui.view->height(), mLeft, mTop);
-	ui.view->updateTexture(image);
+	mNet->paint(&mImage[0]);
+	ui.view->updateTexture(&mImage[0]);
 }
 
 void Neuron::zoomFitToWindow()

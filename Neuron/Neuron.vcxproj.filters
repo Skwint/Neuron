@@ -68,4 +68,12 @@
   <ItemGroup>
     <ResourceCompile Include="Neuron.rc" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Vec3f.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Mat33f.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
 </Project>

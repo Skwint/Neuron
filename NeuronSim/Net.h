@@ -17,13 +17,11 @@ public:
 	int rowStep() { return mWidth + 2; }
 	int width() { return mWidth; }
 	int height() { return mHeight; }
-	uint32_t * image(int width, int height, int left, int top);
+	void paint(uint32_t * image, int rowStep, int left, int top, int width, int height);
+	void paint(uint32_t * image);
 protected:
 	int mWidth;
 	int mHeight;
 	std::vector<Cell> cells;
-	int mImageWidth;
-	int mImageHeight;
-	std::vector<uint32_t> mImage;
 };
 

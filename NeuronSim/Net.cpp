@@ -5,9 +5,7 @@
 static std::mt19937 rnd;
 static const uint32_t outsideColour(0xFF202020);
 
-Net::Net(int width, int height) :
-	mImageWidth(0),
-	mImageHeight(0)
+Net::Net(int width, int height)
 {
 	resize(width, height);
 }
@@ -39,8 +37,25 @@ void Net::resize(int width, int height)
 	}
 }
 
-uint32_t * Net::image(int texWidth, int texHeight, int left, int top)
+void Net::paint(uint32_t * image)
 {
+	return paint(image, mWidth, 0, 0, mWidth, mHeight);
+}
+
+void Net::paint(uint32_t * image, int rowStep, int left, int top, int width, int height)
+{
+	for (int rr = top; rr < top + height; ++rr)
+	{
+		uint32_t * pixel = image + left + rr * rowStep;
+		Cell * cell = row(rr) + left;
+		for (int cc = left; cc < left + width; ++cc)
+		{
+			*pixel = cell->colour();
+			++pixel;
+			++cell;
+		}
+	}
+	/*
 	if (texWidth != mImageWidth || texHeight != mImageHeight)
 	{
 		// TODO - I need to repaint the outside if left or top change too
@@ -74,5 +89,5 @@ uint32_t * Net::image(int texWidth, int texHeight, int left, int top)
 			++cell;
 		}
 	}
-	return &mImage[0];
+	*/
 }

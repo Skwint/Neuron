@@ -125,12 +125,15 @@
   <ItemGroup>
     <ClCompile Include="Cell.cpp" />
     <ClCompile Include="Life.cpp" />
+    <ClCompile Include="Log.cpp" />
     <ClCompile Include="Net.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Cell.h" />
     <ClInclude Include="Constants.h" />
+    <ClInclude Include="Exception.h" />
     <ClInclude Include="Life.h" />
+    <ClInclude Include="Log.h" />
     <ClInclude Include="Net.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -19,6 +19,7 @@ public:
 	auto play() { return ui.btnSimPlay; }
 	auto pause() { return ui.btnSimPause; }
 	auto step() { return ui.btnSimStep; }
+	auto style() { return ui.cmbViewStyle; }
 
 	void displayZoom(int zoom);
 	bool showAllFrames() { return ui.chkShowAllFrames->isChecked(); }
