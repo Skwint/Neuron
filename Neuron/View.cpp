@@ -122,11 +122,6 @@ void View::paintGL()
 
 	painter.endNativePainting();
 	painter.end();
-
-	// We're using a timer at the moment but we should change this to be an option
-	// It will just block on the swap and go as fast as possible
-	if (false)
-		update();
 }
 
 void View::createQuad()

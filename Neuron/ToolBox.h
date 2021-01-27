@@ -15,8 +15,14 @@ public:
 	auto zoomOneToOne() { return ui.btnViewZoomOneToOne; }
 	auto zoomIn() { return ui.btnViewZoomIn; }
 	auto zoomOut() { return ui.btnViewZoomOut; }
+	auto speed() { return ui.cmbSimSpeed; }
+	auto play() { return ui.btnSimPlay; }
+	auto pause() { return ui.btnSimPause; }
+	auto step() { return ui.btnSimStep; }
 
 	void displayZoom(int zoom);
+	bool showAllFrames() { return ui.chkShowAllFrames->isChecked(); }
+	int delay();
 
 signals:
 	void netBuild(int width, int height);
@@ -26,6 +32,7 @@ private:
 	void netApply();
 
 	void viewToggle();
+
 	void simToggle();
 
 private:

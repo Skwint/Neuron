@@ -297,51 +297,55 @@
        <item>
         <widget class="QWidget" name="simPanel" native="true">
          <layout class="QVBoxLayout" name="verticalLayout_7">
-          <property name="leftMargin">
-           <number>0</number>
-          </property>
-          <property name="topMargin">
-           <number>0</number>
-          </property>
-          <property name="rightMargin">
-           <number>0</number>
-          </property>
-          <property name="bottomMargin">
-           <number>0</number>
-          </property>
           <item>
-           <widget class="QComboBox" name="cmbSimSpeed">
-            <property name="autoFillBackground">
+           <layout class="QFormLayout" name="formLayout_2">
+            <item row="0" column="0">
+             <widget class="QLabel" name="label_4">
+              <property name="text">
+               <string>Frame Rate</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QComboBox" name="cmbSimSpeed">
+              <property name="autoFillBackground">
+               <bool>true</bool>
+              </property>
+              <property name="currentIndex">
+               <number>0</number>
+              </property>
+              <item>
+               <property name="text">
+                <string>1 second</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>100 ms</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>10ms</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Fast</string>
+               </property>
+              </item>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="chkShowAllFrames">
+            <property name="text">
+             <string>Show All Frames</string>
+            </property>
+            <property name="checked">
              <bool>true</bool>
             </property>
-            <property name="currentIndex">
-             <number>1</number>
-            </property>
-            <item>
-             <property name="text">
-              <string>1 second</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>100 ms</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>10ms</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Fast (no skipping)</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>Fast (skipping)</string>
-             </property>
-            </item>
            </widget>
           </item>
           <item>

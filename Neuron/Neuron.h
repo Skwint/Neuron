@@ -14,9 +14,10 @@ class Neuron : public QMainWindow
 public:
 	Neuron(QWidget *parent = Q_NULLPTR);
 
-	void tick();
+	void step();
 
 private:
+	void tick();
 	void buildNet(int width, int height);
 	void zoomFitToWindow();
 	void zoomOneToOne();
@@ -24,6 +25,12 @@ private:
 	void zoomOut();
 	void centerNet();
 	void setZoom(int zoom);
+	void simSpeed();
+	void simPause();
+	void simPlay();
+	void simStep();
+	void startTimer(int delay);
+	void onFrameSwapped();
 
 private:
 	void showEvent(QShowEvent *event);
@@ -36,4 +43,6 @@ private:
 	int mZoom;
 	int mLeft;
 	int mTop;
+	bool mTimerTicked;
+	bool mWaitingForSwap;
 };

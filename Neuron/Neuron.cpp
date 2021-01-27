@@ -9,18 +9,30 @@ Neuron::Neuron(QWidget *parent)
 	: QMainWindow(parent),
 	mZoom(1),
 	mLeft(0),
-	mTop(0)
+	mTop(0),
+	mTimerTicked(false),
+	mWaitingForSwap(false)
 {
 	ui.setupUi(this);
 
 	mNet = std::make_unique<Life>();
 	mToolBox = std::make_unique<ToolBox>();
 	QMainWindow::addDockWidget(Qt::RightDockWidgetArea, mToolBox.get());
+	mTimer = std::make_unique<QTimer>(this);
+	connect(mTimer.get(), &QTimer::timeout, this, QOverload<>::of(&Neuron::tick));
+	connect(ui.view, &QOpenGLWidget::frameSwapped, this, &Neuron::onFrameSwapped);
+
+
 	connect(mToolBox.get(), &ToolBox::netBuild, this, &Neuron::buildNet);
 	connect(mToolBox->zoomOneToOne(), &QToolButton::clicked, this, &Neuron::zoomOneToOne);
 	connect(mToolBox->zoomFitToWindow(), &QToolButton::clicked, this, &Neuron::zoomFitToWindow);
 	connect(mToolBox->zoomIn(), &QToolButton::clicked, this, &Neuron::zoomIn);
 	connect(mToolBox->zoomOut(), &QToolButton::clicked, this, &Neuron::zoomOut);
+
+	connect(mToolBox->speed(), &QComboBox::currentTextChanged, this, &Neuron::simSpeed);
+	connect(mToolBox->pause(), &QPushButton::clicked, this, &Neuron::simPause);
+	connect(mToolBox->play(), &QPushButton::clicked, this, &Neuron::simPlay);
+	connect(mToolBox->step(), &QPushButton::clicked, this, &Neuron::simStep);
 }
 
 // We wait until the show event to do these initialisations because otherwise the opengl
@@ -30,18 +42,40 @@ void Neuron::showEvent(QShowEvent *event)
 	QMainWindow::showEvent(event);
 
 	buildNet(512, 512);
+}
 
-	mTimer = std::make_unique<QTimer>(this);
-	connect(mTimer.get(), &QTimer::timeout, this, QOverload<>::of(&Neuron::tick));
-	mTimer->start(100);
+void Neuron::step()
+{
+	mTimerTicked = false;
+	mWaitingForSwap = mToolBox->showAllFrames();
+	mNet->tick();
+	uint32_t * image = mNet->image(ui.view->width(), ui.view->height(), mLeft, mTop);
+	ui.view->updateTexture(image);
+	ui.view->update();
 }
 
 void Neuron::tick()
 {
-	mNet->tick();
-	auto image = mNet->image(ui.view->width(), ui.view->height(), mLeft, mTop);
-	ui.view->updateTexture(image);
-	ui.view->update();
+	if (!mWaitingForSwap)
+	{
+		step();
+	}
+	else
+	{
+		mTimerTicked = true;
+	}
+}
+
+void Neuron::onFrameSwapped()
+{
+	if (mTimerTicked)
+	{
+		step();
+	}
+	else
+	{
+		mWaitingForSwap = false;
+	}
 }
 
 /**
@@ -50,6 +84,7 @@ Build a net of cells with a given width and height, and arrange the view of it t
 void Neuron::buildNet(int width, int height)
 {
 	mNet->resize(width, height);
+	centerNet();
 	auto image = mNet->image(ui.view->width(), ui.view->height(), mLeft, mTop);
 	ui.view->updateTexture(image);
 }
@@ -95,6 +130,7 @@ void Neuron::setZoom(int zoom)
 	mZoom = std::max(1, zoom);
 	ui.view->setZoom(float(mZoom));
 	mToolBox->displayZoom(mZoom);
+	update();
 }
 
 void Neuron::centerNet()
@@ -106,3 +142,46 @@ void Neuron::centerNet()
 	mTop = (netHeight - winHeight) / 2;
 	mLeft = (netWidth - winWidth) / 2;
 }
+
+void Neuron::startTimer(int delay)
+{
+	if (mTimer->isActive())
+	{
+		mTimer->stop();
+	}
+	mWaitingForSwap = false;
+	mTimer->start(delay);
+}
+
+void Neuron::simSpeed()
+{
+	if (mTimer->isActive())
+	{
+		startTimer(mToolBox->delay());
+	}
+}
+
+void Neuron::simPause()
+{
+	if (mTimer->isActive())
+	{
+		mTimer->stop();
+	}
+}
+
+void Neuron::simPlay()
+{
+	if (!mTimer->isActive())
+	{
+		startTimer(mToolBox->delay());
+	}
+}
+
+void Neuron::simStep()
+{
+	if (!mTimer->isActive())
+	{
+		tick();
+	}
+}
+

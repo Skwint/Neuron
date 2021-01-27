@@ -1,4 +1,7 @@
 #include "ToolBox.h"
+#include <qcombobox.h>
+#include <qpushbutton.h>
+#include <qgroupbox.h>
 
 ToolBox::ToolBox(QWidget *parent)
 	: QDockWidget(parent)
@@ -35,6 +38,31 @@ void ToolBox::viewToggle()
 void ToolBox::simToggle()
 {
 	ui.simPanel->setVisible(ui.simGroup->isChecked());
+}
+
+int ToolBox::delay()
+{
+	if (!ui.cmbSimSpeed->currentText().compare("1 second"))
+	{
+		return 1000;
+	}
+	else if (!ui.cmbSimSpeed->currentText().compare("100 ms"))
+	{
+		return 100;
+	}
+	else if (!ui.cmbSimSpeed->currentText().compare("10 ms"))
+	{
+		return 10;
+	}
+	else if (!ui.cmbSimSpeed->currentText().compare("Fast (no skipping)"))
+	{
+		return 0;
+	}
+	else if (!ui.cmbSimSpeed->currentText().compare("Fast (skipping)"))
+	{
+		return 0;
+	}
+	return 0;
 }
 
 void ToolBox::displayZoom(int zoom)
