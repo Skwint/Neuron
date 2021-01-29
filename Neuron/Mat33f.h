@@ -3,6 +3,7 @@
 
 #include <cmath>
 
+#include "NeuronSim/Constants.h"
 #include "Vec3f.h"
 
 class Mat33f
@@ -28,8 +29,8 @@ public:
 		float ca = cos(angle);
 		float sa = sin(angle);
 		rot[0] = ca;
-		rot[2] = -sa;
-		rot[6] = sa;
+		rot[2] = sa;
+		rot[6] = -sa;
 		rot[8] = ca;
 		return rot;
 	}

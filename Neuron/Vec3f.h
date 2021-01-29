@@ -1,4 +1,8 @@
-#pragma once
+#ifndef VEC3F_H
+#define VEC3F_H
+
+#include "NeuronSim/Constants.h"
+
 class Vec3f
 {
 public:
@@ -36,12 +40,15 @@ public:
 inline Vec3f operator+(const Vec3f & left, const Vec3f & right) { return Vec3f(left.x + right.x, left.y + right.y, left.z + right.z); }
 inline Vec3f & operator+=(Vec3f & left, const Vec3f & right) { left.x += right.x; left.y += right.y; left.z += right.z; return left; }
 inline Vec3f operator-(const Vec3f & left, const Vec3f & right) { return Vec3f(left.x - right.x, left.y - right.y, left.z - right.z); }
+inline Vec3f operator-(const Vec3f & vec) { return Vec3f(-vec.x, -vec.y, -vec.z); }
 inline Vec3f & operator-=(Vec3f & left, const Vec3f & right) { left.x -= right.x; left.y -= right.y; left.z -= right.z; return left; }
-inline Vec3f operator*(double scalar, const Vec3f & vec) { return Vec3f(vec.x * scalar, vec.y * scalar, vec.z * scalar); }
-inline Vec3f operator*(const Vec3f & vec, double scalar) { return Vec3f(vec.x * scalar, vec.y * scalar, vec.z * scalar); }
-inline Vec3f operator*=(Vec3f & vec, double scalar) { vec.x *= scalar; vec.y *= scalar; vec.z *= scalar; return vec; }
-inline Vec3f operator/(const Vec3f & vec, double scalar) { return Vec3f(vec.x / scalar, vec.y / scalar, vec.z / scalar); }
-inline Vec3f operator/=(Vec3f & vec, double scalar) { vec.x /= scalar; vec.y /= scalar; vec.z /= scalar; return vec; }
+inline Vec3f operator*(float scalar, const Vec3f & vec) { return Vec3f(vec.x * scalar, vec.y * scalar, vec.z * scalar); }
+inline Vec3f operator*(const Vec3f & vec, float scalar) { return Vec3f(vec.x * scalar, vec.y * scalar, vec.z * scalar); }
+inline Vec3f operator*=(Vec3f & vec, float scalar) { vec.x *= scalar; vec.y *= scalar; vec.z *= scalar; return vec; }
+inline Vec3f operator/(const Vec3f & vec, float scalar) { return Vec3f(vec.x / scalar, vec.y / scalar, vec.z / scalar); }
+inline Vec3f operator/=(Vec3f & vec, float scalar) { vec.x /= scalar; vec.y /= scalar; vec.z /= scalar; return vec; }
+inline bool operator==(const Vec3f & left, const Vec3f & right) { return left.x == right.x && left.y == right.y && left.z == right.z; }
+inline std::ostream & operator<<(std::ostream & os, const Vec3f & vec) { os << "(" << vec.x << "," << vec.y << "," << vec.z << ")"; return os; }
 
 inline float dot(const Vec3f & left, const Vec3f & right) { return left.x * right.x + left.y * right.y + left.z * right.z; }
 inline Vec3f cross(const Vec3f & left, const Vec3f & right)
@@ -52,3 +59,6 @@ inline Vec3f cross(const Vec3f & left, const Vec3f & right)
 	result.z = left.x * right.y - left.y * right.x;
 	return result;
 }
+inline bool approxEqual(const Vec3f & left, const Vec3f & right) { return (right - left).lengthSq() < TINY_VALUE; }
+
+#endif
