@@ -37,6 +37,9 @@
     <ClCompile Include="ToolBox.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ArrowPlot.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="Neuron.h">
@@ -48,6 +51,9 @@
     <QtMoc Include="ToolBox.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <QtMoc Include="ArrowPlot.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <QtUic Include="Neuron.ui">
@@ -57,6 +63,9 @@
       <Filter>Form Files</Filter>
     </QtUic>
     <QtUic Include="ToolBox.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include="ArrowPlot.ui">
       <Filter>Form Files</Filter>
     </QtUic>
   </ItemGroup>

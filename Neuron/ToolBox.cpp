@@ -3,10 +3,17 @@
 #include <qpushbutton.h>
 #include <qgroupbox.h>
 
-ToolBox::ToolBox(QWidget *parent)
+ToolBox::ToolBox(std::shared_ptr<LayerFactory> layerFactory, QWidget *parent)
 	: QDockWidget(parent)
 {
 	ui.setupUi(this);
+
+	mLayerFactory = layerFactory;
+	auto names = mLayerFactory->getNames();
+	for (auto name : names)
+	{
+		ui.cmbType->addItem(name.c_str());
+	}
 
 	connect(ui.netGroup, &QGroupBox::toggled, this, &ToolBox::netToggle);
 	connect(ui.viewGroup, &QGroupBox::toggled, this, &ToolBox::viewToggle);
@@ -27,7 +34,8 @@ void ToolBox::netApply()
 {
 	int width = ui.spinNetWidth->value();
 	int height = ui.spinNetHeight->value();
-	emit netBuild(width, height);
+	std::string type = ui.cmbType->currentText().toStdString();
+	emit netBuild(type, width, height);
 }
 
 void ToolBox::viewToggle()
@@ -50,17 +58,9 @@ int ToolBox::delay()
 	{
 		return 100;
 	}
-	else if (!ui.cmbSimSpeed->currentText().compare("10 ms"))
+	else if (!ui.cmbSimSpeed->currentText().compare("33 ms"))
 	{
-		return 10;
-	}
-	else if (!ui.cmbSimSpeed->currentText().compare("Fast (no skipping)"))
-	{
-		return 0;
-	}
-	else if (!ui.cmbSimSpeed->currentText().compare("Fast (skipping)"))
-	{
-		return 0;
+		return 33;
 	}
 	return 0;
 }

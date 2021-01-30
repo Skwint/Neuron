@@ -123,18 +123,23 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Cell.cpp" />
+    <ClCompile Include="Izhikevich.cpp" />
+    <ClCompile Include="Layer.cpp" />
+    <ClCompile Include="LayerFactory.cpp" />
     <ClCompile Include="Life.cpp" />
     <ClCompile Include="Log.cpp" />
-    <ClCompile Include="Net.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Cell.h" />
+    <ClInclude Include="Layer.h" />
+    <ClInclude Include="LayerFactory.h" />
+    <ClInclude Include="NeuronLife.h" />
     <ClInclude Include="Constants.h" />
     <ClInclude Include="Exception.h" />
+    <ClInclude Include="Izhikevich.h" />
     <ClInclude Include="Life.h" />
     <ClInclude Include="Log.h" />
     <ClInclude Include="Net.h" />
+    <ClInclude Include="NeuronIzhikevich.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

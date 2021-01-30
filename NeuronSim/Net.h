@@ -1,27 +1,77 @@
-#pragma once
+#ifndef NET_H
+#define NET_H
 
 #include <vector>
 
-#include "Cell.h"
+#include "Layer.h"
 
-class Net
+template <typename Neuron>
+class Net : public Layer
 {
 public:
 	Net(int width = 512, int height = 512);
 	virtual ~Net();
 
-	virtual void tick();
+	void tick();
 
 	void resize(int width, int height);
-	Cell * row(int r) { return &cells[1 + (mWidth + 2) * (r + 1)]; }
+	Neuron * row(int r) { return &mNeurons[1 + (mWidth + 2) * (r + 1)]; }
 	int rowStep() { return mWidth + 2; }
-	int width() { return mWidth; }
-	int height() { return mHeight; }
 	void paint(uint32_t * image, int rowStep, int left, int top, int width, int height);
 	void paint(uint32_t * image);
 protected:
-	int mWidth;
-	int mHeight;
-	std::vector<Cell> cells;
+	std::vector<Neuron> mNeurons;
 };
 
+template <typename Neuron>
+Net<Neuron>::Net(int width, int height) :
+	Layer(width, height)
+{
+	// We have to call this explicitly - the v-table wasn't set up yet when the layer constructor
+	// was called so the polymorph didn't happen.
+	resize(width, height);
+}
+
+template <typename Neuron>
+Net<Neuron>::~Net()
+{
+
+}
+
+template <typename Neuron>
+void Net<Neuron>::tick()
+{
+
+}
+
+template <typename Neuron>
+void Net<Neuron>::resize(int width, int height)
+{
+	Layer::resize(width, height);
+	int size = (mWidth + 2) * (mHeight + 2);
+	mNeurons.resize(size);
+}
+
+template <typename Neuron>
+void Net<Neuron>::paint(uint32_t * image)
+{
+	return paint(image, mWidth, 0, 0, mWidth, mHeight);
+}
+
+template <typename Neuron>
+void Net<Neuron>::paint(uint32_t * image, int rowStep, int left, int top, int width, int height)
+{
+	for (int rr = top; rr < top + height; ++rr)
+	{
+		uint32_t * pixel = image + left + rr * rowStep;
+		Neuron * neuron = row(rr) + left;
+		for (int cc = left; cc < left + width; ++cc)
+		{
+			*pixel = neuron->colour();
+			++pixel;
+			++neuron;
+		}
+	}
+}
+
+#endif

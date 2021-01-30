@@ -11,11 +11,16 @@ Life::~Life()
 
 }
 
+std::string Life::name()
+{
+	return "Life";
+}
+
 void Life::tick()
 {
 	for (int rr = 0; rr < mHeight; ++rr)
 	{
-		Cell * cell = row(rr);
+		NeuronLife * cell = row(rr);
 		for (int cc = 0; cc < mWidth; ++cc)
 		{
 			cell->input = 0.0f;
@@ -25,12 +30,12 @@ void Life::tick()
 
 	for (int rr = 0; rr < mHeight; ++rr)
 	{
-		Cell * src = row(rr);
+		NeuronLife * src = row(rr);
 		for (int cc = 0; cc < mWidth; ++cc)
 		{
 			for (int tr = -1; tr < 2; ++tr)
 			{
-				Cell * dst = src + tr * rowStep() - 1;
+				NeuronLife * dst = src + tr * rowStep() - 1;
 				for (int tc = -1; tc < 2; ++tc)
 				{
 					if (tc || tr)
@@ -46,7 +51,7 @@ void Life::tick()
 
 	for (int rr = 0; rr < mHeight; ++rr)
 	{
-		Cell * cell = row(rr);
+		NeuronLife * cell = row(rr);
 		for (int cc = 0; cc < mWidth; ++cc)
 		{
 			if (cell->input > 2.25f && cell->input < 3.75f)

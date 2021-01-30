@@ -7,6 +7,9 @@
 #include "NeuronSim/Net.h"
 #include "ToolBox.h"
 
+class Layer;
+class LayerFactory;
+
 class Neuron : public QMainWindow
 {
 	Q_OBJECT
@@ -18,7 +21,7 @@ public:
 
 private:
 	void tick();
-	void buildNet(int width, int height);
+	void buildNet(const std::string & type, int width, int height);
 	void zoomFitToWindow();
 	void zoomOneToOne();
 	void zoomIn();
@@ -37,8 +40,9 @@ private:
 
 private:
 	Ui::NeuronClass ui;
+	std::shared_ptr<LayerFactory> mLayerFactory;
 	std::unique_ptr<QTimer> mTimer;
-	std::unique_ptr<Net> mNet;
+	std::shared_ptr<Layer> mNet;
 	std::unique_ptr<ToolBox> mToolBox;
 	int mZoom;
 	int mLeft;

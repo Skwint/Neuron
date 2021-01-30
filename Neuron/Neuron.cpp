@@ -2,6 +2,8 @@
 
 #include <qtimer.h>
 
+#include "NeuronSim/Layer.h"
+#include "NeuronSim/LayerFactory.h"
 #include "NeuronSim/Life.h"
 #include "ToolBox.h"
 
@@ -15,8 +17,8 @@ Neuron::Neuron(QWidget *parent)
 {
 	ui.setupUi(this);
 
-	mNet = std::make_unique<Life>();
-	mToolBox = std::make_unique<ToolBox>();
+	mLayerFactory = std::make_shared<LayerFactory>();
+	mToolBox = std::make_unique<ToolBox>(mLayerFactory);
 	QMainWindow::addDockWidget(Qt::RightDockWidgetArea, mToolBox.get());
 	mTimer = std::make_unique<QTimer>(this);
 	connect(mTimer.get(), &QTimer::timeout, this, QOverload<>::of(&Neuron::tick));
@@ -41,7 +43,7 @@ void Neuron::showEvent(QShowEvent *event)
 {
 	QMainWindow::showEvent(event);
 
-	buildNet(512, 512);
+	buildNet(Life::name(), 512, 512);
 }
 
 void Neuron::step()
@@ -81,9 +83,16 @@ void Neuron::onFrameSwapped()
 /**
 Build a net of cells with a given width and height, and arrange the view of it to fit the available space while maintaining aspect ratio
 */
-void Neuron::buildNet(int width, int height)
+void Neuron::buildNet(const std::string & type, int width, int height)
 {
-	mNet->resize(width, height);
+	if (mNet && mNet->typeName() == type)
+	{
+		mNet->resize(width, height);
+	}
+	else
+	{
+		mNet = mLayerFactory->create(type, width, height);
+	}
 	ui.view->resizeTexture(width, height);
 	mImage.resize(width * height);
 	centerNet();

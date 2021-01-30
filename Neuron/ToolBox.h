@@ -3,12 +3,14 @@
 #include <QDockWidget>
 #include "ui_ToolBox.h"
 
+#include "NeuronSim/LayerFactory.h"
+
 class ToolBox : public QDockWidget
 {
 	Q_OBJECT
 
 public:
-	ToolBox(QWidget *parent = Q_NULLPTR);
+	ToolBox(std::shared_ptr<LayerFactory> layerFactory, QWidget *parent = Q_NULLPTR);
 	~ToolBox();
 
 	auto zoomFitToWindow() { return ui.btnViewZoomFitToWindow; }
@@ -26,7 +28,7 @@ public:
 	int delay();
 
 signals:
-	void netBuild(int width, int height);
+	void netBuild(const std::string & type, int width, int height);
 
 private:
 	void netToggle();
@@ -38,4 +40,5 @@ private:
 
 private:
 	Ui::ToolBox ui;
+	std::shared_ptr<LayerFactory> mLayerFactory;
 };

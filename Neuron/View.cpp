@@ -60,17 +60,6 @@ void View::updateTexture(uint32_t * data)
 {
 	if (mTexture)
 	{
-		/*
-		uint32_t * d = data;
-		for (int y = 0; y < 512; ++y)
-		{
-			for (int x = 0; x < 512; ++x)
-			{
-				*d = 0x000000FF + ((x & 0xFF) << 8) + ((y & 0xFF) << 16);
-				++d;
-			}
-		}
-		*/
 		mTexture->bind();
 		mTexture->setData(QOpenGLTexture::RGBA, QOpenGLTexture::UInt8, data);
 		checkGlError();
@@ -118,7 +107,7 @@ void View::setOrtho()
 		bottom *= mAspect;
 	}
 	mModelView.setToIdentity();
-	mModelView.ortho(left, right, top, bottom, -2.0f, 2.0f);
+	mModelView.ortho(left, right, bottom, top, -2.0f, 2.0f);
 	mModelView.scale(mZoom);
 
 	checkGlError();
@@ -164,7 +153,7 @@ void View::initializeGL()
 	createMesh();
 
 	glClearColor(0.1, 0.1, 0.1, 1.0);
-	glCullFace(GL_FRONT);
+	glCullFace(GL_BACK);
 	glEnable(GL_CULL_FACE);
 
 	checkGlError();
@@ -335,7 +324,7 @@ void View::createDonutStyle()
 {
 	const float majorRadius(1.0);
 	const float minorRadius(0.3);
-	const int segmentCount(32);
+	const int segmentCount(64);
 	const int stripCount(32);
 
 	std::vector<Vertex> vertices;
