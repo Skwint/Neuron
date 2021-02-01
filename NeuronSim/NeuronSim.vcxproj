@@ -130,6 +130,7 @@
     <ClCompile Include="Log.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ConfigItem.h" />
     <ClInclude Include="Layer.h" />
     <ClInclude Include="LayerFactory.h" />
     <ClInclude Include="NeuronLife.h" />

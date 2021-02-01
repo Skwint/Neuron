@@ -3,6 +3,7 @@
 #include <QDockWidget>
 #include "ui_ToolBox.h"
 
+#include "NeuronSim/ConfigItem.h"
 #include "NeuronSim/LayerFactory.h"
 
 class ToolBox : public QDockWidget
@@ -28,12 +29,13 @@ public:
 	int delay();
 
 signals:
-	void netBuild(const std::string & type, int width, int height);
+	void netBuild(const std::string & type, const ConfigSet & config, int width, int height);
+	void netConfigure(const ConfigSet & config);
 
 private:
 	void netToggle();
 	void netApply();
-
+	void netTypeChanged();
 	void viewToggle();
 
 	void simToggle();
@@ -41,4 +43,7 @@ private:
 private:
 	Ui::ToolBox ui;
 	std::shared_ptr<LayerFactory> mLayerFactory;
+	std::vector<QWidget *> mConfigWidgets;
+	ConfigSet mConfig;
+	int mFixedConfigRows;
 };

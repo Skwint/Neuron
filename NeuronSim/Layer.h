@@ -4,6 +4,8 @@
 #include <stdint.h>
 #include <string>
 
+#include "ConfigItem.h"
+
 class Layer
 {
 public:
@@ -18,10 +20,13 @@ public:
 	virtual void resize(int width, int height);
 	int width() { return mWidth; }
 	int height() { return mHeight; }
+	const ConfigSet & config() { return mConfig; }
+	virtual void setConfig(const ConfigSet & config) = 0;
 
 protected:
 	int mWidth;
 	int mHeight;
+	ConfigSet mConfig;
 };
 
 #endif

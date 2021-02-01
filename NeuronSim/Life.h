@@ -12,8 +12,14 @@ public:
 	~Life();
 
 	static std::string name();
+	static const ConfigSet & defaultConfig();
 	void tick();
 	std::string typeName() { return name(); }
+	void setConfig(const ConfigSet & config);
+
+private:
+	float mLow;
+	float mHigh;
 };
 
 #endif

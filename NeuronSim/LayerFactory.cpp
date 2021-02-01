@@ -1,5 +1,6 @@
 #include "LayerFactory.h"
 
+#include "Exception.h"
 #include "Life.h"
 #include "Izhikevich.h"
 
@@ -32,5 +33,15 @@ std::shared_ptr<Layer> LayerFactory::create(const std::string & name, int width,
 	{
 		return mAllocators[name]->create(width, height);
 	}
-	return 0;
+	NEURONTHROW("Unknown network type [" << name << "]");
 }
+
+const ConfigSet & LayerFactory::config(const std::string & name)
+{
+	if (mAllocators.count(name))
+	{
+		return mAllocators[name]->config();
+	}
+	NEURONTHROW("Unknown network type [" << name << "]");
+}
+

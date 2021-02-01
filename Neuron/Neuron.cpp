@@ -5,6 +5,7 @@
 #include "NeuronSim/Layer.h"
 #include "NeuronSim/LayerFactory.h"
 #include "NeuronSim/Life.h"
+#include "NeuronSim/Log.h"
 #include "ToolBox.h"
 
 Neuron::Neuron(QWidget *parent)
@@ -16,6 +17,9 @@ Neuron::Neuron(QWidget *parent)
 	mWaitingForSwap(false)
 {
 	ui.setupUi(this);
+
+	Log::to("Neuron.log");
+	LOG("Neuron startup");
 
 	mLayerFactory = std::make_shared<LayerFactory>();
 	mToolBox = std::make_unique<ToolBox>(mLayerFactory);
@@ -43,7 +47,7 @@ void Neuron::showEvent(QShowEvent *event)
 {
 	QMainWindow::showEvent(event);
 
-	buildNet(Life::name(), 512, 512);
+	buildNet(Life::name(), Life::defaultConfig(), 512, 512);
 }
 
 void Neuron::step()
@@ -83,7 +87,7 @@ void Neuron::onFrameSwapped()
 /**
 Build a net of cells with a given width and height, and arrange the view of it to fit the available space while maintaining aspect ratio
 */
-void Neuron::buildNet(const std::string & type, int width, int height)
+void Neuron::buildNet(const std::string & type, const ConfigSet & config, int width, int height)
 {
 	if (mNet && mNet->typeName() == type)
 	{
@@ -93,6 +97,7 @@ void Neuron::buildNet(const std::string & type, int width, int height)
 	{
 		mNet = mLayerFactory->create(type, width, height);
 	}
+	mNet->setConfig(config);
 	ui.view->resizeTexture(width, height);
 	mImage.resize(width * height);
 	centerNet();
@@ -111,11 +116,11 @@ void Neuron::zoomFitToWindow()
 	float fzoom;
 	if (winAspect > netAspect)
 	{
-		fzoom = winHeight / netHeight;
+		fzoom = float(winHeight) / netHeight;
 	}
 	else
 	{
-		fzoom = winWidth / netWidth;
+		fzoom = float(winWidth) / netWidth;
 	}
 	setZoom(int(fzoom));
 	centerNet();

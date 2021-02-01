@@ -34,8 +34,10 @@ public:
 	virtual ~Izhikevich();
 
 	static std::string name();
+	static const ConfigSet & defaultConfig();
 	virtual void tick();
 	std::string typeName() { return name(); }
+	void setConfig(const ConfigSet & config);
 
 	Data & data() { return mData; }
 	const Data & data() const { return mData; }

@@ -21,7 +21,7 @@ public:
 
 private:
 	void tick();
-	void buildNet(const std::string & type, int width, int height);
+	void buildNet(const std::string & type, const ConfigSet & config, int width, int height);
 	void zoomFitToWindow();
 	void zoomOneToOne();
 	void zoomIn();

@@ -19,7 +19,7 @@
   <property name="minimumSize">
    <size>
     <width>284</width>
-    <height>346</height>
+    <height>371</height>
    </size>
   </property>
   <property name="features">
@@ -91,7 +91,7 @@
            <number>0</number>
           </property>
           <item>
-           <layout class="QFormLayout" name="formLayout">
+           <layout class="QFormLayout" name="netConfigLayout">
             <item row="0" column="0">
              <widget class="QLabel" name="label_3">
               <property name="text">
