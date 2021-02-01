@@ -1,6 +1,7 @@
 #include "Neuron.h"
 
 #include <qtimer.h>
+#include <qdir.h>
 
 #include "NeuronSim/Layer.h"
 #include "NeuronSim/LayerFactory.h"
@@ -20,6 +21,7 @@ Neuron::Neuron(QWidget *parent)
 
 	Log::to("Neuron.log");
 	LOG("Neuron startup");
+	LOG("CWD => " << QDir::currentPath().toStdString());
 
 	mLayerFactory = std::make_shared<LayerFactory>();
 	mToolBox = std::make_unique<ToolBox>(mLayerFactory);
@@ -29,6 +31,7 @@ Neuron::Neuron(QWidget *parent)
 	connect(ui.view, &QOpenGLWidget::frameSwapped, this, &Neuron::onFrameSwapped);
 
 	connect(mToolBox.get(), &ToolBox::netBuild, this, &Neuron::buildNet);
+	connect(mToolBox.get(), &ToolBox::setSynapses, this, &Neuron::setSynapses);
 	connect(mToolBox->zoomOneToOne(), &QToolButton::clicked, this, &Neuron::zoomOneToOne);
 	connect(mToolBox->zoomFitToWindow(), &QToolButton::clicked, this, &Neuron::zoomFitToWindow);
 	connect(mToolBox->zoomIn(), &QToolButton::clicked, this, &Neuron::zoomIn);
@@ -98,11 +101,17 @@ void Neuron::buildNet(const std::string & type, const ConfigSet & config, int wi
 		mNet = mLayerFactory->create(type, width, height);
 	}
 	mNet->setConfig(config);
+	mNet->setSynapses(mToolBox->synapses());
 	ui.view->resizeTexture(width, height);
 	mImage.resize(width * height);
 	centerNet();
 	mNet->paint(&mImage[0]);
 	ui.view->updateTexture(&mImage[0]);
+}
+
+void Neuron::setSynapses(const SynapseMatrix & synapses)
+{
+	mNet->setSynapses(synapses);
 }
 
 void Neuron::zoomFitToWindow()

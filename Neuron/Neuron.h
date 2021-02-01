@@ -34,6 +34,7 @@ private:
 	void simStep();
 	void startTimer(int delay);
 	void onFrameSwapped();
+	void setSynapses(const SynapseMatrix & synapses);
 
 private:
 	void showEvent(QShowEvent *event);

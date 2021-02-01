@@ -15,8 +15,8 @@ public:
 	void tick();
 
 	void resize(int width, int height);
-	Neuron * row(int r) { return &mNeurons[1 + (mWidth + 2) * (r + 1)]; }
-	int rowStep() { return mWidth + 2; }
+	Neuron * row(int r) { return &mNeurons[1 + mWidth * r]; }
+	int rowStep() { return mWidth; }
 	void paint(uint32_t * image, int rowStep, int left, int top, int width, int height);
 	void paint(uint32_t * image);
 protected:
@@ -41,14 +41,14 @@ Net<Neuron>::~Net()
 template <typename Neuron>
 void Net<Neuron>::tick()
 {
-
+	
 }
 
 template <typename Neuron>
 void Net<Neuron>::resize(int width, int height)
 {
 	Layer::resize(width, height);
-	int size = (mWidth + 2) * (mHeight + 2);
+	int size = mWidth * mHeight;
 	mNeurons.resize(size);
 }
 

@@ -58,6 +58,19 @@ const ConfigSet & Life::defaultConfig()
 	return config;
 }
 
+inline void tickSegment(int cs, int ce, int r, NeuronLife * src, NeuronLife * dst)
+{
+	dst += cs;
+	for (int tc = cs; tc < ce; ++tc)
+	{
+		if (r || tc)
+			dst->input += src->output;
+		else
+			dst->input += 0.5f * src->output;
+		++dst;
+	}
+}
+
 void Life::tick()
 {
 	for (int rr = 0; rr < mHeight; ++rr)
@@ -72,20 +85,43 @@ void Life::tick()
 
 	for (int rr = 0; rr < mHeight; ++rr)
 	{
+		int normRowBegin = synapseNormRowBegin(rr);
+		int normRowEnd = synapseNormRowEnd(rr);
+		int lowRowBegin = synapseLowWrapRowBegin(rr);
+		int lowRowEnd = synapseLowWrapRowEnd(rr);
+		int highRowBegin = synapseHighWrapRowBegin(rr);
+		int highRowEnd = synapseHighWrapRowEnd(rr);
+
 		NeuronLife * src = row(rr);
+		NeuronLife * dst;
 		for (int cc = 0; cc < mWidth; ++cc)
 		{
-			for (int tr = -1; tr < 2; ++tr)
+			int normColBegin = synapseNormColBegin(cc);
+			int normColEnd = synapseNormColEnd(cc);
+			int lowColBegin = synapseLowWrapColBegin(cc);
+			int lowColEnd = synapseLowWrapColEnd(cc);
+			int highColBegin = synapseHighWrapColBegin(cc);
+			int highColEnd = synapseHighWrapColEnd(cc);
+			for (int tr = normRowBegin; tr < normRowEnd; ++tr)
 			{
-				NeuronLife * dst = src + tr * rowStep() - 1;
-				for (int tc = -1; tc < 2; ++tc)
-				{
-					if (tc || tr)
-						dst->input += src->output;
-					else
-						dst->input += 0.5f * src->output;
-					++dst;
-				}
+				dst = src + tr * rowStep();
+				tickSegment(lowColBegin, lowColEnd, tr, src, dst);
+				tickSegment(normColBegin, normColEnd, tr, src, dst);
+				tickSegment(highColBegin, highColEnd, tr, src, dst);
+			}
+			for (int tr = lowRowBegin; tr < lowRowEnd; ++tr)
+			{
+				dst = src + tr * rowStep();
+				tickSegment(lowColBegin, lowColEnd, tr, src, dst);
+				tickSegment(normColBegin, normColEnd, tr, src, dst);
+				tickSegment(highColBegin, highColEnd, tr, src, dst);
+			}
+			for (int tr = highRowBegin; tr < highRowEnd; ++tr)
+			{
+				dst = src + tr * rowStep();
+				tickSegment(lowColBegin, lowColEnd, tr, src, dst);
+				tickSegment(normColBegin, normColEnd, tr, src, dst);
+				tickSegment(highColBegin, highColEnd, tr, src, dst);
 			}
 			++src;
 		}

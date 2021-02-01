@@ -1,10 +1,16 @@
 #include "ToolBox.h"
+
 #include <qcombobox.h>
 #include <qpushbutton.h>
 #include <qgroupbox.h>
+#include <qdiriterator.h>
+#include <qimage.h>
+
+#include "NeuronSim/Log.h"
 
 ToolBox::ToolBox(std::shared_ptr<LayerFactory> layerFactory, QWidget *parent)
-	: QDockWidget(parent)
+	: QDockWidget(parent),
+	mSynapseDir("Data/Synapses")
 {
 	ui.setupUi(this);
 	mFixedConfigRows = ui.netConfigLayout->rowCount();
@@ -15,13 +21,20 @@ ToolBox::ToolBox(std::shared_ptr<LayerFactory> layerFactory, QWidget *parent)
 	{
 		ui.cmbType->addItem(name.c_str());
 	}
-	netTypeChanged();
+	populateSynapses();
 
 	connect(ui.cmbType, &QComboBox::currentTextChanged, this, &ToolBox::netTypeChanged);
 	connect(ui.netGroup, &QGroupBox::toggled, this, &ToolBox::netToggle);
 	connect(ui.viewGroup, &QGroupBox::toggled, this, &ToolBox::viewToggle);
 	connect(ui.simGroup, &QGroupBox::toggled, this, &ToolBox::simToggle);
+	connect(ui.synapseGroup, &QGroupBox::toggled, this, &ToolBox::synapseToggle);
 	connect(ui.btnNetApply, &QPushButton::clicked, this, &ToolBox::netApply);
+	connect(ui.cmbSynapse, &QComboBox::currentTextChanged, this, &ToolBox::synapseChanged);
+
+	ui.cmbType->setCurrentText("Life");
+	netTypeChanged();
+	ui.cmbSynapse->setCurrentText("Conway.png");
+	synapseChanged();
 }
 
 ToolBox::~ToolBox()
@@ -91,6 +104,20 @@ void ToolBox::simToggle()
 	ui.simPanel->setVisible(ui.simGroup->isChecked());
 }
 
+void ToolBox::synapseToggle()
+{
+	ui.synapsePanel->setVisible(ui.synapseGroup->isChecked());
+}
+
+void ToolBox::synapseChanged()
+{
+	QImage image(mSynapseDir.absolutePath() + "/" + ui.cmbSynapse->currentText());
+	ui.lblSynapse->setPixmap(QPixmap::fromImage(image));
+	uint32_t * pixels = reinterpret_cast<uint32_t *>(image.bits());
+	mSynapseMatrix.loadImage(pixels, image.width(), image.height());
+	emit setSynapses(mSynapseMatrix);
+}
+
 int ToolBox::delay()
 {
 	if (!ui.cmbSimSpeed->currentText().compare("1 second"))
@@ -113,3 +140,19 @@ void ToolBox::displayZoom(int zoom)
 	ui.lblViewZoom->setText(QString::number(zoom * 100) + "%");
 }
 
+void ToolBox::populateSynapses()
+{
+	ui.cmbSynapse->clear();
+
+	if (mSynapseDir.exists())
+	{
+		QStringList filters;
+		filters << "*.png";
+		mSynapseDir.setNameFilters(filters);
+		ui.cmbSynapse->addItems(mSynapseDir.entryList());
+	}
+	else
+	{
+		LOG("No synapses data directory - expected " << mSynapseDir.absolutePath().toStdString());
+	}
+}
