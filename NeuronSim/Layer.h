@@ -7,6 +7,9 @@
 
 #include "ConfigItem.h"
 #include "SynapseMatrix.h"
+#include "SpikeProcessor.h"
+
+class SpikeProcessor;
 
 class Layer
 {
@@ -25,6 +28,7 @@ public:
 	const ConfigSet & config() { return mConfig; }
 	virtual void setConfig(const ConfigSet & config) = 0;
 	void setSynapses(SynapseMatrix synapses) { mSynapses = synapses; }
+	void setSpike(const SpikeProcessor::Spike & spike);
 	inline int synapseNormColBegin(int col) { return std::max(0, col - mSynapses.width() / 2) - col; }
 	inline int synapseNormColEnd(int col) { return std::min(mWidth, col + mSynapses.width() / 2 + 1) - col; }
 	inline int synapseNormRowBegin(int row) { return std::max(0, row - mSynapses.height() / 2) - row; }
@@ -43,6 +47,7 @@ protected:
 	int mHeight;
 	ConfigSet mConfig;
 	SynapseMatrix mSynapses;
+	std::unique_ptr<SpikeProcessor> mSpikeProcessor;
 };
 
 #endif

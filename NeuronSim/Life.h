@@ -18,6 +18,9 @@ public:
 	void setConfig(const ConfigSet & config);
 
 private:
+	inline void tickSegment(int cs, int ce, NeuronLife * cell, NeuronLife * dst);
+
+private:
 	float mLow;
 	float mHigh;
 };

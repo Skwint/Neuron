@@ -3,6 +3,7 @@
 #include <QtWidgets/QMainWindow>
 #include "ui_Neuron.h"
 #include <qtimer.h>
+#include <qelapsedtimer.h>
 
 #include "NeuronSim/Net.h"
 #include "ToolBox.h"
@@ -35,6 +36,7 @@ private:
 	void startTimer(int delay);
 	void onFrameSwapped();
 	void setSynapses(const SynapseMatrix & synapses);
+	void setSpike(const SpikeProcessor::Spike & spike);
 
 private:
 	void showEvent(QShowEvent *event);
@@ -51,4 +53,6 @@ private:
 	bool mTimerTicked;
 	bool mWaitingForSwap;
 	std::vector<uint32_t> mImage;
+	QElapsedTimer mFpsTimer;
+	int mFpsFrameCounter;
 };

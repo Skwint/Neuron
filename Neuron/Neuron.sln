@@ -11,6 +11,9 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NeuronSim", "..\NeuronSim\NeuronSim.vcxproj", "{9508CDDD-442D-4B73-8E4D-E9EFC73B4EA1}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NeuronTest", "..\NeuronTest\NeuronTest.vcxproj", "{065DA7C2-CFFC-4410-A9DE-4AFCB52BFA1A}"
+	ProjectSection(ProjectDependencies) = postProject
+		{9508CDDD-442D-4B73-8E4D-E9EFC73B4EA1} = {9508CDDD-442D-4B73-8E4D-E9EFC73B4EA1}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

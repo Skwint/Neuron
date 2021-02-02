@@ -28,7 +28,7 @@ Net<Neuron>::Net(int width, int height) :
 	Layer(width, height)
 {
 	// We have to call this explicitly - the v-table wasn't set up yet when the layer constructor
-	// was called so the polymorph didn't happen.
+	// was called so it can't call it for us.
 	resize(width, height);
 }
 

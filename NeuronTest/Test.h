@@ -4,6 +4,8 @@
 #include <iostream>
 #include <string>
 
+#include "NeuronSim/Constants.h"
+
 // A macro for testing with is not essential, but it captures file and line
 // number information for us, which makes our life a lot simpler.
 #define TEST(x) { test(__FILE__, __LINE__, #x, (x)); }
@@ -34,6 +36,8 @@ protected:
 	int mPasses;
 	int mFails;
 };
+
+inline bool approxEqual(float left, float right) { return fabs(left - right) < TINY_VALUE; }
 
 template <typename T>
 inline bool Test::testEqual(const std::string & file, int line, const std::string & leftStr, const std::string & rightStr, const T & left, const T & right)

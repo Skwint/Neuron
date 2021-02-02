@@ -4,6 +4,7 @@
 
 #include "TestVec3f.h"
 #include "TestMat33f.h"
+#include "TestSpikeProcessor.h"
 
 using namespace std;
 
@@ -11,6 +12,7 @@ Tester::Tester()
 {
 	mTests.push_back(make_shared<TestVec3f>());
 	mTests.push_back(make_shared<TestMat33f>());
+	mTests.push_back(make_shared<TestSpikeProcessor>());
 }
 
 Tester::~Tester()

@@ -7,6 +7,7 @@
 #include "NeuronSim/ConfigItem.h"
 #include "NeuronSim/LayerFactory.h"
 #include "NeuronSim/SynapseMatrix.h"
+#include "NeuronSim/SpikeProcessor.h"
 
 class ToolBox : public QDockWidget
 {
@@ -27,13 +28,16 @@ public:
 	auto style() { return ui.cmbViewStyle; }
 
 	void displayZoom(int zoom);
+	void displayFrameTime(qint64 frameTime);
 	bool showAllFrames() { return ui.chkShowAllFrames->isChecked(); }
 	int delay();
 	const SynapseMatrix & synapses() const { return mSynapseMatrix; }
+	const SpikeProcessor::Spike & spike();
 
 signals:
 	void netBuild(const std::string & type, const ConfigSet & config, int width, int height);
 	void setSynapses(const SynapseMatrix & synapses);
+	void setSpike(const SpikeProcessor::Spike & spike);
 
 private:
 	void netToggle();
@@ -46,6 +50,8 @@ private:
 	void synapseToggle();
 	void synapseChanged();
 	void populateSynapses();
+	void spikeChanged();
+	void populateSpikes();
 
 private:
 	Ui::ToolBox ui;
@@ -55,4 +61,5 @@ private:
 	int mFixedConfigRows;
 	QDir mSynapseDir;
 	SynapseMatrix mSynapseMatrix;
+	std::map<std::string, SpikeProcessor::Spike> mSpikes;
 };

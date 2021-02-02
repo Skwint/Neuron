@@ -5,6 +5,8 @@
 #include <qgroupbox.h>
 #include <qdiriterator.h>
 #include <qimage.h>
+#include <map>
+#include <string>
 
 #include "NeuronSim/Log.h"
 
@@ -22,6 +24,7 @@ ToolBox::ToolBox(std::shared_ptr<LayerFactory> layerFactory, QWidget *parent)
 		ui.cmbType->addItem(name.c_str());
 	}
 	populateSynapses();
+	populateSpikes();
 
 	connect(ui.cmbType, &QComboBox::currentTextChanged, this, &ToolBox::netTypeChanged);
 	connect(ui.netGroup, &QGroupBox::toggled, this, &ToolBox::netToggle);
@@ -30,11 +33,14 @@ ToolBox::ToolBox(std::shared_ptr<LayerFactory> layerFactory, QWidget *parent)
 	connect(ui.synapseGroup, &QGroupBox::toggled, this, &ToolBox::synapseToggle);
 	connect(ui.btnNetApply, &QPushButton::clicked, this, &ToolBox::netApply);
 	connect(ui.cmbSynapse, &QComboBox::currentTextChanged, this, &ToolBox::synapseChanged);
+	connect(ui.cmbSpike, &QComboBox::currentTextChanged, this, &ToolBox::spikeChanged);
 
 	ui.cmbType->setCurrentText("Life");
 	netTypeChanged();
 	ui.cmbSynapse->setCurrentText("Conway.png");
 	synapseChanged();
+	ui.cmbSpike->setCurrentText(QString::fromStdString(mSpikes.begin()->first));
+	spikeChanged();
 }
 
 ToolBox::~ToolBox()
@@ -118,6 +124,17 @@ void ToolBox::synapseChanged()
 	emit setSynapses(mSynapseMatrix);
 }
 
+const SpikeProcessor::Spike & ToolBox::spike()
+{
+	std::string str = ui.cmbSpike->currentText().toStdString();
+	return mSpikes[str];
+}
+
+void ToolBox::spikeChanged()
+{
+	emit setSpike(spike());
+}
+
 int ToolBox::delay()
 {
 	if (!ui.cmbSimSpeed->currentText().compare("1 second"))
@@ -140,6 +157,11 @@ void ToolBox::displayZoom(int zoom)
 	ui.lblViewZoom->setText(QString::number(zoom * 100) + "%");
 }
 
+void ToolBox::displayFrameTime(qint64 frameTime)
+{
+	ui.lblFrameTime->setText(QString::number(frameTime) + " ms");
+}
+
 void ToolBox::populateSynapses()
 {
 	ui.cmbSynapse->clear();
@@ -154,5 +176,21 @@ void ToolBox::populateSynapses()
 	else
 	{
 		LOG("No synapses data directory - expected " << mSynapseDir.absolutePath().toStdString());
+	}
+}
+
+void ToolBox::populateSpikes()
+{
+	ui.cmbSpike->clear();
+
+	mSpikes["1 Flat"] = { 1.0f };
+	mSpikes["3 Flat"] = { 1.0f, 1.0f, 1.0f };
+	mSpikes["3 Triangle"] = { 0.5f, 1.0f, 0.5f };
+	mSpikes["5 Trapezoid"] = { 0.5f, 1.0f, 1.0f, 1.0f, 0.5f };;
+	mSpikes["7 Smooth"] = { 0.1f, 0.3f, 0.7f, 1.0f, 0.7f, 0.3f, 0.1f };
+
+	for (auto & iter : mSpikes)
+	{
+		ui.cmbSpike->addItem(QString::fromStdString(iter.first));
 	}
 }

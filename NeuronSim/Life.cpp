@@ -58,31 +58,39 @@ const ConfigSet & Life::defaultConfig()
 	return config;
 }
 
-inline void tickSegment(int cs, int ce, int r, NeuronLife * src, NeuronLife * dst)
+inline void Life::tickSegment(int cs, int ce, NeuronLife * cell, NeuronLife * dst)
 {
 	dst += cs;
 	for (int tc = cs; tc < ce; ++tc)
 	{
-		if (r || tc)
-			dst->input += src->output;
+		// This is taking weights from the rules of life, instead of from the synapse matrix - TODO
+		if (cell == dst)
+			mSpikeProcessor->fire(&dst->input, 0.5f, 0);
 		else
-			dst->input += 0.5f * src->output;
+			mSpikeProcessor->fire(&dst->input, 1.0f, 0);
 		++dst;
 	}
 }
 
 void Life::tick()
 {
+	mSpikeProcessor->tick();
+
 	for (int rr = 0; rr < mHeight; ++rr)
 	{
 		NeuronLife * cell = row(rr);
 		for (int cc = 0; cc < mWidth; ++cc)
 		{
+			// Life is an extremely leaky integrator - it leaks 100%
+			// on every time step.
+			cell->potential = cell->input;
 			cell->input = 0.0f;
 			++cell;
 		}
 	}
 
+	// TODO - is there any way we can generalize this without resorting to a
+	// polymorphic function call on every cell?
 	for (int rr = 0; rr < mHeight; ++rr)
 	{
 		int normRowBegin = synapseNormRowBegin(rr);
@@ -92,53 +100,41 @@ void Life::tick()
 		int highRowBegin = synapseHighWrapRowBegin(rr);
 		int highRowEnd = synapseHighWrapRowEnd(rr);
 
-		NeuronLife * src = row(rr);
+		NeuronLife * cell = row(rr);
 		NeuronLife * dst;
 		for (int cc = 0; cc < mWidth; ++cc)
 		{
-			int normColBegin = synapseNormColBegin(cc);
-			int normColEnd = synapseNormColEnd(cc);
-			int lowColBegin = synapseLowWrapColBegin(cc);
-			int lowColEnd = synapseLowWrapColEnd(cc);
-			int highColBegin = synapseHighWrapColBegin(cc);
-			int highColEnd = synapseHighWrapColEnd(cc);
-			for (int tr = normRowBegin; tr < normRowEnd; ++tr)
+			// Life was designed in terms of "alive" and "dead" but
+			// here we equate "alive" to "firing".
+			if (cell->potential > mLow && cell->potential < mHigh)
 			{
-				dst = src + tr * rowStep();
-				tickSegment(lowColBegin, lowColEnd, tr, src, dst);
-				tickSegment(normColBegin, normColEnd, tr, src, dst);
-				tickSegment(highColBegin, highColEnd, tr, src, dst);
-			}
-			for (int tr = lowRowBegin; tr < lowRowEnd; ++tr)
-			{
-				dst = src + tr * rowStep();
-				tickSegment(lowColBegin, lowColEnd, tr, src, dst);
-				tickSegment(normColBegin, normColEnd, tr, src, dst);
-				tickSegment(highColBegin, highColEnd, tr, src, dst);
-			}
-			for (int tr = highRowBegin; tr < highRowEnd; ++tr)
-			{
-				dst = src + tr * rowStep();
-				tickSegment(lowColBegin, lowColEnd, tr, src, dst);
-				tickSegment(normColBegin, normColEnd, tr, src, dst);
-				tickSegment(highColBegin, highColEnd, tr, src, dst);
-			}
-			++src;
-		}
-	}
-
-	for (int rr = 0; rr < mHeight; ++rr)
-	{
-		NeuronLife * cell = row(rr);
-		for (int cc = 0; cc < mWidth; ++cc)
-		{
-			if (cell->input > mLow && cell->input < mHigh)
-			{
-				cell->output = 1.0f;
-			}
-			else
-			{
-				cell->output = 0.0f;
+				int normColBegin = synapseNormColBegin(cc);
+				int normColEnd = synapseNormColEnd(cc);
+				int lowColBegin = synapseLowWrapColBegin(cc);
+				int lowColEnd = synapseLowWrapColEnd(cc);
+				int highColBegin = synapseHighWrapColBegin(cc);
+				int highColEnd = synapseHighWrapColEnd(cc);
+				for (int tr = lowRowBegin; tr < lowRowEnd; ++tr)
+				{
+					dst = cell + tr * rowStep();
+					tickSegment(lowColBegin, lowColEnd, cell, dst);
+					tickSegment(normColBegin, normColEnd, cell, dst);
+					tickSegment(highColBegin, highColEnd, cell, dst);
+				}
+				for (int tr = normRowBegin; tr < normRowEnd; ++tr)
+				{
+					dst = cell + tr * rowStep();
+					tickSegment(lowColBegin, lowColEnd, cell, dst);
+					tickSegment(normColBegin, normColEnd, cell, dst);
+					tickSegment(highColBegin, highColEnd, cell, dst);
+				}
+				for (int tr = highRowBegin; tr < highRowEnd; ++tr)
+				{
+					dst = cell + tr * rowStep();
+					tickSegment(lowColBegin, lowColEnd, cell, dst);
+					tickSegment(normColBegin, normColEnd, cell, dst);
+					tickSegment(highColBegin, highColEnd, cell, dst);
+				}
 			}
 			++cell;
 		}

@@ -15,7 +15,8 @@ Neuron::Neuron(QWidget *parent)
 	mLeft(0),
 	mTop(0),
 	mTimerTicked(false),
-	mWaitingForSwap(false)
+	mWaitingForSwap(false),
+	mFpsFrameCounter(0)
 {
 	ui.setupUi(this);
 
@@ -32,6 +33,7 @@ Neuron::Neuron(QWidget *parent)
 
 	connect(mToolBox.get(), &ToolBox::netBuild, this, &Neuron::buildNet);
 	connect(mToolBox.get(), &ToolBox::setSynapses, this, &Neuron::setSynapses);
+	connect(mToolBox.get(), &ToolBox::setSpike, this, &Neuron::setSpike);
 	connect(mToolBox->zoomOneToOne(), &QToolButton::clicked, this, &Neuron::zoomOneToOne);
 	connect(mToolBox->zoomFitToWindow(), &QToolButton::clicked, this, &Neuron::zoomFitToWindow);
 	connect(mToolBox->zoomIn(), &QToolButton::clicked, this, &Neuron::zoomIn);
@@ -53,6 +55,7 @@ void Neuron::showEvent(QShowEvent *event)
 	buildNet(Life::name(), Life::defaultConfig(), 512, 512);
 }
 
+static const qint64 stepPerTimerUpdate(20);
 void Neuron::step()
 {
 	mTimerTicked = false;
@@ -61,6 +64,15 @@ void Neuron::step()
 	mNet->paint(&mImage[0]);
 	ui.view->updateTexture(&mImage[0]);
 	ui.view->update();
+
+	++mFpsFrameCounter;
+	if (mFpsFrameCounter >= stepPerTimerUpdate)
+	{
+		auto elapsed = mFpsTimer.elapsed();
+		mToolBox->displayFrameTime(elapsed / stepPerTimerUpdate);
+		mFpsTimer.restart();
+		mFpsFrameCounter = 0;
+	}
 }
 
 void Neuron::tick()
@@ -102,6 +114,7 @@ void Neuron::buildNet(const std::string & type, const ConfigSet & config, int wi
 	}
 	mNet->setConfig(config);
 	mNet->setSynapses(mToolBox->synapses());
+	mNet->setSpike(mToolBox->spike());
 	ui.view->resizeTexture(width, height);
 	mImage.resize(width * height);
 	centerNet();
@@ -112,6 +125,11 @@ void Neuron::buildNet(const std::string & type, const ConfigSet & config, int wi
 void Neuron::setSynapses(const SynapseMatrix & synapses)
 {
 	mNet->setSynapses(synapses);
+}
+
+void Neuron::setSpike(const SpikeProcessor::Spike & spike)
+{
+	mNet->setSpike(spike);
 }
 
 void Neuron::zoomFitToWindow()
@@ -199,6 +217,9 @@ void Neuron::simPlay()
 	if (!mTimer->isActive())
 	{
 		startTimer(mToolBox->delay());
+		mFpsTimer.start();
+		mFpsFrameCounter = 0;
+		mToolBox->displayFrameTime(0);
 	}
 }
 
@@ -206,6 +227,7 @@ void Neuron::simStep()
 {
 	if (!mTimer->isActive())
 	{
+		mFpsFrameCounter = 0;
 		tick();
 	}
 }

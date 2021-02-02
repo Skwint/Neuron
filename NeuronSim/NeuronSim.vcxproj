@@ -115,6 +115,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
+      <DebugInformationFormat>None</DebugInformationFormat>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -128,6 +129,7 @@
     <ClCompile Include="LayerFactory.cpp" />
     <ClCompile Include="Life.cpp" />
     <ClCompile Include="Log.cpp" />
+    <ClCompile Include="SpikeProcessor.cpp" />
     <ClCompile Include="SynapseMatrix.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -142,6 +144,7 @@
     <ClInclude Include="Log.h" />
     <ClInclude Include="Net.h" />
     <ClInclude Include="NeuronIzhikevich.h" />
+    <ClInclude Include="SpikeProcessor.h" />
     <ClInclude Include="Synapse.h" />
     <ClInclude Include="SynapseMatrix.h" />
   </ItemGroup>

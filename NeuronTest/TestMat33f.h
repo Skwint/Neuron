@@ -2,8 +2,7 @@
 #define TESTMAT33F_H
 
 #include "Test.h"
-class TestMat33f :
-	public Test
+class TestMat33f : public Test
 {
 public:
 	TestMat33f();
