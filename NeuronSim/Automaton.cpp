@@ -1,6 +1,7 @@
 #include "Automaton.h"
 
 #include "Layer.h"
+#include "Log.h"
 #include "LayerFactory.h"
 #include "SpikeProcessor.h"
 #include "SynapseMatrix.h"
@@ -25,9 +26,9 @@ void Automaton::tick()
 {
 	mSpikeProcessor->tick();
 
-	for (auto layer : mLayers)
+	for (auto synapses : mSynapses)
 	{
-		layer->tick();
+		synapses->target()->tick(synapses.get());
 	}
 }
 
@@ -68,10 +69,7 @@ std::shared_ptr<Layer> Automaton::createLayer()
 	auto layer = mLayerFactory->create(mType, mWidth, mHeight);
 	layer->setSpikeProcessor(mSpikeProcessor);
 	mLayers.push_back(layer);
-	// TODO - this is INVALID because mListeners might change while we are iterating through it
-	// which is BAD (we create a listener when we receive a layer created message).
-	// Probably best if LayerConfig in the UI stops being a listener and we just forward info
-	// to it from the LayerDock.
+
 	for (auto listener : mListeners)
 	{
 		listener->automatonLayerCreated(layer);
@@ -88,15 +86,23 @@ void Automaton::removeLayer(std::shared_ptr<Layer> layer)
 	}
 }
 
-std::shared_ptr<SynapseMatrix> Automaton::createSynapse()
+void Automaton::createSynapse()
 {
-	auto synapses = make_shared<SynapseMatrix>();
-	mSynapses.push_back(synapses);
-	for (auto listener : mListeners)
+	if (!mLayers.empty())
 	{
-		listener->automatonSynapsesCreated(synapses);
+		auto synapses = make_shared<SynapseMatrix>();
+		synapses->setSource(mLayers[0]);
+		synapses->setTarget(mLayers[0]);
+		mSynapses.push_back(synapses);
+		for (auto listener : mListeners)
+		{
+			listener->automatonSynapsesCreated(synapses);
+		}
 	}
-	return synapses;
+	else
+	{
+		LOG("Attempt to create synapses when no layers exist - ignored");
+	}
 }
 
 void Automaton::removeSynapse(std::shared_ptr<SynapseMatrix> synapses)
@@ -121,7 +127,7 @@ void Automaton::setSize(int width, int height)
 	}
 }
 
-std::vector<std::string> Automaton::typeNames()
+vector<string> Automaton::typeNames()
 {
 	return mLayerFactory->getNames();
 }
@@ -135,3 +141,16 @@ void Automaton::setSpike(const SpikeProcessor::Spike & spike)
 {
 	mSpikeProcessor->setSpike(spike);
 }
+
+// Returns the layer with the given name, or an empty pointer if it can't find it.
+shared_ptr<Layer> Automaton::findLayer(const std::string & name)
+{
+	auto layer = find_if(mLayers.begin(), mLayers.end(), [name](auto lay) { return lay->name() == name; });
+	if (layer != mLayers.end())
+	{
+		return *layer;
+	}
+	LOG("Request for non existent layer [" << name << "]");
+	return shared_ptr<Layer>();
+}
+

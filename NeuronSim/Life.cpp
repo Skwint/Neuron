@@ -61,7 +61,7 @@ inline void Life::tickSegment(int cs, int ce, NeuronLife * cell, NeuronLife * ds
 	}
 }
 
-void Life::tick()
+void Life::tick(SynapseMatrix * synapses)
 {
 	for (int rr = 0; rr < mHeight; ++rr)
 	{
@@ -80,12 +80,12 @@ void Life::tick()
 	// polymorphic function call on every cell?
 	for (int rr = 0; rr < mHeight; ++rr)
 	{
-		int normRowBegin = synapseNormRowBegin(rr);
-		int normRowEnd = synapseNormRowEnd(rr);
-		int lowRowBegin = synapseLowWrapRowBegin(rr);
-		int lowRowEnd = synapseLowWrapRowEnd(rr);
-		int highRowBegin = synapseHighWrapRowBegin(rr);
-		int highRowEnd = synapseHighWrapRowEnd(rr);
+		int normRowBegin = synapses->normRowBegin(rr, mHeight);
+		int normRowEnd = synapses->normRowEnd(rr, mHeight);
+		int lowRowBegin = synapses->lowWrapRowBegin(rr, mHeight);
+		int lowRowEnd = synapses->lowWrapRowEnd(rr, mHeight);
+		int highRowBegin = synapses->highWrapRowBegin(rr, mHeight);
+		int highRowEnd = synapses->highWrapRowEnd(rr, mHeight);
 
 		NeuronLife * cell = row(rr);
 		NeuronLife * dst;
@@ -95,12 +95,12 @@ void Life::tick()
 			// here we equate "alive" to "firing".
 			if (cell->potential > mLow && cell->potential < mHigh)
 			{
-				int normColBegin = synapseNormColBegin(cc);
-				int normColEnd = synapseNormColEnd(cc);
-				int lowColBegin = synapseLowWrapColBegin(cc);
-				int lowColEnd = synapseLowWrapColEnd(cc);
-				int highColBegin = synapseHighWrapColBegin(cc);
-				int highColEnd = synapseHighWrapColEnd(cc);
+				int normColBegin = synapses->normColBegin(cc, mWidth);
+				int normColEnd = synapses->normColEnd(cc, mWidth);
+				int lowColBegin = synapses->lowWrapColBegin(cc, mWidth);
+				int lowColEnd = synapses->lowWrapColEnd(cc, mWidth);
+				int highColBegin = synapses->highWrapColBegin(cc, mWidth);
+				int highColEnd = synapses->highWrapColEnd(cc, mWidth);
 				for (int tr = lowRowBegin; tr < lowRowEnd; ++tr)
 				{
 					dst = cell + tr * rowStep();

@@ -35,8 +35,9 @@ public:
 	std::shared_ptr<Layer> createLayer();
 	void removeLayer(std::shared_ptr<Layer> layer);
 	const std::vector<std::shared_ptr<Layer> > layers() { return mLayers; }
+	std::shared_ptr<Layer> findLayer(const std::string & name);
 	std::vector<std::string> typeNames();
-	std::shared_ptr<SynapseMatrix> createSynapse();
+	void createSynapse();
 	void removeSynapse(std::shared_ptr<SynapseMatrix> synapses);
 	const ConfigSet & config() const;
 	void addListener(Listener * listener);

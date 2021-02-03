@@ -68,6 +68,6 @@ ConfigSet Izhikevich::getConfig()
 	return config;
 }
 
-void Izhikevich::tick()
+void Izhikevich::tick(SynapseMatrix * synapses)
 {
 }

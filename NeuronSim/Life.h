@@ -13,7 +13,7 @@ public:
 
 	static std::string name();
 	static const ConfigSet & defaultConfig();
-	void tick();
+	void tick(SynapseMatrix * synapses);
 	std::string typeName() { return name(); }
 	void setConfig(const ConfigSet & config);
 	ConfigSet getConfig();

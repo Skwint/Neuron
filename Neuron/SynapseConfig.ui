@@ -52,6 +52,9 @@
       </property>
       <item>
        <layout class="QFormLayout" name="formLayout">
+        <property name="labelAlignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
         <item row="0" column="0">
          <widget class="QLabel" name="sourceLayerLabel">
           <property name="text">
@@ -72,19 +75,26 @@
         <item row="1" column="1">
          <widget class="QComboBox" name="cmbTarget"/>
         </item>
-       </layout>
-      </item>
-      <item>
-       <widget class="QComboBox" name="cmbSynapse">
-        <property name="currentIndex">
-         <number>0</number>
-        </property>
-        <item>
-         <property name="text">
-          <string>Error</string>
-         </property>
+        <item row="2" column="0">
+         <widget class="QLabel" name="patternLabel">
+          <property name="text">
+           <string>Pattern</string>
+          </property>
+         </widget>
         </item>
-       </widget>
+        <item row="2" column="1">
+         <widget class="QComboBox" name="cmbSynapse">
+          <property name="currentIndex">
+           <number>0</number>
+          </property>
+          <item>
+           <property name="text">
+            <string>Error</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+       </layout>
       </item>
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout">

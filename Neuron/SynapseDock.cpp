@@ -44,7 +44,7 @@ void SynapseDock::automatonLayerCreated(shared_ptr<Layer> layer)
 void SynapseDock::automatonLayerRemoved(shared_ptr<Layer> layer)
 {
 	// Remove any synapses which are sourced or targettedon this layer
-	mSynapseWidgets.erase(remove_if(mSynapseWidgets.begin(), mSynapseWidgets.end(), [layer](auto widget) { return widget->referencesLayer(layer->name()); }));
+	mSynapseWidgets.erase(remove_if(mSynapseWidgets.begin(), mSynapseWidgets.end(), [layer](auto widget) { return widget->isReferencingLayer(layer->name()); }), mSynapseWidgets.end());
 
 	// Remove the layer from the list of available sources and targets
 	for (auto synapse : mSynapseWidgets)
@@ -55,7 +55,7 @@ void SynapseDock::automatonLayerRemoved(shared_ptr<Layer> layer)
 
 void SynapseDock::automatonSynapsesCreated(shared_ptr<SynapseMatrix> synapses)
 {
-	auto widget = make_shared<SynapseConfig>(synapses);
+	auto widget = make_shared<SynapseConfig>(mAutomaton, synapses);
 	mSynapseWidgets.push_back(widget);
 	ui.synapseLayout->insertWidget(0, widget.get());
 
