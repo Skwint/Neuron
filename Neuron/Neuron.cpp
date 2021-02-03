@@ -3,11 +3,12 @@
 #include <qtimer.h>
 #include <qdir.h>
 
+#include "NeuronSim/Automaton.h"
 #include "NeuronSim/Layer.h"
-#include "NeuronSim/LayerFactory.h"
 #include "NeuronSim/Life.h"
 #include "NeuronSim/Log.h"
 #include "ToolBox.h"
+#include "SynapseDock.h"
 
 Neuron::Neuron(QWidget *parent)
 	: QMainWindow(parent),
@@ -24,15 +25,20 @@ Neuron::Neuron(QWidget *parent)
 	LOG("Neuron startup");
 	LOG("CWD => " << QDir::currentPath().toStdString());
 
-	mLayerFactory = std::make_shared<LayerFactory>();
-	mToolBox = std::make_unique<ToolBox>(mLayerFactory);
-	QMainWindow::addDockWidget(Qt::RightDockWidgetArea, mToolBox.get());
+	mAutomaton = std::make_shared<Automaton>();
+	mAutomaton->addListener(this);
+	ui.view->setAutomaton(mAutomaton);
+	mToolBox = std::make_unique<ToolBox>(mAutomaton);
+	QMainWindow::addDockWidget(Qt::LeftDockWidgetArea, mToolBox.get());
+	mLayerDock = std::make_unique<LayerDock>(mAutomaton);
+	QMainWindow::addDockWidget(Qt::RightDockWidgetArea, mLayerDock.get());
+	mSynapseDock = std::make_unique<SynapseDock>(mAutomaton);
+	QMainWindow::addDockWidget(Qt::RightDockWidgetArea, mSynapseDock.get());
+
 	mTimer = std::make_unique<QTimer>(this);
 	connect(mTimer.get(), &QTimer::timeout, this, QOverload<>::of(&Neuron::tick));
 	connect(ui.view, &QOpenGLWidget::frameSwapped, this, &Neuron::onFrameSwapped);
 
-	connect(mToolBox.get(), &ToolBox::netBuild, this, &Neuron::buildNet);
-	connect(mToolBox.get(), &ToolBox::setSynapses, this, &Neuron::setSynapses);
 	connect(mToolBox.get(), &ToolBox::setSpike, this, &Neuron::setSpike);
 	connect(mToolBox->zoomOneToOne(), &QToolButton::clicked, this, &Neuron::zoomOneToOne);
 	connect(mToolBox->zoomFitToWindow(), &QToolButton::clicked, this, &Neuron::zoomFitToWindow);
@@ -46,13 +52,16 @@ Neuron::Neuron(QWidget *parent)
 	connect(mToolBox->step(), &QPushButton::clicked, this, &Neuron::simStep);
 }
 
+Neuron::~Neuron()
+{
+	mAutomaton->removeListener(this);
+}
+
 // We wait until the show event to do these initialisations because otherwise the opengl
 // view widget gets upset.
 void Neuron::showEvent(QShowEvent *event)
 {
 	QMainWindow::showEvent(event);
-
-	buildNet(Life::name(), Life::defaultConfig(), 512, 512);
 }
 
 static const qint64 stepPerTimerUpdate(20);
@@ -60,9 +69,8 @@ void Neuron::step()
 {
 	mTimerTicked = false;
 	mWaitingForSwap = mToolBox->showAllFrames();
-	mNet->tick();
-	mNet->paint(&mImage[0]);
-	ui.view->updateTexture(&mImage[0]);
+	mAutomaton->tick();
+	ui.view->updateTextures();
 	ui.view->update();
 
 	++mFpsFrameCounter;
@@ -99,45 +107,22 @@ void Neuron::onFrameSwapped()
 	}
 }
 
-/**
-Build a net of cells with a given width and height, and arrange the view of it to fit the available space while maintaining aspect ratio
-*/
-void Neuron::buildNet(const std::string & type, const ConfigSet & config, int width, int height)
+void Neuron::automatonTypeChanged()
 {
-	if (mNet && mNet->typeName() == type)
-	{
-		mNet->resize(width, height);
-	}
-	else
-	{
-		mNet = mLayerFactory->create(type, width, height);
-	}
-	mNet->setConfig(config);
-	mNet->setSynapses(mToolBox->synapses());
-	mNet->setSpike(mToolBox->spike());
-	ui.view->resizeTexture(width, height);
-	mImage.resize(width * height);
-	centerNet();
-	mNet->paint(&mImage[0]);
-	ui.view->updateTexture(&mImage[0]);
-}
 
-void Neuron::setSynapses(const SynapseMatrix & synapses)
-{
-	mNet->setSynapses(synapses);
 }
 
 void Neuron::setSpike(const SpikeProcessor::Spike & spike)
 {
-	mNet->setSpike(spike);
+	mAutomaton->setSpike(spike);
 }
 
 void Neuron::zoomFitToWindow()
 {
 	int winWidth = ui.view->width();
 	int winHeight = ui.view->height();
-	int netWidth = mNet->width();
-	int netHeight = mNet->height();
+	int netWidth = mAutomaton->width();
+	int netHeight = mAutomaton->height();
 	float winAspect = float(winWidth) / float(winHeight);
 	float netAspect = float(netWidth) / float(netHeight);
 	float fzoom;
@@ -180,8 +165,8 @@ void Neuron::centerNet()
 {
 	int winWidth = ui.view->width();
 	int winHeight = ui.view->height();
-	int netWidth = mNet->width();
-	int netHeight = mNet->height();
+	int netWidth = mAutomaton->width();
+	int netHeight = mAutomaton->height();
 	mTop = (netHeight - winHeight) / 2;
 	mLeft = (netWidth - winWidth) / 2;
 }

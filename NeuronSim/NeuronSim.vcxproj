@@ -124,6 +124,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Automaton.cpp" />
     <ClCompile Include="Izhikevich.cpp" />
     <ClCompile Include="Layer.cpp" />
     <ClCompile Include="LayerFactory.cpp" />
@@ -133,6 +134,7 @@
     <ClCompile Include="SynapseMatrix.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Automaton.h" />
     <ClInclude Include="ConfigItem.h" />
     <ClInclude Include="Layer.h" />
     <ClInclude Include="LayerFactory.h" />

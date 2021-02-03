@@ -7,22 +7,24 @@
 
 #include "NeuronSim/Net.h"
 #include "ToolBox.h"
+#include "LayerDock.h"
 
+class Automaton;
 class Layer;
-class LayerFactory;
+class SynapseDock;
 
-class Neuron : public QMainWindow
+class Neuron : public QMainWindow, public Automaton::Listener
 {
 	Q_OBJECT
 
 public:
 	Neuron(QWidget *parent = Q_NULLPTR);
+	~Neuron();
 
 	void step();
 
 private:
 	void tick();
-	void buildNet(const std::string & type, const ConfigSet & config, int width, int height);
 	void zoomFitToWindow();
 	void zoomOneToOne();
 	void zoomIn();
@@ -35,24 +37,26 @@ private:
 	void simStep();
 	void startTimer(int delay);
 	void onFrameSwapped();
-	void setSynapses(const SynapseMatrix & synapses);
 	void setSpike(const SpikeProcessor::Spike & spike);
 
 private:
 	void showEvent(QShowEvent *event);
 
+private: // from Automaton::Listener
+	void automatonTypeChanged();
+
 private:
 	Ui::NeuronClass ui;
-	std::shared_ptr<LayerFactory> mLayerFactory;
+	std::shared_ptr<Automaton> mAutomaton;
 	std::unique_ptr<QTimer> mTimer;
-	std::shared_ptr<Layer> mNet;
 	std::unique_ptr<ToolBox> mToolBox;
+	std::unique_ptr<LayerDock> mLayerDock;
+	std::unique_ptr<SynapseDock> mSynapseDock;
 	int mZoom;
 	int mLeft;
 	int mTop;
 	bool mTimerTicked;
 	bool mWaitingForSwap;
-	std::vector<uint32_t> mImage;
 	QElapsedTimer mFpsTimer;
 	int mFpsFrameCounter;
 };

@@ -2,17 +2,19 @@
 #define CONFIG_ITEM_H
 
 #include <string>
-#include <vector>
+#include <map>
 
 struct ConfigItem
 {
-	std::string name;
-	float minimum;
-	float maximum;
+	ConfigItem() :
+		value(0.0f)
+	{}
+	ConfigItem(float value) :
+		value(value)
+	{}
 	float value;
-	float def;
 };
 
-typedef std::vector<ConfigItem> ConfigSet;
+typedef std::map<std::string, ConfigItem> ConfigSet;
 
 #endif

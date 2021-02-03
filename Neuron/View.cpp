@@ -8,11 +8,13 @@
 #include <iostream>
 #include <GL/glu.h>
 
+#include "NeuronSim/Automaton.h"
 #include "NeuronSim/Constants.h"
+#include "NeuronSim/Layer.h"
 #include "Mat33f.h"
 #include "Vec3f.h"
 
-View::View(QWidget *parent)
+View::View( QWidget *parent)
 	: QOpenGLWidget(parent),
 	mProgram(0),
 	mZoom(1.0f),
@@ -24,6 +26,7 @@ View::View(QWidget *parent)
 
 View::~View()
 {
+	mAutomaton->removeListener(this);
 	makeCurrent();
 	delete mProgram;
 	delete mVertexShader;
@@ -33,35 +36,39 @@ View::~View()
 		mStyleData[style].mVao.destroy();
 		mStyleData[style].mVertexBuffer.destroy();
 	}
-	mTexture.release();
+	for (auto texture : mTextures)
+	{
+		texture.second->release();
+	}
+	mTextures.clear();
 	doneCurrent();
 }
 
-void View::resizeTexture(int width, int height)
-{	
-	if (mTexture)
+// This can't be set in the constructor because of oddities around QtDesigner widget initialization
+// It really should be, however, from a design point of view. Call this as soon as possible after
+// creating the GUI object.
+void View::setAutomaton(std::shared_ptr<Automaton> automaton)
+{
+	if (mAutomaton)
 	{
-		mTexture.release();
+		mAutomaton->removeListener(this);
 	}
-
-	mTexture = std::make_unique<QOpenGLTexture>(QOpenGLTexture::Target2D);
-	mTexture->setMinMagFilters(QOpenGLTexture::Linear, QOpenGLTexture::Linear);
-	mTexture->create();
-
-	mTexture->setSize(width, height, 1);
-	mTexture->setFormat(QOpenGLTexture::RGBA8_UNorm);
-	mTexture->allocateStorage();
-	mTexture->setWrapMode(QOpenGLTexture::Repeat);
-
-	checkGlError();
+	mAutomaton = automaton;
+	mAutomaton->addListener(this);
 }
 
-void View::updateTexture(uint32_t * data)
+void View::updateTextures()
 {
-	if (mTexture)
+	int size = mAutomaton->width() * mAutomaton->height();
+	if (mImageData.size() < size)
 	{
-		mTexture->bind();
-		mTexture->setData(QOpenGLTexture::RGBA, QOpenGLTexture::UInt8, data);
+		mImageData.resize(size);
+	}
+	for (auto texture : mTextures)
+	{
+		texture.second->bind();
+		texture.first->paint(&mImageData[0]);
+		texture.second->setData(QOpenGLTexture::RGBA, QOpenGLTexture::UInt8, &mImageData[0]);
 		checkGlError();
 	}
 }
@@ -192,11 +199,11 @@ void View::paintGL()
 
 void View::paintTexture()
 {
-	if (mTexture)
+	for (auto texture : mTextures)
 	{
 		StyleData * data = &mStyleData[mStyle];
 
-		mTexture->bind();
+		texture.second->bind();
 
 		data->mVao.bind();
 
@@ -437,4 +444,30 @@ void View::setStyle(const QString & style)
 		return;
 	}
 	setProjection();
+}
+
+void View::automatonLayerCreated(std::shared_ptr<Layer> layer)
+{
+	for (auto texture : mTextures)
+	{
+		texture.second->release();
+	}
+	mTextures.clear();
+
+	auto texture = std::make_shared<QOpenGLTexture>(QOpenGLTexture::Target2D);
+	mTextures[layer] = texture;
+	texture->setMinMagFilters(QOpenGLTexture::Linear, QOpenGLTexture::Linear);
+	texture->create();
+
+	texture->setSize(layer->width(), layer->height(), 1);
+	texture->setFormat(QOpenGLTexture::RGBA8_UNorm);
+	texture->allocateStorage();
+	texture->setWrapMode(QOpenGLTexture::Repeat);
+
+	checkGlError();
+}
+
+void View::automatonLayerRemoved(std::shared_ptr<Layer> layer)
+{
+	mTextures.erase(layer);
 }

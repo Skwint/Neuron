@@ -95,8 +95,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="ArrowPlot.cpp" />
+    <ClCompile Include="LayerConfig.cpp" />
+    <ClCompile Include="LayerDock.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Neuron.cpp" />
+    <ClCompile Include="SynapseConfig.cpp" />
+    <ClCompile Include="SynapseDock.cpp" />
     <ClCompile Include="ToolBox.cpp" />
     <ClCompile Include="View.cpp" />
   </ItemGroup>
@@ -105,7 +109,11 @@
   </ItemGroup>
   <ItemGroup>
     <QtUic Include="ArrowPlot.ui" />
+    <QtUic Include="LayerConfig.ui" />
+    <QtUic Include="LayerDock.ui" />
     <QtUic Include="Neuron.ui" />
+    <QtUic Include="SynapseConfig.ui" />
+    <QtUic Include="SynapseDock.ui" />
     <QtUic Include="ToolBox.ui" />
     <QtUic Include="View.ui" />
   </ItemGroup>
@@ -123,7 +131,11 @@
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="ArrowPlot.h" />
+    <QtMoc Include="LayerDock.h" />
+    <QtMoc Include="LayerConfig.h" />
     <ClInclude Include="Mat33f.h" />
+    <QtMoc Include="SynapseDock.h" />
+    <QtMoc Include="SynapseConfig.h" />
     <ClInclude Include="Vec3f.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

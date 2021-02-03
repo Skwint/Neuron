@@ -3,6 +3,8 @@
 #include <QOpenGLWidget>
 #include "ui_View.h"
 
+#include <map>
+#include <memory>
 #include <QOpenGLWidget>
 #include <QOpenGLFunctions>
 #include <QOpenGLVertexArrayObject>
@@ -12,11 +14,15 @@
 #include <QTime>
 #include <QVector>
 
+#include "NeuronSim/Automaton.h"
+
 QT_FORWARD_DECLARE_CLASS(QOpenGLTexture)
 QT_FORWARD_DECLARE_CLASS(QOpenGLShader)
 QT_FORWARD_DECLARE_CLASS(QOpenGLShaderProgram)
 
-class View : public QOpenGLWidget, protected QOpenGLFunctions
+class Layer;
+
+class View : public QOpenGLWidget, protected QOpenGLFunctions, public Automaton::Listener
 {
 	Q_OBJECT
 
@@ -49,8 +55,8 @@ public:
 	View(QWidget *parent = Q_NULLPTR);
 	~View();
 
-	void resizeTexture(int width, int height);
-	void updateTexture(uint32_t * data);
+	void setAutomaton(std::shared_ptr<Automaton> automaton);
+	void updateTextures();
 	void setZoom(float zoom);
 	void setProjection();
 	void setOrtho();
@@ -64,6 +70,10 @@ private: // from QOpenGLWidget
 	void paintGL() override;
 	void initializeGL() override;
 
+private: // from Automaton::Listener
+	void automatonLayerCreated(std::shared_ptr<Layer> layer);
+	void automatonLayerRemoved(std::shared_ptr<Layer> layer);
+
 private:
 	void createMesh();
 	void createSimpleStyle();
@@ -74,11 +84,12 @@ private:
 
 private:
 	Ui::View ui;
+	std::shared_ptr<Automaton> mAutomaton;
 	QMatrix4x4 mModelView;
 	QOpenGLShader *mVertexShader;
 	QOpenGLShader *mFragmentShader;
 	QOpenGLShaderProgram *mProgram;
-	std::unique_ptr<QOpenGLTexture> mTexture;
+	std::map<std::shared_ptr<Layer>, std::shared_ptr<QOpenGLTexture>> mTextures;
 	int mAttrVertex;
 	int mAttrTexCoord;
 	int mAttrMatrix;
@@ -87,4 +98,5 @@ private:
 	float mAspect;
 	Style mStyle;
 	StyleData mStyleData[STYLE_COUNT];
+	std::vector<uint32_t> mImageData;
 };

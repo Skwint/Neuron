@@ -9,12 +9,13 @@
 #include "NeuronSim/SynapseMatrix.h"
 #include "NeuronSim/SpikeProcessor.h"
 
+class Automaton;
+
 class ToolBox : public QDockWidget
 {
 	Q_OBJECT
-
 public:
-	ToolBox(std::shared_ptr<LayerFactory> layerFactory, QWidget *parent = Q_NULLPTR);
+	ToolBox(std::shared_ptr<Automaton> automaton, QWidget *parent = Q_NULLPTR);
 	~ToolBox();
 
 	auto zoomFitToWindow() { return ui.btnViewZoomFitToWindow; }
@@ -31,12 +32,9 @@ public:
 	void displayFrameTime(qint64 frameTime);
 	bool showAllFrames() { return ui.chkShowAllFrames->isChecked(); }
 	int delay();
-	const SynapseMatrix & synapses() const { return mSynapseMatrix; }
 	const SpikeProcessor::Spike & spike();
 
 signals:
-	void netBuild(const std::string & type, const ConfigSet & config, int width, int height);
-	void setSynapses(const SynapseMatrix & synapses);
 	void setSpike(const SpikeProcessor::Spike & spike);
 
 private:
@@ -47,19 +45,11 @@ private:
 
 	void simToggle();
 
-	void synapseToggle();
-	void synapseChanged();
-	void populateSynapses();
 	void spikeChanged();
 	void populateSpikes();
 
 private:
 	Ui::ToolBox ui;
-	std::shared_ptr<LayerFactory> mLayerFactory;
-	std::vector<QWidget *> mConfigWidgets;
-	ConfigSet mConfig;
-	int mFixedConfigRows;
-	QDir mSynapseDir;
-	SynapseMatrix mSynapseMatrix;
+	std::shared_ptr<Automaton> mAutomaton;
 	std::map<std::string, SpikeProcessor::Spike> mSpikes;
 };

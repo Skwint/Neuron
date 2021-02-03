@@ -1,13 +1,15 @@
 #include "Life.h"
 
+#include "ConfigItem.h"
 #include "Log.h"
 
+static const std::string CFG_LOW("low threshold");
+static const std::string CFG_HIGH("high threshold");
+
 Life::Life(int width, int height) :
-	Net(width, height),
-	mLow(2.25),
-	mHigh(3.75)
+	Net(width, height)
 {
-	mConfig = Life::defaultConfig();
+	setConfig(Life::defaultConfig());
 }
 
 Life::~Life()
@@ -22,22 +24,16 @@ std::string Life::name()
 
 void Life::setConfig(const ConfigSet & config)
 {
-	mConfig = config;
-	for (auto & item : config)
-	{
-		if (item.name == "low threshold")
-		{
-			mLow = item.value;
-		}
-		else if (item.name == "high threshold")
-		{
-			mHigh = item.value;
-		}
-		else
-		{
-			LOG("Unexpected config item [" << item.name << "]");
-		}
-	}
+	mLow = config.at(CFG_LOW).value;
+	mHigh = config.at(CFG_HIGH).value;
+}
+
+ConfigSet Life::getConfig()
+{
+	ConfigSet config;
+	config[CFG_LOW] = mLow;
+	config[CFG_HIGH] = mHigh;
+	return config;
 }
 
 const ConfigSet & Life::defaultConfig()
@@ -45,15 +41,8 @@ const ConfigSet & Life::defaultConfig()
 	static ConfigSet config;
 	if (config.empty())
 	{
-		ConfigItem item;
-		item.name = "low threshold";
-		item.minimum = -1.0f;
-		item.maximum = 100.0f;
-		item.value = item.def = 2.25;
-		config.push_back(item);
-		item.name = "high threshold";
-		item.value = item.def = 3.75;
-		config.push_back(item);
+		config[CFG_LOW] = ConfigItem(2.25f);
+		config[CFG_HIGH] = ConfigItem(3.75f);
 	}
 	return config;
 }
@@ -74,8 +63,6 @@ inline void Life::tickSegment(int cs, int ce, NeuronLife * cell, NeuronLife * ds
 
 void Life::tick()
 {
-	mSpikeProcessor->tick();
-
 	for (int rr = 0; rr < mHeight; ++rr)
 	{
 		NeuronLife * cell = row(rr);

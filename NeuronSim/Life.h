@@ -16,6 +16,7 @@ public:
 	void tick();
 	std::string typeName() { return name(); }
 	void setConfig(const ConfigSet & config);
+	ConfigSet getConfig();
 
 private:
 	inline void tickSegment(int cs, int ce, NeuronLife * cell, NeuronLife * dst);

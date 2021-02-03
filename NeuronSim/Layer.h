@@ -21,14 +21,15 @@ public:
 	virtual std::string typeName() = 0;
 	virtual void paint(uint32_t * image, int rowStep, int left, int top, int width, int height) = 0;
 	virtual void paint(uint32_t * image) = 0;
+	virtual void setConfig(const ConfigSet & config) = 0;
+	virtual ConfigSet getConfig() = 0;
 
+	const std::string & name() { return mName; }
 	virtual void resize(int width, int height);
 	int width() { return mWidth; }
 	int height() { return mHeight; }
-	const ConfigSet & config() { return mConfig; }
-	virtual void setConfig(const ConfigSet & config) = 0;
-	void setSynapses(SynapseMatrix synapses) { mSynapses = synapses; }
-	void setSpike(const SpikeProcessor::Spike & spike);
+	void setSynapses(const SynapseMatrix & synapses) { mSynapses = synapses; }
+	void setSpikeProcessor(std::shared_ptr<SpikeProcessor> spikeProcessor) { mSpikeProcessor = spikeProcessor; }
 	inline int synapseNormColBegin(int col) { return std::max(0, col - mSynapses.width() / 2) - col; }
 	inline int synapseNormColEnd(int col) { return std::min(mWidth, col + mSynapses.width() / 2 + 1) - col; }
 	inline int synapseNormRowBegin(int row) { return std::max(0, row - mSynapses.height() / 2) - row; }
@@ -43,11 +44,11 @@ public:
 	inline int synapseHighWrapRowEnd(int row) { return std::min(mHeight, row + mHeight + mSynapses.height() / 2 + 1) - row; }
 
 protected:
+	std::string mName;
 	int mWidth;
 	int mHeight;
-	ConfigSet mConfig;
 	SynapseMatrix mSynapses;
-	std::unique_ptr<SpikeProcessor> mSpikeProcessor;
+	std::shared_ptr<SpikeProcessor> mSpikeProcessor;
 };
 
 #endif

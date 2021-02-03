@@ -8,28 +8,6 @@
 class Izhikevich : public Net<NeuronIzhikevich>
 {
 public:
-	struct Data
-	{
-		inline Data()
-		{
-			v2 = 0.04f;
-			v1 = 5.0f;
-			v0 = 140.0f;
-			a = 0.02f;
-			b = 0.2f;
-			c = -65.0f;
-			d = 2.0f;
-		}
-		float v2;
-		float v1;
-		float v0;
-		float a;
-		float b;
-		float c;
-		float d;
-	};
-
-public:
 	Izhikevich(int width = 512, int height = 512);
 	virtual ~Izhikevich();
 
@@ -38,13 +16,16 @@ public:
 	virtual void tick();
 	std::string typeName() { return name(); }
 	void setConfig(const ConfigSet & config);
-
-	Data & data() { return mData; }
-	const Data & data() const { return mData; }
-	void setData(const Data & data) { mData = data; }
+	ConfigSet getConfig();
 
 private:
-	Data mData;
+	float mV2;
+	float mV1;
+	float mV0;
+	float mA;
+	float mB;
+	float mC;
+	float mD;
 };
 
 #endif

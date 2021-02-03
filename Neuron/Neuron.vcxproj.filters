@@ -40,6 +40,18 @@
     <ClCompile Include="ArrowPlot.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="LayerDock.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="LayerConfig.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SynapseDock.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SynapseConfig.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="Neuron.h">
@@ -54,6 +66,18 @@
     <QtMoc Include="ArrowPlot.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <QtMoc Include="LayerDock.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="LayerConfig.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="SynapseDock.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="SynapseConfig.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <QtUic Include="Neuron.ui">
@@ -66,6 +90,18 @@
       <Filter>Form Files</Filter>
     </QtUic>
     <QtUic Include="ArrowPlot.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include="LayerDock.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include="LayerConfig.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include="SynapseDock.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include="SynapseConfig.ui">
       <Filter>Form Files</Filter>
     </QtUic>
   </ItemGroup>
