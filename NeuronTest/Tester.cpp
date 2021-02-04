@@ -2,9 +2,11 @@
 
 #include <iostream>
 
-#include "TestVec3f.h"
+#include "TestAutomaton.h"
 #include "TestMat33f.h"
 #include "TestSpikeProcessor.h"
+#include "TestStability.h"
+#include "TestVec3f.h"
 
 using namespace std;
 
@@ -13,6 +15,8 @@ Tester::Tester()
 	mTests.push_back(make_shared<TestVec3f>());
 	mTests.push_back(make_shared<TestMat33f>());
 	mTests.push_back(make_shared<TestSpikeProcessor>());
+	mTests.push_back(make_shared<TestAutomaton>());
+	mTests.push_back(make_shared<TestStability>());
 }
 
 Tester::~Tester()

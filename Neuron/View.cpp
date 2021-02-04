@@ -11,8 +11,12 @@
 #include "NeuronSim/Automaton.h"
 #include "NeuronSim/Constants.h"
 #include "NeuronSim/Layer.h"
+#include "NeuronSim/Log.h"
+#include "LayerData.h"
 #include "Mat33f.h"
 #include "Vec3f.h"
+
+#define CHECK_GL_ERROR checkGlError(__FUNCTION__, __LINE__)
 
 View::View( QWidget *parent)
 	: QOpenGLWidget(parent),
@@ -36,10 +40,6 @@ View::~View()
 		mStyleData[style].mVao.destroy();
 		mStyleData[style].mVertexBuffer.destroy();
 	}
-	for (auto texture : mTextures)
-	{
-		texture.second->release();
-	}
 	mTextures.clear();
 	doneCurrent();
 }
@@ -55,21 +55,20 @@ void View::setAutomaton(std::shared_ptr<Automaton> automaton)
 	}
 	mAutomaton = automaton;
 	mAutomaton->addListener(this);
+	automatonSizechanged(mAutomaton->width(), mAutomaton->height());
 }
 
 void View::updateTextures()
 {
-	int size = mAutomaton->width() * mAutomaton->height();
-	if (mImageData.size() < size)
+	for (auto & texture : mTextures)
 	{
-		mImageData.resize(size);
-	}
-	for (auto texture : mTextures)
-	{
+		assert(texture.first->width() * texture.first->height() <= mImageData.size());
+		assert(texture.second->width() == texture.first->width());
+		assert(texture.second->height() == texture.first->height());
 		texture.second->bind();
 		texture.first->paint(&mImageData[0]);
 		texture.second->setData(QOpenGLTexture::RGBA, QOpenGLTexture::UInt8, &mImageData[0]);
-		checkGlError();
+		CHECK_GL_ERROR;
 	}
 }
 
@@ -110,14 +109,14 @@ void View::setOrtho()
 	}
 	else
 	{
-		top *= mAspect;
-		bottom *= mAspect;
+		top /= mAspect;
+		bottom /= mAspect;
 	}
 	mModelView.setToIdentity();
 	mModelView.ortho(left, right, bottom, top, -2.0f, 2.0f);
 	mModelView.scale(mZoom);
 
-	checkGlError();
+	CHECK_GL_ERROR;
 }
 
 void View::initializeGL()
@@ -141,9 +140,10 @@ void View::initializeGL()
 	const char *fragmentSource =
 		"varying highp vec4 texc;\n"
 		"uniform sampler2D tex;\n"
+		"uniform vec4 color;\n"
 		"void main(void)\n"
 		"{\n"
-		"    gl_FragColor = vec4(texture2D(tex, texc.st).rgba);\n"
+		"    gl_FragColor = color * vec4(texture2D(tex, texc.st).rgba);\n"
 		"}\n";
 	mFragmentShader->compileSourceCode(fragmentSource);
 
@@ -156,14 +156,15 @@ void View::initializeGL()
 	mAttrTexCoord = mProgram->attributeLocation("texCoord");
 	mAttrMatrix = mProgram->uniformLocation("matrix");
 	mAttrTexture = mProgram->uniformLocation("tex");
+	mAttrColor = mProgram->uniformLocation("color");
 
 	createMesh();
 
-	glClearColor(0.1, 0.1, 0.1, 1.0);
+	glClearColor(0.0, 0.0, 0.0, 1.0);
 	glCullFace(GL_BACK);
 	glEnable(GL_CULL_FACE);
 
-	checkGlError();
+	CHECK_GL_ERROR;
 }
 
 void View::paintGL()
@@ -173,6 +174,9 @@ void View::paintGL()
 	painter.beginNativePainting();
 
 	glClear(GL_COLOR_BUFFER_BIT);
+
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_ONE, GL_ONE);
 
 	// Eventually we want to scroll, and this will be how we do that.
 	//mModelView.translate(0.0f, 0.0f, 0.0f);
@@ -194,23 +198,25 @@ void View::paintGL()
 	painter.endNativePainting();
 	painter.end();
 
-	checkGlError();
+	CHECK_GL_ERROR;
 }
 
 void View::paintTexture()
 {
-	for (auto texture : mTextures)
+	for (auto & texture : mTextures)
 	{
 		StyleData * data = &mStyleData[mStyle];
 
 		texture.second->bind();
+		LayerData * layerData = static_cast<LayerData *>(texture.first->userData());
+		mProgram->setUniformValue(mAttrColor, layerData->color);
 
 		data->mVao.bind();
 
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, data->mIndexBuffer);
 		glDrawElements(GL_TRIANGLES, data->mIndexCount, GL_UNSIGNED_SHORT, 0);
 
-		mStyleData[mStyle].mVao.release();
+		data->mVao.release();
 	}
 }
 
@@ -257,7 +263,7 @@ void View::createSimpleStyle()
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, data->mIndexBuffer);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, data->mIndexCount * sizeof(GLushort), &indices[0], GL_STATIC_DRAW);
 
-	checkGlError();
+	CHECK_GL_ERROR;
 }
 
 void View::createTiledStyle()
@@ -324,7 +330,7 @@ void View::createTiledStyle()
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, data->mIndexBuffer);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, data->mIndexCount * sizeof(GLushort), &indices[0], GL_STATIC_DRAW);
 
-	checkGlError();
+	CHECK_GL_ERROR;
 }
 
 void View::createDonutStyle()
@@ -405,7 +411,7 @@ void View::createDonutStyle()
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, data->mIndexBuffer);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, data->mIndexCount * sizeof(GLushort), &indices[0], GL_STATIC_DRAW);
 
-	checkGlError();
+	CHECK_GL_ERROR;
 }
 
 void View::setZoom(float zoom)
@@ -414,13 +420,14 @@ void View::setZoom(float zoom)
 	setProjection();
 }
 
-void View::checkGlError()
+void View::checkGlError(char * fun, int line)
 {
 	GLenum errCode;
 	const GLubyte *errString;
 	if ((errCode = glGetError()) != GL_NO_ERROR)
 	{
 		errString = gluErrorString(errCode);
+		LOG("OpenGL error in [" << fun << "] line [" << line << "] : " << errCode << " = " << errString);
 	}
 }
 
@@ -446,28 +453,47 @@ void View::setStyle(const QString & style)
 	setProjection();
 }
 
-void View::automatonLayerCreated(std::shared_ptr<Layer> layer)
+void View::automatonSizechanged(int width, int height)
 {
+	int size = width * height;
+	if (mImageData.size() < size)
+	{
+		mImageData.resize(size);
+		LOG("resizing image buffer to [" << mImageData.size() << "]");
+	}
+
 	for (auto texture : mTextures)
 	{
-		texture.second->release();
+		createTextureForLayer(texture.first);
 	}
-	mTextures.clear();
+}
 
-	auto texture = std::make_shared<QOpenGLTexture>(QOpenGLTexture::Target2D);
-	mTextures[layer] = texture;
-	texture->setMinMagFilters(QOpenGLTexture::Linear, QOpenGLTexture::Linear);
-	texture->create();
-
-	texture->setSize(layer->width(), layer->height(), 1);
-	texture->setFormat(QOpenGLTexture::RGBA8_UNorm);
-	texture->allocateStorage();
-	texture->setWrapMode(QOpenGLTexture::Repeat);
-
-	checkGlError();
+void View::automatonLayerCreated(std::shared_ptr<Layer> layer)
+{
+	createTextureForLayer(layer);
 }
 
 void View::automatonLayerRemoved(std::shared_ptr<Layer> layer)
 {
 	mTextures.erase(layer);
+}
+
+void View::createTextureForLayer(std::shared_ptr<Layer> layer)
+{
+	std::shared_ptr<QOpenGLTexture> texture;
+	makeCurrent();
+	if (mTextures.count(layer))
+	{
+		texture = mTextures[layer];
+		texture->destroy();
+	}
+	texture = std::make_shared<QOpenGLTexture>(QOpenGLTexture::Target2D);
+	texture->setMinMagFilters(QOpenGLTexture::Linear, QOpenGLTexture::Linear);
+	texture->create();
+	texture->setSize(layer->width(), layer->height(), 1);
+	texture->setFormat(QOpenGLTexture::RGBA8_UNorm);
+	texture->allocateStorage();
+	texture->setWrapMode(QOpenGLTexture::Repeat);
+	mTextures[layer] = texture;
+	CHECK_GL_ERROR;
 }

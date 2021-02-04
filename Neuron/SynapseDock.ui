@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>200</width>
-    <height>222</height>
+    <height>191</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -53,7 +53,7 @@
          <x>0</x>
          <y>0</y>
          <width>198</width>
-         <height>198</height>
+         <height>167</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -76,13 +76,6 @@
          <widget class="QPushButton" name="btnNew">
           <property name="text">
            <string>New Synapse Matrix</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="btnApply">
-          <property name="text">
-           <string>Apply</string>
           </property>
          </widget>
         </item>

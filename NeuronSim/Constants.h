@@ -7,4 +7,10 @@ const float TINY_VALUE(0.00000001f);
 const int MAX_SPIKE_LENGTH(7);
 const int MAX_SPIKE_DELAY(32);
 
+#ifdef NDEBUG
+const int DEFAULT_NET_SIZE(512);
+#else
+const int DEFAULT_NET_SIZE(64);
+#endif
+
 #endif

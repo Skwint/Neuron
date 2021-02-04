@@ -4,6 +4,8 @@
 #include <cstdint>
 #include <random>
 
+static const float neuronLifeCheck(-12345.0f);
+
 class NeuronLife
 {
 public:
@@ -16,9 +18,18 @@ public:
 		static std::mt19937 rnd;
 		input = rnd() > 0xA0000000 ? 3.0f : 0.0f;
 	}
-	virtual ~NeuronLife() {}
+	virtual ~NeuronLife()
+	{
+		// This was added because an off by one error during development managed to
+		// evade detection by std::vector and caused a crash that took most of a day
+		// to track down.
+		// It works by setting the value of deleted neurons to something they can
+		// never naturally attain, and then asserting if a neuron with those values
+		// is ever accessed.
+		potential = input = neuronLifeCheck;
+	}
 
-	uint32_t colour() { return 0xFF000000 | (potential > 2.25f && potential < 3.75f? 0x00FFFFFF: 0x0); }
+	uint32_t color() { return (potential > 2.25f && potential < 3.75f? 0xFFFFFFFF: 0xFF000000); }
 public:
 	float input;
 	float potential;

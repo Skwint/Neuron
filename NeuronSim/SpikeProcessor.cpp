@@ -4,6 +4,7 @@
 #include <cassert>
 
 #include "Constants.h"
+#include "Log.h"
 
 static const int MAX_FRAMES = MAX_SPIKE_LENGTH + MAX_SPIKE_DELAY;
 
@@ -65,6 +66,7 @@ void SpikeProcessor::tick()
 
 void SpikeProcessor::clear()
 {
+	LOG("Clearing spikes");
 	for (auto & frame : mFrames)
 	{
 		frame.clear();

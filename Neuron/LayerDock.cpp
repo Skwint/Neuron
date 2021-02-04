@@ -37,6 +37,7 @@ void LayerDock::automatonLayerCreated(std::shared_ptr<Layer> layer)
 	auto widget = std::make_shared<LayerConfig>(layer);
 	mLayerWidgets.push_back(widget);
 	ui.configLayout->insertWidget(0, widget.get());
+	connect(widget->deleteButton(), &QPushButton::clicked, this, [this, layer]() { mAutomaton->removeLayer(layer); });
 }
 
 void LayerDock::automatonLayerRemoved(std::shared_ptr<Layer> layer)

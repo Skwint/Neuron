@@ -1,6 +1,7 @@
 #include "SynapseConfig.h"
 
 #include <qcombobox.h>
+#include <qpushbutton.h>
 
 #include "NeuronSim/Automaton.h"
 #include "NeuronSim/Layer.h"
@@ -39,6 +40,7 @@ SynapseConfig::SynapseConfig(shared_ptr<Automaton> automaton, shared_ptr<Synapse
 	connect(ui.cmbSynapse, &QComboBox::currentTextChanged, this, &SynapseConfig::synapseChanged);
 	connect(ui.cmbSource, &QComboBox::currentTextChanged, this, &SynapseConfig::sourceChanged);
 	connect(ui.cmbTarget, &QComboBox::currentTextChanged, this, &SynapseConfig::targetChanged);
+	connect(ui.btnDelete, &QPushButton::clicked, this, [this]() { mAutomaton->removeSynapse(mSynapses); });
 }
 
 SynapseConfig::~SynapseConfig()

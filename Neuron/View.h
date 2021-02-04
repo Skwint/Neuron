@@ -7,6 +7,7 @@
 #include <memory>
 #include <QOpenGLWidget>
 #include <QOpenGLFunctions>
+#include <qopengltexture.h>
 #include <QOpenGLVertexArrayObject>
 #include <QOpenGLBuffer>
 #include <QVector3D>
@@ -16,7 +17,6 @@
 
 #include "NeuronSim/Automaton.h"
 
-QT_FORWARD_DECLARE_CLASS(QOpenGLTexture)
 QT_FORWARD_DECLARE_CLASS(QOpenGLShader)
 QT_FORWARD_DECLARE_CLASS(QOpenGLShaderProgram)
 
@@ -71,6 +71,7 @@ private: // from QOpenGLWidget
 	void initializeGL() override;
 
 private: // from Automaton::Listener
+	void automatonSizechanged(int width, int height);
 	void automatonLayerCreated(std::shared_ptr<Layer> layer);
 	void automatonLayerRemoved(std::shared_ptr<Layer> layer);
 
@@ -80,7 +81,8 @@ private:
 	void createTiledStyle();
 	void createDonutStyle();
 	void paintTexture();
-	void checkGlError();
+	void checkGlError(char * fun, int line);
+	void createTextureForLayer(std::shared_ptr<Layer> layer);
 
 private:
 	Ui::View ui;
@@ -94,6 +96,7 @@ private:
 	int mAttrTexCoord;
 	int mAttrMatrix;
 	int mAttrTexture;
+	int mAttrColor;
 	float mZoom;
 	float mAspect;
 	Style mStyle;

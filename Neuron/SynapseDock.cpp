@@ -15,7 +15,6 @@ SynapseDock::SynapseDock(shared_ptr<Automaton> automaton, QWidget *parent)
 	mAutomaton->addListener(this);
 
 	connect(ui.btnNew, &QPushButton::clicked, this, &SynapseDock::create);
-	connect(ui.btnApply, &QPushButton::clicked, this, &SynapseDock::apply);
 }
 
 SynapseDock::~SynapseDock()
@@ -28,11 +27,6 @@ void SynapseDock::create()
 	mAutomaton->createSynapse();
 }
 
-void SynapseDock::apply()
-{
-
-}
-
 void SynapseDock::automatonLayerCreated(shared_ptr<Layer> layer)
 {
 	for (auto synapse : mSynapseWidgets)
@@ -43,9 +37,6 @@ void SynapseDock::automatonLayerCreated(shared_ptr<Layer> layer)
 
 void SynapseDock::automatonLayerRemoved(shared_ptr<Layer> layer)
 {
-	// Remove any synapses which are sourced or targettedon this layer
-	mSynapseWidgets.erase(remove_if(mSynapseWidgets.begin(), mSynapseWidgets.end(), [layer](auto widget) { return widget->isReferencingLayer(layer->name()); }), mSynapseWidgets.end());
-
 	// Remove the layer from the list of available sources and targets
 	for (auto synapse : mSynapseWidgets)
 	{

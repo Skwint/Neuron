@@ -133,16 +133,20 @@
   <ItemGroup>
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Test.cpp" />
+    <ClCompile Include="TestAutomaton.cpp" />
     <ClCompile Include="Tester.cpp" />
     <ClCompile Include="TestMat33f.cpp" />
     <ClCompile Include="TestSpikeProcessor.cpp" />
+    <ClCompile Include="TestStability.cpp" />
     <ClCompile Include="TestVec3f.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Test.h" />
+    <ClInclude Include="TestAutomaton.h" />
     <ClInclude Include="Tester.h" />
     <ClInclude Include="TestMat33f.h" />
     <ClInclude Include="TestSpikeProcessor.h" />
+    <ClInclude Include="TestStability.h" />
     <ClInclude Include="TestVec3f.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

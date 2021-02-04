@@ -37,9 +37,6 @@
     <ClCompile Include="ToolBox.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ArrowPlot.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="LayerDock.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -52,6 +49,9 @@
     <ClCompile Include="SynapseConfig.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="App.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="Neuron.h">
@@ -61,9 +61,6 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="ToolBox.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
-    <QtMoc Include="ArrowPlot.h">
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="LayerDock.h">
@@ -78,6 +75,9 @@
     <QtMoc Include="SynapseConfig.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <QtMoc Include="App.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <QtUic Include="Neuron.ui">
@@ -87,9 +87,6 @@
       <Filter>Form Files</Filter>
     </QtUic>
     <QtUic Include="ToolBox.ui">
-      <Filter>Form Files</Filter>
-    </QtUic>
-    <QtUic Include="ArrowPlot.ui">
       <Filter>Form Files</Filter>
     </QtUic>
     <QtUic Include="LayerDock.ui">
@@ -118,6 +115,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Mat33f.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LayerData.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

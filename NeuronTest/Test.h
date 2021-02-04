@@ -11,6 +11,9 @@
 #define TEST(x) { test(__FILE__, __LINE__, #x, (x)); }
 #define TEST_EQUAL(l, r) { testEqual(__FILE__, __LINE__, #l, #r, l, r); }
 #define TEST_APPROX_EQUAL(l, r) { testApproxEqual(__FILE__, __LINE__, #l, #r, l, r); }
+#define TEST_LOG(x) { std::cout << "  " << __FUNCTION__ << ":" << __LINE__ << " [" << x << "]" << "\n"; }
+#define TEST_SUB { std::cout << "  " << __FUNCTION__ << "\n"; }
+#define TEST_FAIL(x) { testFail(__FILE__,__LINE__, x); }
 
 // Abstract base class for tests.
 // Implementations are responsible for the name() and run() functions.
@@ -28,6 +31,7 @@ public:
 	bool test(const std::string & file, int line, const std::string & expr, bool value);
 	template <typename T> inline bool testEqual(const std::string & file, int line, const std::string & leftStr, const std::string & rightStr, const T & left, const T & right);
 	template <typename T> inline bool testApproxEqual(const std::string & file, int line, const std::string & leftStr, const std::string & rightStr, const T & left, const T & right);
+	template <typename T> inline void testFail(const std::string & file, int line, const T & reason);
 
 	int passes() { return mPasses; }
 	int fails() { return mFails; }
@@ -73,6 +77,13 @@ inline bool Test::testApproxEqual(const std::string & file, int line, const std:
 		++mFails;
 		return false;
 	}
+}
+
+template <typename T>
+inline void Test::testFail(const std::string & file, int line, const T & reason)
+{
+	std::cout << file << ":" << line << " FAILED [" << reason << "]\n";
+	++mFails;
 }
 
 #endif

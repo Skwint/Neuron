@@ -18,10 +18,19 @@ public:
 	{
 	public:
 		virtual void automatonTypeChanged() {};
+		virtual void automatonSizechanged(int width, int height) {};
 		virtual void automatonLayerCreated(std::shared_ptr<Layer> layer) {};
 		virtual void automatonLayerRemoved(std::shared_ptr<Layer> layer) {};
 		virtual void automatonSynapsesCreated(std::shared_ptr<SynapseMatrix> synapses) {};
 		virtual void automatonSynapsesRemoved(std::shared_ptr<SynapseMatrix> synapses) {};
+	};
+	class Lock
+	{
+	public:
+		inline Lock();
+		inline ~Lock();
+	private:
+		static bool mLocked;
 	};
 public:
 	Automaton();
@@ -37,7 +46,7 @@ public:
 	const std::vector<std::shared_ptr<Layer> > layers() { return mLayers; }
 	std::shared_ptr<Layer> findLayer(const std::string & name);
 	std::vector<std::string> typeNames();
-	void createSynapse();
+	std::shared_ptr<SynapseMatrix> createSynapse();
 	void removeSynapse(std::shared_ptr<SynapseMatrix> synapses);
 	const ConfigSet & config() const;
 	void addListener(Listener * listener);

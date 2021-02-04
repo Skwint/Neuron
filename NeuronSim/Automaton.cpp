@@ -1,5 +1,9 @@
 #include "Automaton.h"
 
+#include <cassert>
+
+#include "Constants.h"
+#include "Exception.h"
 #include "Layer.h"
 #include "Log.h"
 #include "LayerFactory.h"
@@ -8,10 +12,12 @@
 
 using namespace std;
 
+bool Automaton::Lock::mLocked(false);
+
 Automaton::Automaton() :
 	mType("Life"),
-	mWidth(512),
-	mHeight(512)
+	mWidth(DEFAULT_NET_SIZE),
+	mHeight(DEFAULT_NET_SIZE)
 {
 	mLayerFactory = std::make_unique<LayerFactory>();
 	mSpikeProcessor = std::make_shared<SpikeProcessor>();
@@ -34,11 +40,13 @@ void Automaton::tick()
 
 void Automaton::addListener(Listener * listener)
 {
+	Lock lock;
 	mListeners.push_back(listener);
 }
 
 void Automaton::removeListener(Listener * listener)
 {
+	Lock lock;
 	mListeners.erase(std::remove(mListeners.begin(), mListeners.end(), listener), mListeners.end());
 }
 
@@ -48,6 +56,7 @@ void Automaton::setNetworkType(const std::string & type)
 	{
 		mSpikeProcessor->clear();
 		mSynapses.clear();
+		Lock lock;
 		for (auto layer : mLayers)
 		{
 			for (auto listener : mListeners)
@@ -70,6 +79,7 @@ std::shared_ptr<Layer> Automaton::createLayer()
 	layer->setSpikeProcessor(mSpikeProcessor);
 	mLayers.push_back(layer);
 
+	Lock lock;
 	for (auto listener : mListeners)
 	{
 		listener->automatonLayerCreated(layer);
@@ -79,14 +89,34 @@ std::shared_ptr<Layer> Automaton::createLayer()
 
 void Automaton::removeLayer(std::shared_ptr<Layer> layer)
 {
+	// Repeatedly search for synapses referencing this layer and remove them
+	bool keepTrying = true;
+	while (keepTrying && !mSynapses.empty())
+	{
+		keepTrying = false;
+		auto zombie = std::find_if(mSynapses.begin(), mSynapses.end(), [layer](auto synapses)
+		{
+			return (!synapses->source()) || (synapses->source() == layer || (!synapses->target()) || synapses->target() == layer);
+		});
+		if (zombie != mSynapses.end())
+		{
+			removeSynapse(*zombie);
+			keepTrying = true;
+		}
+	}
+
+	// Remove the layer
 	mLayers.erase(std::remove(mLayers.begin(), mLayers.end(), layer), mLayers.end());
+
+	// Tell listeners about the removed layer
+	Lock lock;
 	for (auto listener : mListeners)
 	{
 		listener->automatonLayerRemoved(layer);
 	}
 }
 
-void Automaton::createSynapse()
+std::shared_ptr<SynapseMatrix> Automaton::createSynapse()
 {
 	if (!mLayers.empty())
 	{
@@ -94,20 +124,24 @@ void Automaton::createSynapse()
 		synapses->setSource(mLayers[0]);
 		synapses->setTarget(mLayers[0]);
 		mSynapses.push_back(synapses);
+		Lock lock;
 		for (auto listener : mListeners)
 		{
 			listener->automatonSynapsesCreated(synapses);
 		}
+		return synapses;
 	}
 	else
 	{
 		LOG("Attempt to create synapses when no layers exist - ignored");
+		return std::shared_ptr<SynapseMatrix>();
 	}
 }
 
 void Automaton::removeSynapse(std::shared_ptr<SynapseMatrix> synapses)
 {
 	mSynapses.erase(std::remove(mSynapses.begin(), mSynapses.end(), synapses), mSynapses.end());
+	Lock lock;
 	for (auto listener : mListeners)
 	{
 		listener->automatonSynapsesRemoved(synapses);
@@ -123,6 +157,13 @@ void Automaton::setSize(int width, int height)
 		for (auto layer : mLayers)
 		{
 			layer->resize(mWidth, mHeight);
+		}
+		mSpikeProcessor->clear();
+
+		Lock lock;
+		for (auto listener : mListeners)
+		{
+			listener->automatonSizechanged(width, height);
 		}
 	}
 }
@@ -154,3 +195,16 @@ shared_ptr<Layer> Automaton::findLayer(const std::string & name)
 	return shared_ptr<Layer>();
 }
 
+inline Automaton::Lock::Lock()
+{
+	assert(!mLocked);
+	if (mLocked)
+		NEURONTHROW("Invalid use of automaton listeners");
+	mLocked = true;
+}
+
+inline Automaton::Lock::~Lock()
+{
+	assert(mLocked);
+	mLocked = false;
+}

@@ -1,5 +1,7 @@
 #include "Life.h"
 
+#include <cassert>
+
 #include "ConfigItem.h"
 #include "Log.h"
 
@@ -68,6 +70,8 @@ void Life::tick(SynapseMatrix * synapses)
 		NeuronLife * cell = row(rr);
 		for (int cc = 0; cc < mWidth; ++cc)
 		{
+			assert(cell->potential != neuronLifeCheck);
+			assert(cell->input != neuronLifeCheck);
 			// Life is an extremely leaky integrator - it leaks 100%
 			// on every time step.
 			cell->potential = cell->input;

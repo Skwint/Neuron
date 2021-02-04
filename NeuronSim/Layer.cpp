@@ -10,7 +10,8 @@ using namespace std;
 
 Layer::Layer(int width, int height) :
 	mWidth(width),
-	mHeight(height)
+	mHeight(height),
+	mUserData(0)
 {
 	stringstream str;
 	str << "Layer " << nextName;

@@ -39,8 +39,6 @@ Neuron::Neuron(QWidget *parent)
 	connect(mTimer.get(), &QTimer::timeout, this, QOverload<>::of(&Neuron::tick));
 	connect(ui.view, &QOpenGLWidget::frameSwapped, this, &Neuron::onFrameSwapped);
 
-	connect(mToolBox.get(), &ToolBox::setSpike, this, &Neuron::setSpike);
-	connect(mToolBox->zoomOneToOne(), &QToolButton::clicked, this, &Neuron::zoomOneToOne);
 	connect(mToolBox->zoomFitToWindow(), &QToolButton::clicked, this, &Neuron::zoomFitToWindow);
 	connect(mToolBox->zoomIn(), &QToolButton::clicked, this, &Neuron::zoomIn);
 	connect(mToolBox->zoomOut(), &QToolButton::clicked, this, &Neuron::zoomOut);
@@ -62,6 +60,17 @@ Neuron::~Neuron()
 void Neuron::showEvent(QShowEvent *event)
 {
 	QMainWindow::showEvent(event);
+
+	// temporary testing hack
+	//auto l1 = mAutomaton->createLayer();
+	//auto l2 = mAutomaton->createLayer();
+	//static LayerData d2;
+	//d2.color = QColor(0xFF00FF00);
+	//l2->setUserData(&d2);
+	//auto s1 = mAutomaton->createSynapse();
+	//auto s2 = mAutomaton->createSynapse();
+	//s2->setSource(l2);
+	//s2->setTarget(l2);
 }
 
 static const qint64 stepPerTimerUpdate(20);
@@ -107,17 +116,7 @@ void Neuron::onFrameSwapped()
 	}
 }
 
-void Neuron::automatonTypeChanged()
-{
-
-}
-
-void Neuron::setSpike(const SpikeProcessor::Spike & spike)
-{
-	mAutomaton->setSpike(spike);
-}
-
-void Neuron::zoomFitToWindow()
+void Neuron::zoomOneToOne()
 {
 	int winWidth = ui.view->width();
 	int winHeight = ui.view->height();
@@ -138,7 +137,7 @@ void Neuron::zoomFitToWindow()
 	centerNet();
 }
 
-void Neuron::zoomOneToOne()
+void Neuron::zoomFitToWindow()
 {
 	setZoom(1);
 }

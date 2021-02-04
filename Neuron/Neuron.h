@@ -37,13 +37,9 @@ private:
 	void simStep();
 	void startTimer(int delay);
 	void onFrameSwapped();
-	void setSpike(const SpikeProcessor::Spike & spike);
 
 private:
 	void showEvent(QShowEvent *event);
-
-private: // from Automaton::Listener
-	void automatonTypeChanged();
 
 private:
 	Ui::NeuronClass ui;

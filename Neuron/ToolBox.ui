@@ -193,13 +193,6 @@
             </item>
            </layout>
           </item>
-          <item>
-           <widget class="QPushButton" name="btnNetApply">
-            <property name="text">
-             <string>Apply</string>
-            </property>
-           </widget>
-          </item>
          </layout>
         </widget>
        </item>
@@ -275,13 +268,6 @@
              <widget class="QToolButton" name="btnViewZoomFitToWindow">
               <property name="text">
                <string>Fit to window</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QToolButton" name="btnViewZoomOneToOne">
-              <property name="text">
-               <string>1:1</string>
               </property>
              </widget>
             </item>
@@ -373,7 +359,7 @@
             <item row="0" column="0">
              <widget class="QLabel" name="label_4">
               <property name="text">
-               <string>Frame Rate</string>
+               <string>Target Frame Time</string>
               </property>
               <property name="alignment">
                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -386,7 +372,7 @@
                <bool>true</bool>
               </property>
               <property name="currentIndex">
-               <number>0</number>
+               <number>2</number>
               </property>
               <item>
                <property name="text">

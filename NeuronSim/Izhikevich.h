@@ -8,7 +8,7 @@
 class Izhikevich : public Net<NeuronIzhikevich>
 {
 public:
-	Izhikevich(int width = 512, int height = 512);
+	Izhikevich(int width, int height);
 	virtual ~Izhikevich();
 
 	static std::string name();

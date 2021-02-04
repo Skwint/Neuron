@@ -94,7 +94,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="ArrowPlot.cpp" />
+    <ClCompile Include="App.cpp" />
     <ClCompile Include="LayerConfig.cpp" />
     <ClCompile Include="LayerDock.cpp" />
     <ClCompile Include="main.cpp" />
@@ -108,7 +108,6 @@
     <QtMoc Include="Neuron.h" />
   </ItemGroup>
   <ItemGroup>
-    <QtUic Include="ArrowPlot.ui" />
     <QtUic Include="LayerConfig.ui" />
     <QtUic Include="LayerDock.ui" />
     <QtUic Include="Neuron.ui" />
@@ -130,9 +129,10 @@
     <QtMoc Include="ToolBox.h" />
   </ItemGroup>
   <ItemGroup>
-    <QtMoc Include="ArrowPlot.h" />
     <QtMoc Include="LayerDock.h" />
     <QtMoc Include="LayerConfig.h" />
+    <QtMoc Include="App.h" />
+    <ClInclude Include="LayerData.h" />
     <ClInclude Include="Mat33f.h" />
     <QtMoc Include="SynapseDock.h" />
     <QtMoc Include="SynapseConfig.h" />

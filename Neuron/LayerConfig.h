@@ -5,6 +5,7 @@
 
 #include "NeuronSim/Automaton.h"
 #include "NeuronSim/ConfigItem.h"
+#include "LayerData.h"
 
 class LayerConfig : public QGroupBox
 {
@@ -25,11 +26,16 @@ public:
 
 	void repopulate();
 	void apply();
+	QPushButton * deleteButton() { return ui.btnDelete; }
 	std::shared_ptr<Layer> layer() { return mLayer; }
+
+private:
+	void color();
 
 private:
 	Ui::LayerConfig ui;
 	std::shared_ptr<Layer> mLayer;
+	std::unique_ptr<LayerData> mLayerData;
 	ConfigSet mConfig;
 	int mFixedConfigRows;
 	std::vector<ConfigWidget> mConfigWidgets;

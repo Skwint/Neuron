@@ -8,7 +8,7 @@
 class Life : public Net<NeuronLife>
 {
 public:
-	Life(int width = 512, int height = 512);
+	Life(int width, int height);
 	~Life();
 
 	static std::string name();

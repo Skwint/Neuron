@@ -13,7 +13,7 @@ struct NeuronIzhikevich
 	float u;
 	float v;
 
-	uint32_t colour() { return 0xFF | (u > 0.0 ? 0xFF00 : 0) | (v > 0.0f ? 0xFF0000 : 0); }
+	uint32_t color() { return 0xFF | (u > 0.0 ? 0xFF00 : 0) | (v > 0.0f ? 0xFF0000 : 0); }
 };
 
 #endif

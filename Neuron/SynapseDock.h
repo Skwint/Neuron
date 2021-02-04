@@ -17,7 +17,6 @@ public:
 	~SynapseDock();
 
 	void create();
-	void apply();
 
 private: // from Automaton::Listener
 	void automatonLayerCreated(std::shared_ptr<Layer> layer);

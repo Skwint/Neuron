@@ -1,10 +1,11 @@
 #include "ToolBox.h"
 
 #include <qcombobox.h>
-#include <qpushbutton.h>
-#include <qgroupbox.h>
 #include <qdiriterator.h>
+#include <qgroupbox.h>
 #include <qimage.h>
+#include <qpushbutton.h>
+#include <qspinbox.h>
 #include <map>
 #include <string>
 
@@ -16,7 +17,6 @@ ToolBox::ToolBox(std::shared_ptr<Automaton> automaton, QWidget *parent)
 	mAutomaton(automaton)
 {
 	ui.setupUi(this);
-
 	ui.cmbType->clear();
 	auto names = mAutomaton->typeNames();
 	for (auto name : names)
@@ -29,17 +29,21 @@ ToolBox::ToolBox(std::shared_ptr<Automaton> automaton, QWidget *parent)
 	connect(ui.netGroup, &QGroupBox::toggled, this, &ToolBox::netToggle);
 	connect(ui.viewGroup, &QGroupBox::toggled, this, &ToolBox::viewToggle);
 	connect(ui.simGroup, &QGroupBox::toggled, this, &ToolBox::simToggle);
-	connect(ui.btnNetApply, &QPushButton::clicked, this, &ToolBox::netApply);
 	connect(ui.cmbSpike, &QComboBox::currentTextChanged, this, &ToolBox::spikeChanged);
+	connect(ui.spinNetWidth, QOverload<int>::of(&QSpinBox::valueChanged), this, &ToolBox::netSizeChanged);
+	connect(ui.spinNetHeight, QOverload<int>::of(&QSpinBox::valueChanged), this, &ToolBox::netSizeChanged);
 
-	ui.cmbType->setCurrentText("Life");
-	netTypeChanged();
 	ui.cmbSpike->setCurrentText(QString::fromStdString(mSpikes.begin()->first));
 	spikeChanged();
+
+	automatonTypeChanged();
+	automatonSizeChanged(mAutomaton->width(), mAutomaton->height());
+	mAutomaton->addListener(this);
 }
 
 ToolBox::~ToolBox()
 {
+	mAutomaton->removeListener(this);
 }
 
 void ToolBox::netToggle()
@@ -47,7 +51,7 @@ void ToolBox::netToggle()
 	ui.netPanel->setVisible(ui.netGroup->isChecked());
 }
 
-void ToolBox::netApply()
+void ToolBox::netSizeChanged()
 {
 	int width = ui.spinNetWidth->value();
 	int height = ui.spinNetHeight->value();
@@ -77,7 +81,7 @@ const SpikeProcessor::Spike & ToolBox::spike()
 
 void ToolBox::spikeChanged()
 {
-	emit setSpike(spike());
+	mAutomaton->setSpike(spike());
 }
 
 int ToolBox::delay()
@@ -121,4 +125,21 @@ void ToolBox::populateSpikes()
 	{
 		ui.cmbSpike->addItem(QString::fromStdString(iter.first));
 	}
+}
+
+void ToolBox::automatonTypeChanged()
+{
+	ui.cmbType->blockSignals(true);
+	ui.cmbType->setCurrentText(QString::fromStdString(mAutomaton->networkType()));
+	ui.cmbType->blockSignals(false);
+}
+
+void ToolBox::automatonSizeChanged(int width, int height)
+{
+	ui.spinNetWidth->blockSignals(true);
+	ui.spinNetHeight->blockSignals(true);
+	ui.spinNetWidth->setValue(width);
+	ui.spinNetHeight->setValue(height);
+	ui.spinNetWidth->blockSignals(false);
+	ui.spinNetHeight->blockSignals(false);
 }

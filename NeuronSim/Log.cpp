@@ -24,5 +24,6 @@ std::stringstream & Log::begin()
 void Log::end()
 {
 	mFile << mStream.str() << std::endl;
+	mFile.flush();
 	mStream.str("");
 }

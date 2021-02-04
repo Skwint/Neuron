@@ -4,14 +4,13 @@
 #include <QDir>
 #include "ui_ToolBox.h"
 
+#include "NeuronSim/Automaton.h"
 #include "NeuronSim/ConfigItem.h"
 #include "NeuronSim/LayerFactory.h"
 #include "NeuronSim/SynapseMatrix.h"
 #include "NeuronSim/SpikeProcessor.h"
 
-class Automaton;
-
-class ToolBox : public QDockWidget
+class ToolBox : public QDockWidget, public Automaton::Listener
 {
 	Q_OBJECT
 public:
@@ -19,7 +18,6 @@ public:
 	~ToolBox();
 
 	auto zoomFitToWindow() { return ui.btnViewZoomFitToWindow; }
-	auto zoomOneToOne() { return ui.btnViewZoomOneToOne; }
 	auto zoomIn() { return ui.btnViewZoomIn; }
 	auto zoomOut() { return ui.btnViewZoomOut; }
 	auto speed() { return ui.cmbSimSpeed; }
@@ -34,19 +32,20 @@ public:
 	int delay();
 	const SpikeProcessor::Spike & spike();
 
-signals:
-	void setSpike(const SpikeProcessor::Spike & spike);
-
 private:
 	void netToggle();
-	void netApply();
 	void netTypeChanged();
+	void netSizeChanged();
 	void viewToggle();
 
 	void simToggle();
 
 	void spikeChanged();
 	void populateSpikes();
+
+private:// from Automaton::Listener
+	void automatonTypeChanged();
+	void automatonSizeChanged(int width, int height);
 
 private:
 	Ui::ToolBox ui;
