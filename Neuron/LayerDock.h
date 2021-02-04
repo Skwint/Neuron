@@ -3,7 +3,7 @@
 #include <QDockWidget>
 #include "ui_LayerDock.h"
 
-#include "NeuronSim/ConfigItem.h"
+#include "NeuronSim/ConfigSet.h"
 #include "NeuronSim/LayerFactory.h"
 #include "LayerConfig.h"
 

@@ -6,7 +6,8 @@
 #include <string>
 #include <vector>
 
-#include "ConfigItem.h"
+#include "ConfigPresets.h"
+#include "ConfigSet.h"
 
 class Layer;
 
@@ -18,7 +19,7 @@ private:
 	public:
 		virtual std::string name() = 0;
 		virtual std::shared_ptr<Layer> create(int width, int height) = 0;
-		virtual const ConfigSet & config() = 0;
+		virtual const ConfigPresets & presets() = 0;
 	};
 	template<typename L>
 	class Allocator : public Alloc
@@ -32,9 +33,9 @@ private:
 		{
 			return std::make_shared<L>(width, height);
 		}
-		const ConfigSet & config()
+		const ConfigPresets & presets()
 		{
-			return L::defaultConfig();
+			return L::presets();
 		}
 	};
 public:
@@ -43,7 +44,7 @@ public:
 
 	std::vector<std::string> getNames() const;
 	std::shared_ptr<Layer> create(const std::string & name, int width, int height);
-	const ConfigSet & config(const std::string & name);
+	const ConfigPresets & presets(const std::string & name);
 
 private:
 	std::map<std::string, Alloc *> mAllocators;

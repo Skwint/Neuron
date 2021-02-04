@@ -3,6 +3,7 @@
 #include <iostream>
 
 #include "TestAutomaton.h"
+#include "TestConfigs.h"
 #include "TestMat33f.h"
 #include "TestSpikeProcessor.h"
 #include "TestStability.h"
@@ -14,6 +15,7 @@ Tester::Tester()
 {
 	mTests.push_back(make_shared<TestVec3f>());
 	mTests.push_back(make_shared<TestMat33f>());
+	mTests.push_back(make_shared<TestConfigs>());
 	mTests.push_back(make_shared<TestSpikeProcessor>());
 	mTests.push_back(make_shared<TestAutomaton>());
 	mTests.push_back(make_shared<TestStability>());
@@ -31,28 +33,29 @@ void Tester::run()
 	mExceptions = 0;
 	for (auto test : mTests)
 	{
-		cout << "Running [" << test->name() << "]\n";
+		TEST_LOG("Running [" << test->name() << "]");
 		try
 		{
 			test->run();
 		}
 		catch (const runtime_error & re)
 		{
-			cout << "  Exception thrown [" << re.what() << "]\n";
+			TEST_LOG("  Exception thrown [" << re.what() << "]");
 			++mExceptions;
 		}
-		cout << "  " << test->passes() << " passed";
+		TEST_LOG("  " << test->passes() << " passed");
 		if (test->fails())
 		{
-			cout << " " << test->fails() << " FAILED";
+			TEST_LOG(" " << test->fails() << " FAILED");
 			++mFails;
 		}
 		else
 		{
 			++mPasses;
 		}
-		cout << "\n";
 	}
 
-	cout << "\nPassed:     " << mPasses << "\nFailed:     " << mFails << "\nExceptions: " << mExceptions << "\n\n";
+	TEST_LOG("Passed:     " << mPasses);
+	TEST_LOG("Failed:     " << mFails);
+	TEST_LOG("Exceptions : " << mExceptions);
 }

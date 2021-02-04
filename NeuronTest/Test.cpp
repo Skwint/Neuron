@@ -2,7 +2,9 @@
 
 #include <iostream>
 
-Test::Test()
+Test::Test() :
+	mPasses(0),
+	mFails(0)
 {
 }
 
@@ -25,7 +27,7 @@ bool Test::test(const std::string & file, int line, const std::string & expr, bo
 	}
 	else
 	{
-		std::cout << file << ":" << line << " [" << expr << "] FAILED\n";
+		TEST_LOG(file << ":" << line << " [" << expr << "] FAILED");
 		++mFails;
 	}
 	return value;

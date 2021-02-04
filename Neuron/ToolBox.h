@@ -5,7 +5,6 @@
 #include "ui_ToolBox.h"
 
 #include "NeuronSim/Automaton.h"
-#include "NeuronSim/ConfigItem.h"
 #include "NeuronSim/LayerFactory.h"
 #include "NeuronSim/SynapseMatrix.h"
 #include "NeuronSim/SpikeProcessor.h"

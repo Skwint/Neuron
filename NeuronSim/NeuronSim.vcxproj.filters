@@ -39,6 +39,12 @@
     <ClCompile Include="Automaton.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ConfigSet.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ConfigPresets.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Net.h">
@@ -84,6 +90,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Automaton.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ConfigSet.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ConfigPresets.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

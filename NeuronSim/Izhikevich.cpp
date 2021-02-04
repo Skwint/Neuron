@@ -1,6 +1,7 @@
 #include "Izhikevich.h"
 
-#include "ConfigItem.h"
+#include "ConfigPresets.h"
+#include "ConfigSet.h"
 
 static const std::string CFG_V2("v2");
 static const std::string CFG_V1("v1");
@@ -11,9 +12,15 @@ static const std::string CFG_C("c");
 static const std::string CFG_D("d");
 
 Izhikevich::Izhikevich(int width, int height) :
-	Net<NeuronIzhikevich>(width, height)
+	Net<NeuronIzhikevich>(width, height),
+	mV2(0.04f),
+	mV1(5.0f),
+	mV0(140.0f),
+	mA(0.02f),
+	mB(0.2f),
+	mC(-65.0f),
+	mD(2.0f)
 {
-	setConfig(Izhikevich::defaultConfig());
 }
 
 Izhikevich::~Izhikevich()
@@ -27,33 +34,25 @@ std::string Izhikevich::name()
 
 void Izhikevich::setConfig(const ConfigSet & config)
 {
-	mV2 = config.at(CFG_V2).value;
-	mV1 = config.at(CFG_V1).value;
-	mV0 = config.at(CFG_V0).value;
-	mA = config.at(CFG_A).value;
-	mB = config.at(CFG_B).value;
-	mC = config.at(CFG_C).value;
-	mD = config.at(CFG_D).value;
+	mV2 = config.items().at(CFG_V2).value;
+	mV1 = config.items().at(CFG_V1).value;
+	mV0 = config.items().at(CFG_V0).value;
+	mA = config.items().at(CFG_A).value;
+	mB = config.items().at(CFG_B).value;
+	mC = config.items().at(CFG_C).value;
+	mD = config.items().at(CFG_D).value;
 }
 
-const ConfigSet & Izhikevich::defaultConfig()
+const ConfigPresets & Izhikevich::presets()
 {
-	static ConfigSet config;
-	if (config.empty())
+	static ConfigPresets presets;
+	if (presets.configs().empty())
 	{
-		config[CFG_V2] = 0.04f;
-		config[CFG_V1] = 5.0f;
-		config[CFG_V0] = 140.0f;
-		config[CFG_A] = 0.02f;
-		config[CFG_B] = 0.2f;
-		config[CFG_C] = -65.0f;
-		config[CFG_D] = 2.0f;
+		presets.read(name());
 	}
-	return config;
+	return presets;
 }
 
-// Should these config item names be defined as constants somewhere?
-// Yes, probably! TODO
 ConfigSet Izhikevich::getConfig()
 {
 	ConfigSet config;
@@ -66,6 +65,11 @@ ConfigSet Izhikevich::getConfig()
 	config[CFG_D] = mD;
 
 	return config;
+}
+
+const ConfigPresets & Izhikevich::getPresets()
+{
+	return Izhikevich::presets();
 }
 
 void Izhikevich::tick(SynapseMatrix * synapses)

@@ -23,6 +23,7 @@ LayerConfig::LayerConfig(std::shared_ptr<Layer> layer, QWidget *parent)
 	connect(this, &QGroupBox::toggled, this, [this]() { ui.panel->setVisible(isChecked()); });
 	connect(ui.btnApply, &QPushButton::clicked, this, &LayerConfig::apply);
 	connect(ui.btnColour, &QPushButton::clicked, this, &LayerConfig::color);
+	connect(ui.cmbPreset, &QComboBox::currentTextChanged, this, &LayerConfig::presetSelected);
 }
 
 LayerConfig::~LayerConfig()
@@ -31,16 +32,23 @@ LayerConfig::~LayerConfig()
 
 void LayerConfig::repopulate()
 {
+	ui.cmbPreset->clear();
+	auto presets = mLayer->getPresets();
+	for (auto & config : presets.configs())
+	{
+		ui.cmbPreset->addItem(QString::fromStdString(config.first));
+	}
+
 	while (ui.formLayout->rowCount() > mFixedConfigRows)
 	{
 		ui.formLayout->removeRow(mFixedConfigRows);
 	}
 	mConfigWidgets.clear();
 
-	mConfig = mLayer->getConfig();
+	mConfig = presets.configs().begin()->second;
 
 	int row = ui.formLayout->rowCount();
-	for (auto & item : mConfig)
+	for (auto & item : mConfig.items())
 	{
 		auto label = new QLabel(ui.panel);
 		label->setText(item.first.c_str());
@@ -57,6 +65,7 @@ void LayerConfig::repopulate()
 		++row;
 	}
 
+	ui.cmbPreset->setCurrentIndex(0);
 	ui.panel->update();
 }
 
@@ -76,4 +85,15 @@ void LayerConfig::color()
 {
 	mLayerData->color = QColorDialog::getColor();
 	ui.btnColour->setText(mLayerData->color.name(QColor::HexRgb));
+}
+
+void LayerConfig::presetSelected()
+{
+	auto & presets = mLayer->getPresets();
+	auto & config = presets[ui.cmbPreset->currentText().toStdString()];
+	for (auto & widget : mConfigWidgets)
+	{
+		// bad! but we will be changing to support types so OK for now.
+		dynamic_cast<QDoubleSpinBox *>(widget.widget)->setValue(config[widget.name].value);
+	}
 }

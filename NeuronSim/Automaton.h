@@ -4,7 +4,7 @@
 #include <memory>
 #include <vector>
 
-#include "ConfigItem.h"
+#include "ConfigSet.h"
 #include "SpikeProcessor.h"
 
 class Layer;
@@ -48,7 +48,6 @@ public:
 	std::vector<std::string> typeNames();
 	std::shared_ptr<SynapseMatrix> createSynapse();
 	void removeSynapse(std::shared_ptr<SynapseMatrix> synapses);
-	const ConfigSet & config() const;
 	void addListener(Listener * listener);
 	void removeListener(Listener * listener);
 	void tick();

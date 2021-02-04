@@ -36,11 +36,11 @@ std::shared_ptr<Layer> LayerFactory::create(const std::string & name, int width,
 	NEURONTHROW("Unknown network type [" << name << "]");
 }
 
-const ConfigSet & LayerFactory::config(const std::string & name)
+const ConfigPresets & LayerFactory::presets(const std::string & name)
 {
 	if (mAllocators.count(name))
 	{
-		return mAllocators[name]->config();
+		return mAllocators[name]->presets();
 	}
 	NEURONTHROW("Unknown network type [" << name << "]");
 }

@@ -1,8 +1,10 @@
 #include "SynapseMatrix.h"
 
-SynapseMatrix::SynapseMatrix()
+SynapseMatrix::SynapseMatrix() :
+	mWidth(1),
+	mHeight(1)
 {
-	setSize(1, 1);
+	mSynapses.resize(1);
 }
 
 SynapseMatrix::SynapseMatrix(int width, int height)
@@ -36,9 +38,9 @@ void SynapseMatrix::loadImage(uint32_t * pixels, int width, int height)
 	{
 		for (int w = 0; w < width; ++w)
 		{
-			uint32_t gb = (*pixel & 0x00FFFF00) >> 8;
+			uint32_t gb = (*pixel & 0x0000FFFF);
 			synapse->weight = float(gb) / 32767.0f - 1.0f;
-			uint32_t r = (*pixel & 0xFF000000) >> 24;
+			uint32_t r = (*pixel & 0x00FF0000) >> 16;
 			synapse->delay = r;
 			++pixel;
 			++synapse;

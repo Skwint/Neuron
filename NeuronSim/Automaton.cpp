@@ -54,6 +54,7 @@ void Automaton::setNetworkType(const std::string & type)
 {
 	if (type != mType)
 	{
+		LOG("Changing network type to [" << type << "]");
 		mSpikeProcessor->clear();
 		mSynapses.clear();
 		Lock lock;
@@ -152,6 +153,7 @@ void Automaton::setSize(int width, int height)
 {
 	if (width != mWidth || height != mHeight)
 	{
+		LOG("Resizing automaton to [" << width << " x " << height << "]");
 		mWidth = width;
 		mHeight = height;
 		for (auto layer : mLayers)
@@ -171,11 +173,6 @@ void Automaton::setSize(int width, int height)
 vector<string> Automaton::typeNames()
 {
 	return mLayerFactory->getNames();
-}
-
-const ConfigSet & Automaton::config() const
-{
-	return mLayerFactory->config(mType);
 }
 
 void Automaton::setSpike(const SpikeProcessor::Spike & spike)

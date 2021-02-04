@@ -39,6 +39,9 @@
     <ClCompile Include="TestStability.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="TestConfigs.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Test.h">
@@ -60,6 +63,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="TestStability.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TestConfigs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

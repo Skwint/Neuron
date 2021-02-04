@@ -5,14 +5,15 @@
 #include <string>
 
 #include "NeuronSim/Constants.h"
+#include "NeuronSim/Log.h"
 
 // A macro for testing with is not essential, but it captures file and line
 // number information for us, which makes our life a lot simpler.
 #define TEST(x) { test(__FILE__, __LINE__, #x, (x)); }
 #define TEST_EQUAL(l, r) { testEqual(__FILE__, __LINE__, #l, #r, l, r); }
 #define TEST_APPROX_EQUAL(l, r) { testApproxEqual(__FILE__, __LINE__, #l, #r, l, r); }
-#define TEST_LOG(x) { std::cout << "  " << __FUNCTION__ << ":" << __LINE__ << " [" << x << "]" << "\n"; }
-#define TEST_SUB { std::cout << "  " << __FUNCTION__ << "\n"; }
+#define TEST_LOG(x) { LOG("  " << __FUNCTION__ << ":" << __LINE__ << " " << x); std::cout << x << "\n"; }
+#define TEST_SUB { TEST_LOG("  " << __FUNCTION__ << "\n"); }
 #define TEST_FAIL(x) { testFail(__FILE__,__LINE__, x); }
 
 // Abstract base class for tests.
@@ -53,9 +54,9 @@ inline bool Test::testEqual(const std::string & file, int line, const std::strin
 	}
 	else
 	{
-		std::cout << file << ":" << line << " FAILED\n";
-		std::cout << "comparing: [" << leftStr << "] = " << left << "\n";
-		std::cout << "       to: [" << rightStr << "] = " << right << "\n";
+		TEST_LOG(file << ":" << line << " FAILED");
+		TEST_LOG("comparing: [" << leftStr << "] = " << left);
+		TEST_LOG("       to: [" << rightStr << "] = " << right);
 		++mFails;
 		return false;
 	}
@@ -71,9 +72,9 @@ inline bool Test::testApproxEqual(const std::string & file, int line, const std:
 	}
 	else
 	{
-		std::cout << file << ":" << line << " FAILED\n";
-		std::cout << "comparing: [" << leftStr << "] = " << left << "\n";
-		std::cout << "       to: [" << rightStr << "] = " << right << "\n";
+		TEST_LOG(file << ":" << line << " FAILED");
+		TEST_LOG("comparing: [" << leftStr << "] = " << left);
+		TEST_LOG("       to: [" << rightStr << "] = " << right);
 		++mFails;
 		return false;
 	}
@@ -82,7 +83,7 @@ inline bool Test::testApproxEqual(const std::string & file, int line, const std:
 template <typename T>
 inline void Test::testFail(const std::string & file, int line, const T & reason)
 {
-	std::cout << file << ":" << line << " FAILED [" << reason << "]\n";
+	TEST_LOG(file << ":" << line << " FAILED [" << reason << "]");
 	++mFails;
 }
 

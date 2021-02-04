@@ -29,6 +29,7 @@ public:
 		potential = input = neuronLifeCheck;
 	}
 
+	// This is no good it has hardcoded potential thresholds instead of using the config! TODO
 	uint32_t color() { return (potential > 2.25f && potential < 3.75f? 0xFFFFFFFF: 0xFF000000); }
 public:
 	float input;

@@ -2,6 +2,7 @@
 
 #include <sstream>
 
+#include "ConfigPresets.h"
 #include "SpikeProcessor.h"
 
 static uint32_t nextName = 1;
@@ -29,4 +30,9 @@ void Layer::resize(int width, int height)
 {
 	mWidth = width;
 	mHeight = height;
+}
+
+void Layer::selectPreset(const std::string & name)
+{
+	setConfig(getPresets()[name]);
 }

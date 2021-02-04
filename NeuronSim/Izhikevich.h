@@ -5,6 +5,8 @@
 
 #include "NeuronIzhikevich.h"
 
+class ConfigPresets;
+
 class Izhikevich : public Net<NeuronIzhikevich>
 {
 public:
@@ -17,6 +19,8 @@ public:
 	std::string typeName() { return name(); }
 	void setConfig(const ConfigSet & config);
 	ConfigSet getConfig();
+	static const ConfigPresets & presets();
+	const ConfigPresets & getPresets();
 
 private:
 	float mV2;

@@ -14,8 +14,6 @@ public:
 	Net(int width, int height);
 	virtual ~Net();
 
-	void tick();
-
 	void resize(int width, int height);
 	Neuron * row(int r) { return &mNeurons[mWidth * r]; }
 	int rowStep() { return mWidth; }
@@ -41,19 +39,11 @@ Net<Neuron>::~Net()
 }
 
 template <typename Neuron>
-void Net<Neuron>::tick()
-{
-	
-}
-
-template <typename Neuron>
 void Net<Neuron>::resize(int width, int height)
 {
-	LOG("Resizing layer to [" << width << " x " << height << "]");
 	Layer::resize(width, height);
 	int size = mWidth * mHeight;
 	mNeurons.resize(size);
-	LOG("Size is now [" << mNeurons.size() << "]");
 }
 
 template <typename Neuron>

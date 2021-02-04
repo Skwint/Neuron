@@ -5,6 +5,8 @@
 
 #include "NeuronLife.h"
 
+class ConfigPresets;
+
 class Life : public Net<NeuronLife>
 {
 public:
@@ -12,14 +14,15 @@ public:
 	~Life();
 
 	static std::string name();
-	static const ConfigSet & defaultConfig();
+	static const ConfigPresets & presets();
 	void tick(SynapseMatrix * synapses);
 	std::string typeName() { return name(); }
 	void setConfig(const ConfigSet & config);
 	ConfigSet getConfig();
+	const ConfigPresets & getPresets();
 
 private:
-	inline void tickSegment(int cs, int ce, NeuronLife * cell, NeuronLife * dst);
+	inline void tickSegment(int cs, int ce, NeuronLife * cell, NeuronLife * dst, Synapse * synapse);
 
 private:
 	float mLow;

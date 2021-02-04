@@ -5,11 +5,12 @@
 #include <stdint.h>
 #include <string>
 
-#include "ConfigItem.h"
+#include "ConfigSet.h"
 #include "SynapseMatrix.h"
 #include "SpikeProcessor.h"
 
 class SpikeProcessor;
+class ConfigPresets;
 
 class Layer
 {
@@ -22,12 +23,14 @@ public:
 	virtual void paint(uint32_t * image) = 0;
 	virtual void setConfig(const ConfigSet & config) = 0;
 	virtual ConfigSet getConfig() = 0;
+	virtual const ConfigPresets & getPresets() = 0;
 
 	const std::string & name() { return mName; }
 	virtual void resize(int width, int height);
 	int width() { return mWidth; }
 	int height() { return mHeight; }
 	void setSpikeProcessor(std::shared_ptr<SpikeProcessor> spikeProcessor) { mSpikeProcessor = spikeProcessor; }
+	void selectPreset(const std::string & name);
 	void setUserData(void * data) { mUserData = data; }
 	void * userData() { return mUserData; }
 

@@ -4,7 +4,7 @@
 #include "ui_LayerConfig.h"
 
 #include "NeuronSim/Automaton.h"
-#include "NeuronSim/ConfigItem.h"
+#include "NeuronSim/ConfigPresets.h"
 #include "LayerData.h"
 
 class LayerConfig : public QGroupBox
@@ -31,6 +31,7 @@ public:
 
 private:
 	void color();
+	void presetSelected();
 
 private:
 	Ui::LayerConfig ui;

@@ -66,7 +66,6 @@ void SpikeProcessor::tick()
 
 void SpikeProcessor::clear()
 {
-	LOG("Clearing spikes");
 	for (auto & frame : mFrames)
 	{
 		frame.clear();

@@ -1,5 +1,6 @@
 #include <iostream>
 
+#include "NeuronSim/Log.h"
 #include "Tester.h"
 
 // Main entry point
@@ -10,16 +11,17 @@ int main(int argc, char ** argv)
 {
 	try
 	{
+		Log::to("NeuronTest.log");
 		Tester tester;
 		tester.run();
 	}
 	catch (const std::runtime_error & re)
 	{
-		std::cout << "Test system failed with [" << re.what() << "]\n";
+		TEST_LOG("Test system failed with [" << re.what() << "]");
 	}
 	catch (...)
 	{
-		std::cout << "Test system failed with inexplicable error\n";
+		TEST_LOG("Test system failed with inexplicable error");
 	}
 
 	return 0;
