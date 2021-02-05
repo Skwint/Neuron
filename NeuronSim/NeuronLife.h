@@ -9,7 +9,7 @@ static const float neuronLifeCheck(-12345.0f);
 class NeuronLife
 {
 public:
-	NeuronLife() : potential(0.0f)
+	NeuronLife() : potential(0.0f), firing(false)
 	{
 		// This is very arbitrary - we randomly set the inputs of a little less
 		// than half the cells to be enough to cause a spike in the default
@@ -34,6 +34,7 @@ public:
 public:
 	float input;
 	float potential;
+	bool firing;
 };
 
 #endif
