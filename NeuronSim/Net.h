@@ -20,6 +20,8 @@ public:
 	Neuron * row(int r) { return &mNeurons[mWidth * r]; }
 	int rowStep() { return mWidth; }
 	void paint(uint32_t * image);
+	void fire(int row, int col, float weight);
+	void clear();
 private:
 	inline void tickSegment(int cs, int ce, Neuron * dst, Synapse * synapse);
 protected:
@@ -144,5 +146,27 @@ void Net<Neuron>::paint(uint32_t * image)
 		}
 	}
 }
+
+template <typename Neuron>
+inline void Net<Neuron>::fire(int rr, int cc, float weight)
+{
+	Neuron * neuron = row(rr) + cc;
+	mSpikeProcessor->fire(&neuron->input, weight, 0);
+}
+
+template <typename Neuron>
+inline void Net<Neuron>::clear()
+{
+	for (int rr = 0; rr < mHeight; ++rr)
+	{
+		Neuron * neuron = row(rr);
+		for (int cc = 0; cc < mWidth; ++cc)
+		{
+			new (neuron) Neuron;
+			++neuron;
+		}
+	}
+}
+
 
 #endif

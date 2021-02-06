@@ -60,21 +60,29 @@ const ConfigPresets & Life::presets()
 
 void Life::tick(SynapseMatrix * synapses)
 {
+	NeuronLife * cell = &mNeurons[0];
 	for (int rr = 0; rr < mHeight; ++rr)
 	{
-		NeuronLife * cell = row(rr);
 		for (int cc = 0; cc < mWidth; ++cc)
 		{
 			assert(cell->potential != neuronLifeCheck);
 			assert(cell->input != neuronLifeCheck);
-			// Life is an extremely leaky integrator - it leaks 100%
-			// on every time step.
-			cell->potential = cell->input;
-			cell->input = 0.0f;
-			cell->firing = cell->potential > mLow && cell->potential < mHigh;
+			cell->firing = cell->input > mLow && cell->input < mHigh;
 			++cell;
 		}
 	}
 
 	Net::tick(synapses);
+
+	cell = &mNeurons[0];
+	for (int rr = 0; rr < mHeight; ++rr)
+	{
+		for (int cc = 0; cc < mWidth; ++cc)
+		{
+			// Life is an extremely leaky integrator - it leaks 100%
+			// on every time step.
+			cell->input = 0.0f;
+			++cell;
+		}
+	}
 }

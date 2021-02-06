@@ -52,6 +52,7 @@ public:
 	void removeListener(Listener * listener);
 	void tick();
 	void setSpike(const SpikeProcessor::Spike & spike);
+	void clearLayers();
 
 private:
 	std::vector<Listener *> mListeners;

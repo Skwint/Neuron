@@ -38,6 +38,15 @@ void Automaton::tick()
 	}
 }
 
+void Automaton::clearLayers()
+{
+	mSpikeProcessor->clear();
+	for (auto layer : mLayers)
+	{
+		layer->clear();
+	}
+}
+
 void Automaton::addListener(Listener * listener)
 {
 	Lock lock;

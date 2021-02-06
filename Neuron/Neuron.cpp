@@ -60,27 +60,20 @@ Neuron::~Neuron()
 void Neuron::showEvent(QShowEvent *event)
 {
 	QMainWindow::showEvent(event);
-
-	// temporary testing hack
-	//auto l1 = mAutomaton->createLayer();
-	//auto l2 = mAutomaton->createLayer();
-	//static LayerData d2;
-	//d2.color = QColor(0xFF00FF00);
-	//l2->setUserData(&d2);
-	//auto s1 = mAutomaton->createSynapse();
-	//auto s2 = mAutomaton->createSynapse();
-	//s2->setSource(l2);
-	//s2->setTarget(l2);
 }
 
 static const qint64 stepPerTimerUpdate(20);
 void Neuron::step()
 {
 	mTimerTicked = false;
-	mWaitingForSwap = mToolBox->showAllFrames();
+	auto rendering = mToolBox->rendering();
+	mWaitingForSwap = (rendering == ToolBox::RENDER_ALL_FRAMES);
 	mAutomaton->tick();
-	ui.view->updateTextures();
-	ui.view->update();
+	if (rendering != ToolBox::RENDER_NEVER)
+	{
+		ui.view->updateTextures();
+		ui.view->update();
+	}
 
 	++mFpsFrameCounter;
 	if (mFpsFrameCounter >= stepPerTimerUpdate)

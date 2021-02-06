@@ -13,6 +13,13 @@ class ToolBox : public QDockWidget, public Automaton::Listener
 {
 	Q_OBJECT
 public:
+	enum Rendering
+	{
+		RENDER_ALL_FRAMES,
+		RENDER_WHEN_READY,
+		RENDER_NEVER
+	};
+public:
 	ToolBox(std::shared_ptr<Automaton> automaton, QWidget *parent = Q_NULLPTR);
 	~ToolBox();
 
@@ -27,27 +34,33 @@ public:
 
 	void displayZoom(int zoom);
 	void displayFrameTime(qint64 frameTime);
-	bool showAllFrames() { return ui.chkShowAllFrames->isChecked(); }
+	Rendering rendering() { return mRendering; }
 	int delay();
 	const SpikeProcessor::Spike & spike();
 
 private:
 	void netToggle();
+	void viewToggle();
+	void simToggle();
+	void editingToggle();
+
 	void netTypeChanged();
 	void netSizeChanged();
-	void viewToggle();
-
-	void simToggle();
-
+	void renderingChanged();
 	void spikeChanged();
 	void populateSpikes();
+	void editingClear();
+	void editingNoise();
 
 private:// from Automaton::Listener
 	void automatonTypeChanged();
 	void automatonSizeChanged(int width, int height);
+	void automatonLayerCreated(std::shared_ptr<Layer> layer);
+	void automatonLayerRemoved(std::shared_ptr<Layer> layer);
 
 private:
 	Ui::ToolBox ui;
 	std::shared_ptr<Automaton> mAutomaton;
 	std::map<std::string, SpikeProcessor::Spike> mSpikes;
+	Rendering mRendering;
 };

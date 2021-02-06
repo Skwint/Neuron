@@ -4,19 +4,17 @@
 #include <cstdint>
 #include <random>
 
+// Debugging tool - see comment in destructor
 static const float neuronLifeCheck(-12345.0f);
 
+// The neuron type used by the Life automaton type.
+// This is the simplest possible neuron - the input is the only
+// state that is maintained.
 class NeuronLife
 {
 public:
-	NeuronLife() : potential(0.0f), firing(false)
+	NeuronLife() : input(0.0f), firing(false)
 	{
-		// This is very arbitrary - we randomly set the inputs of a little less
-		// than half the cells to be enough to cause a spike in the default
-		// rule set. This is a stop gap measure until we can do initial
-		// conditions properly.
-		static std::mt19937 rnd;
-		input = rnd() > 0xA0000000 ? 3.0f : 0.0f;
 	}
 	virtual ~NeuronLife()
 	{
@@ -26,14 +24,16 @@ public:
 		// It works by setting the value of deleted neurons to something they can
 		// never naturally attain, and then asserting if a neuron with those values
 		// is ever accessed.
-		potential = input = neuronLifeCheck;
+		// This is only present in Life, the performance of which is unimportant to us.
+		// This exists so that it can be used as a debugging tool in future, should
+		// we need it.
+		// The automated stability test does excercise this mechanism.
+		input = neuronLifeCheck;
 	}
 
-	// This is no good it has hardcoded potential thresholds instead of using the config! TODO
-	uint32_t color() { return (potential > 2.25f && potential < 3.75f? 0xFFFFFFFF: 0xFF000000); }
+	uint32_t color() { return firing? 0xFFFFFFFF: 0xFF000000; }
 public:
 	float input;
-	float potential;
 	bool firing;
 };
 
