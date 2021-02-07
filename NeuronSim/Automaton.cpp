@@ -214,3 +214,13 @@ inline Automaton::Lock::~Lock()
 	assert(mLocked);
 	mLocked = false;
 }
+
+void save(const std::filesystem::path & path)
+{
+
+}
+
+void load(const std::filesystem::path & path)
+{
+
+}

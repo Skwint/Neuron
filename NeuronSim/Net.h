@@ -20,7 +20,7 @@ public:
 	Neuron * row(int r) { return &mNeurons[mWidth * r]; }
 	int rowStep() { return mWidth; }
 	void paint(uint32_t * image);
-	void fire(int row, int col, float weight);
+	void fire(int row, int col, float weight, int delay);
 	void clear();
 private:
 	inline void tickSegment(int cs, int ce, Neuron * dst, Synapse * synapse);
@@ -148,10 +148,10 @@ void Net<Neuron>::paint(uint32_t * image)
 }
 
 template <typename Neuron>
-inline void Net<Neuron>::fire(int rr, int cc, float weight)
+inline void Net<Neuron>::fire(int rr, int cc, float weight, int delay)
 {
 	Neuron * neuron = row(rr) + cc;
-	mSpikeProcessor->fire(&neuron->input, weight, 0);
+	mSpikeProcessor->fire(&neuron->input, weight, delay);
 }
 
 template <typename Neuron>

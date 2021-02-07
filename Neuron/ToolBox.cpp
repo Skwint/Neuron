@@ -11,14 +11,19 @@
 #include <string>
 
 #include "NeuronSim/Automaton.h"
+#include "NeuronSim/Constants.h"
 #include "NeuronSim/Layer.h"
 #include "NeuronSim/Log.h"
 
 using namespace std;
 
+static const QString NOISE_DENSE("Noise (dense)");
+static const QString NOISE_SPARSE("Noise (sparse)");
+
 ToolBox::ToolBox(shared_ptr<Automaton> automaton, QWidget *parent)
 	: QDockWidget(parent),
-	mAutomaton(automaton)
+	mAutomaton(automaton),
+	mSpikeDir("Data/Spikes")
 {
 	ui.setupUi(this);
 	ui.cmbType->clear();
@@ -27,22 +32,23 @@ ToolBox::ToolBox(shared_ptr<Automaton> automaton, QWidget *parent)
 	{
 		ui.cmbType->addItem(name.c_str());
 	}
-	populateSpikes();
+	ui.spinSpikeDuration->setMaximum(MAX_SPIKE_LENGTH);
+	loadSpikeMaps();
 
 	connect(ui.cmbType, &QComboBox::currentTextChanged, this, &ToolBox::netTypeChanged);
 	connect(ui.netGroup, &QGroupBox::toggled, this, &ToolBox::netToggle);
 	connect(ui.viewGroup, &QGroupBox::toggled, this, &ToolBox::viewToggle);
 	connect(ui.simGroup, &QGroupBox::toggled, this, &ToolBox::simToggle);
 	connect(ui.editingGroup, &QGroupBox::toggled, this, &ToolBox::editingToggle);
-	connect(ui.cmbSpike, &QComboBox::currentTextChanged, this, &ToolBox::spikeChanged);
+	connect(ui.cmbSpikeShape, &QComboBox::currentTextChanged, this, &ToolBox::spikeChanged);
+	connect(ui.spinSpikeDuration, QOverload<int>::of(&QSpinBox::valueChanged), this, &ToolBox::spikeChanged);
 	connect(ui.spinNetWidth, QOverload<int>::of(&QSpinBox::valueChanged), this, &ToolBox::netSizeChanged);
 	connect(ui.spinNetHeight, QOverload<int>::of(&QSpinBox::valueChanged), this, &ToolBox::netSizeChanged);
 	connect(ui.cmbRendering, &QComboBox::currentTextChanged, this, &ToolBox::renderingChanged);
-	connect(ui.btnEditingClear, &QPushButton::clicked, this, &ToolBox::editingClear);
-	connect(ui.btnEditingNoise, &QPushButton::clicked, this, &ToolBox::editingNoise);
-	connect(ui.cmbEditingTarget, &QComboBox::currentTextChanged, this, &ToolBox::editingTargetChanged);
+	connect(ui.btnEditingClearLayer, &QPushButton::clicked, this, &ToolBox::editingClearLayer);
+	connect(ui.btnEditingClearAll , &QPushButton::clicked, this, &ToolBox::editingClearAll);
+	connect(ui.btnEditingSpike, &QPushButton::clicked, this, &ToolBox::editingSpike);
 
-	ui.cmbSpike->setCurrentText(QString::fromStdString(mSpikes.begin()->first));
 	spikeChanged();
 	renderingChanged();
 
@@ -88,44 +94,130 @@ void ToolBox::netTypeChanged()
 	mAutomaton->setNetworkType(ui.cmbType->currentText().toStdString());
 }
 
-const SpikeProcessor::Spike & ToolBox::spike()
-{
-	string str = ui.cmbSpike->currentText().toStdString();
-	return mSpikes[str];
-}
-
 void ToolBox::spikeChanged()
 {
-	mAutomaton->setSpike(spike());
+	QString spikeShape = ui.cmbSpikeShape->currentText();
+	int spikeDuration = ui.spinSpikeDuration->value();
+	SpikeProcessor::Spike spike;
+	if (!spikeShape.compare("Square") || spikeDuration == 1)
+	{
+		for (int ll = 0; ll < spikeDuration; ++ll)
+		{
+			spike.push_back(1.0f);
+		}
+	}
+	else
+	{
+		float halfDuration = 0.5f * spikeDuration;
+		float x = 0.5f - halfDuration;
+		if (!spikeShape.compare("Triangle"))
+		{
+			for (int ll = 0; ll < spikeDuration; ++ll)
+			{
+				spike.push_back(1.0f - fabs(x) / halfDuration);
+				x += 1.0f;
+			}
+		}
+		else
+		{
+			for (int ll = 0; ll < spikeDuration; ++ll)
+			{
+				float xnorm = x / halfDuration;
+				spike.push_back(exp(-4.0f*xnorm*xnorm));
+				x += 1.0f;
+			}
+		}
+	}
+
+	mAutomaton->setSpike(spike);
 }
 
-void ToolBox::editingClear()
+void ToolBox::editingClearLayer()
+{	
+	auto layer = mAutomaton->findLayer(ui.cmbEditingTarget->currentText().toStdString());
+	if (layer)
+	{
+		layer->clear();
+	}
+	emit redraw();
+}
+
+void ToolBox::editingClearAll()
 {
 	mAutomaton->clearLayers();
 	emit redraw();
 }
 
-void ToolBox::editingNoise()
+void ToolBox::editingNoise(int density)
 {
 	float weight = ui.spinEditingWeight->value();
 	auto layer = mAutomaton->findLayer(ui.cmbEditingTarget->currentText().toStdString());
-	static mt19937 rnd;
-	for (int row = 0; row < mAutomaton->height(); ++row)
+	if (layer)
 	{
-		for (int col = 0; col < mAutomaton->width(); ++col)
+		LOG("Spiking layer [" << layer->name() << "] with random noise");
+		static mt19937 rnd;
+		for (int row = 0; row < mAutomaton->height(); ++row)
 		{
-			if (rnd() > 0xA0000000)
+			for (int col = 0; col < mAutomaton->width(); ++col)
 			{
-				layer->fire(row, col, weight);
+				if (rnd() < density)
+				{
+					layer->fire(row, col, weight, 0);
+				}
 			}
 		}
 	}
-	emit redraw();
 }
 
-void ToolBox::editingTargetChanged()
+void ToolBox::editingSpike()
 {
 	auto layer = mAutomaton->findLayer(ui.cmbEditingTarget->currentText().toStdString());
+	if (layer)
+	{
+		QString source = ui.cmbEditingSource->currentText();
+		LOG("Spiking layer [" << layer->name() << "] with [" << source.toStdString() << "]");
+		if (!source.compare(NOISE_DENSE))
+		{
+			editingNoise(0x50000000);
+		}
+		else if (!source.compare(NOISE_SPARSE))
+		{
+			editingNoise(0x20000000);
+		}
+		else
+		{
+			QImage image(mSpikeDir.absolutePath() + "/" + ui.cmbEditingSource->currentText());
+			uint32_t * pixels = reinterpret_cast<uint32_t *>(image.bits());
+			int width = image.width();
+			int height = image.height();
+			if (width <= layer->width() || height <= layer->height())
+			{
+				float weightMultiplier = ui.spinEditingWeight->value();
+				float weight;
+				int delay;
+				int rowOffset = (layer->height() - height) / 2;
+				int colOffset = (layer->width() - width) / 2;
+				for (int rr = 0; rr < height; ++rr)
+				{
+					for (int cc = 0; cc < width; ++cc)
+					{
+						uint32_t pixel = *pixels;
+						if (pixel & 0xFFFF)
+						{
+							weight = weightMultiplier * (float(pixel & 0xFFFF) / 32768.0f - 1.0f);
+							delay = (pixel & 0x00FF0000) >> 16;
+							layer->fire(rr + rowOffset, cc + colOffset, weight, delay);
+						}
+						++pixels;
+					}
+				}
+			}
+			else
+			{
+				LOG("  Unable to apply spikes - spike map is larger than target layer");
+			}
+		}
+	}
 }
 
 int ToolBox::delay()
@@ -160,22 +252,6 @@ void ToolBox::displayFrameTime(qint64 frameTime)
 	ui.lblFrameTime->setText(QString::number(frameTime) + " ms");
 }
 
-void ToolBox::populateSpikes()
-{
-	ui.cmbSpike->clear();
-
-	mSpikes["1 Flat"] = { 1.0f };
-	mSpikes["3 Flat"] = { 1.0f, 1.0f, 1.0f };
-	mSpikes["3 Triangle"] = { 0.5f, 1.0f, 0.5f };
-	mSpikes["5 Trapezoid"] = { 0.5f, 1.0f, 1.0f, 1.0f, 0.5f };;
-	mSpikes["7 Smooth"] = { 0.1f, 0.3f, 0.7f, 1.0f, 0.7f, 0.3f, 0.1f };
-
-	for (auto & iter : mSpikes)
-	{
-		ui.cmbSpike->addItem(QString::fromStdString(iter.first));
-	}
-}
-
 void ToolBox::automatonTypeChanged()
 {
 	ui.cmbType->blockSignals(true);
@@ -208,4 +284,23 @@ void ToolBox::automatonLayerRemoved(shared_ptr<Layer> layer)
 		ui.cmbEditingTarget->removeItem(index);
 	}
 	emit redraw();
+}
+
+void ToolBox::loadSpikeMaps()
+{
+	ui.cmbEditingSource->clear();
+
+	ui.cmbEditingSource->addItem(NOISE_DENSE);
+	ui.cmbEditingSource->addItem(NOISE_SPARSE);
+	if (mSpikeDir.exists())
+	{
+		QStringList filters;
+		filters << "*.png";
+		mSpikeDir.setNameFilters(filters);
+		ui.cmbEditingSource->addItems(mSpikeDir.entryList());
+	}
+	else
+	{
+		LOG("No spikes data directory - expected " << mSpikeDir.absolutePath().toStdString());
+	}
 }

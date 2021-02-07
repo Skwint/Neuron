@@ -51,10 +51,11 @@ private:
 	void netSizeChanged();
 	void renderingChanged();
 	void spikeChanged();
-	void populateSpikes();
-	void editingClear();
-	void editingNoise();
-	void editingTargetChanged();
+	void editingClearLayer();
+	void editingClearAll();
+	void editingNoise(int density);
+	void editingSpike();
+	void loadSpikeMaps();
 
 private:// from Automaton::Listener
 	void automatonTypeChanged();
@@ -65,6 +66,6 @@ private:// from Automaton::Listener
 private:
 	Ui::ToolBox ui;
 	std::shared_ptr<Automaton> mAutomaton;
-	std::map<std::string, SpikeProcessor::Spike> mSpikes;
 	Rendering mRendering;
+	QDir mSpikeDir;
 };

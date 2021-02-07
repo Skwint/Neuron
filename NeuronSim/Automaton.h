@@ -53,6 +53,10 @@ public:
 	void tick();
 	void setSpike(const SpikeProcessor::Spike & spike);
 	void clearLayers();
+	// Save the current state of all layers and synapses to the given path
+	void save(const std::filesystem::path & path);
+	// Load a previously saved state from a given path
+	void load(const std::filesystem::path & path);
 
 private:
 	std::vector<Listener *> mListeners;

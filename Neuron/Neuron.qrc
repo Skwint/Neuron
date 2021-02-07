@@ -1,6 +1,5 @@
 <RCC>
     <qresource prefix="/Neuron">
-        <file>qt.png</file>
         <file>Data/Icons/Pan.png</file>
         <file>Data/Icons/Pause.png</file>
         <file>Data/Icons/Pen.png</file>

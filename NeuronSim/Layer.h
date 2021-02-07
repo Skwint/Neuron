@@ -24,7 +24,7 @@ public:
 	virtual void setConfig(const ConfigSet & config) = 0;
 	virtual ConfigSet getConfig() = 0;
 	virtual const ConfigPresets & getPresets() = 0;
-	virtual void fire(int row, int col, float weight) = 0;
+	virtual void fire(int row, int col, float weight, int delay) = 0;
 	virtual void clear() = 0;
 
 	const std::string & name() { return mName; }
