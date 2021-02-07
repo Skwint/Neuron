@@ -120,5 +120,11 @@
     <ClInclude Include="LayerData.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Neuron.ico" />
   </ItemGroup>
 </Project>

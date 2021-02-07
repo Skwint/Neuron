@@ -61,9 +61,12 @@ public:
 	void setProjection();
 	void setOrtho();
 	void setPerspective();
-
-public slots:
 	void setStyle(const QString & style);
+
+private:
+	void mousePressEvent(QMouseEvent * ev) override;
+	void mouseMoveEvent(QMouseEvent * ev) override;
+	void mouseReleaseEvent(QMouseEvent * ev) override;
 
 private: // from QOpenGLWidget
 	void resizeGL(int w, int h) override;
@@ -83,6 +86,7 @@ private:
 	void paintTexture();
 	void checkGlError(char * fun, int line);
 	void createTextureForLayer(std::shared_ptr<Layer> layer);
+	inline QPoint View::layerCoords(const QPoint & pos);
 
 private:
 	Ui::View ui;
@@ -98,8 +102,13 @@ private:
 	int mAttrTexture;
 	int mAttrColor;
 	float mZoom;
+	float mPixelSize;
 	float mAspect;
 	Style mStyle;
 	StyleData mStyleData[STYLE_COUNT];
 	std::vector<uint32_t> mImageData;
+	QPoint mMousePos;
+	float mTranslateX;
+	float mTranslateY;
+	bool mMouseDown;
 };

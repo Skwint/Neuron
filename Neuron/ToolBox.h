@@ -38,6 +38,9 @@ public:
 	int delay();
 	const SpikeProcessor::Spike & spike();
 
+signals:
+	void redraw();
+
 private:
 	void netToggle();
 	void viewToggle();
@@ -51,6 +54,7 @@ private:
 	void populateSpikes();
 	void editingClear();
 	void editingNoise();
+	void editingTargetChanged();
 
 private:// from Automaton::Listener
 	void automatonTypeChanged();

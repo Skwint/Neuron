@@ -26,10 +26,8 @@ public:
 private:
 	void tick();
 	void zoomFitToWindow();
-	void zoomOneToOne();
 	void zoomIn();
 	void zoomOut();
-	void centerNet();
 	void setZoom(int zoom);
 	void simSpeed();
 	void simPause();
@@ -37,6 +35,10 @@ private:
 	void simStep();
 	void startTimer(int delay);
 	void onFrameSwapped();
+	void viewPress(QMouseEvent * ev);
+	void viewMove(QMouseEvent * ev);
+	void viewRelease(QMouseEvent * ev);
+	void redraw();
 
 private:
 	void showEvent(QShowEvent *event);
@@ -49,8 +51,6 @@ private:
 	std::unique_ptr<LayerDock> mLayerDock;
 	std::unique_ptr<SynapseDock> mSynapseDock;
 	int mZoom;
-	int mLeft;
-	int mTop;
 	bool mTimerTicked;
 	bool mWaitingForSwap;
 	QElapsedTimer mFpsTimer;

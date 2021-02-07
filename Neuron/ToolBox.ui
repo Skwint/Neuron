@@ -269,6 +269,10 @@
               <property name="text">
                <string>Fit to window</string>
               </property>
+              <property name="icon">
+               <iconset resource="Neuron.qrc">
+                <normaloff>:/Neuron/Data/Icons/ZoomFit.png</normaloff>:/Neuron/Data/Icons/ZoomFit.png</iconset>
+              </property>
              </widget>
             </item>
             <item>
@@ -276,12 +280,20 @@
               <property name="text">
                <string>Zoom Out</string>
               </property>
+              <property name="icon">
+               <iconset resource="Neuron.qrc">
+                <normaloff>:/Neuron/Data/Icons/ZoomOut.png</normaloff>:/Neuron/Data/Icons/ZoomOut.png</iconset>
+              </property>
              </widget>
             </item>
             <item>
              <widget class="QToolButton" name="btnViewZoomIn">
               <property name="text">
                <string>Zoom In</string>
+              </property>
+              <property name="icon">
+               <iconset resource="Neuron.qrc">
+                <normaloff>:/Neuron/Data/Icons/ZoomIn.png</normaloff>:/Neuron/Data/Icons/ZoomIn.png</iconset>
               </property>
              </widget>
             </item>
@@ -425,6 +437,13 @@
               </property>
              </widget>
             </item>
+            <item row="2" column="0">
+             <widget class="QLabel" name="label_8">
+              <property name="text">
+               <string>Rendering</string>
+              </property>
+             </widget>
+            </item>
             <item row="2" column="1">
              <widget class="QComboBox" name="cmbRendering">
               <property name="currentIndex">
@@ -447,13 +466,6 @@
               </item>
              </widget>
             </item>
-            <item row="2" column="0">
-             <widget class="QLabel" name="label_8">
-              <property name="text">
-               <string>Rendering</string>
-              </property>
-             </widget>
-            </item>
            </layout>
           </item>
           <item>
@@ -466,6 +478,10 @@
               <property name="text">
                <string>Pause</string>
               </property>
+              <property name="icon">
+               <iconset resource="Neuron.qrc">
+                <normaloff>:/Neuron/Data/Icons/Pause.png</normaloff>:/Neuron/Data/Icons/Pause.png</iconset>
+              </property>
              </widget>
             </item>
             <item>
@@ -476,6 +492,10 @@
               <property name="text">
                <string>Play</string>
               </property>
+              <property name="icon">
+               <iconset resource="Neuron.qrc">
+                <normaloff>:/Neuron/Data/Icons/Play.png</normaloff>:/Neuron/Data/Icons/Play.png</iconset>
+              </property>
              </widget>
             </item>
             <item>
@@ -485,6 +505,10 @@
               </property>
               <property name="text">
                <string>Step</string>
+              </property>
+              <property name="icon">
+               <iconset resource="Neuron.qrc">
+                <normaloff>:/Neuron/Data/Icons/Step.png</normaloff>:/Neuron/Data/Icons/Step.png</iconset>
               </property>
              </widget>
             </item>
@@ -524,6 +548,46 @@
         <number>0</number>
        </property>
        <item>
+        <layout class="QFormLayout" name="formLayout">
+         <property name="labelAlignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+         <property name="horizontalSpacing">
+          <number>0</number>
+         </property>
+         <item row="1" column="0">
+          <widget class="QLabel" name="weightLabel">
+           <property name="text">
+            <string>Weight</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QSpinBox" name="spinEditingWeight">
+           <property name="minimum">
+            <number>-100</number>
+           </property>
+           <property name="maximum">
+            <number>100</number>
+           </property>
+           <property name="value">
+            <number>3</number>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QComboBox" name="cmbEditingTarget"/>
+         </item>
+         <item row="0" column="0">
+          <widget class="QLabel" name="label_9">
+           <property name="text">
+            <string>Layer</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
         <widget class="QWidget" name="editingPanel" native="true">
          <layout class="QVBoxLayout" name="verticalLayout_9">
           <property name="leftMargin">
@@ -556,77 +620,6 @@
             </item>
            </layout>
           </item>
-          <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_5">
-            <item>
-             <widget class="QToolButton" name="btnEditingPan">
-              <property name="text">
-               <string>Pan</string>
-              </property>
-              <property name="checkable">
-               <bool>false</bool>
-              </property>
-              <property name="checked">
-               <bool>false</bool>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QToolButton" name="btnEditingPen">
-              <property name="text">
-               <string>Pen</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QToolButton" name="btnEditingSpray">
-              <property name="text">
-               <string>Spray</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </item>
-          <item>
-           <layout class="QFormLayout" name="formLayout">
-            <property name="labelAlignment">
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-            </property>
-            <property name="horizontalSpacing">
-             <number>0</number>
-            </property>
-            <item row="1" column="0">
-             <widget class="QLabel" name="weightLabel">
-              <property name="text">
-               <string>Weight</string>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="1">
-             <widget class="QSpinBox" name="spinEditingWeight">
-              <property name="minimum">
-               <number>-100</number>
-              </property>
-              <property name="maximum">
-               <number>100</number>
-              </property>
-              <property name="value">
-               <number>3</number>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="1">
-             <widget class="QComboBox" name="cmbEditingTarget"/>
-            </item>
-            <item row="0" column="0">
-             <widget class="QLabel" name="label_9">
-              <property name="text">
-               <string>Layer</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </item>
          </layout>
         </widget>
        </item>
@@ -650,6 +643,8 @@
   </widget>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
- <resources/>
+ <resources>
+  <include location="Neuron.qrc"/>
+ </resources>
  <connections/>
 </ui>

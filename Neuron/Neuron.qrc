@@ -1,5 +1,14 @@
 <RCC>
     <qresource prefix="/Neuron">
         <file>qt.png</file>
+        <file>Data/Icons/Pan.png</file>
+        <file>Data/Icons/Pause.png</file>
+        <file>Data/Icons/Pen.png</file>
+        <file>Data/Icons/Play.png</file>
+        <file>Data/Icons/Spray.png</file>
+        <file>Data/Icons/Step.png</file>
+        <file>Data/Icons/ZoomFit.png</file>
+        <file>Data/Icons/ZoomIn.png</file>
+        <file>Data/Icons/ZoomOut.png</file>
     </qresource>
 </RCC>

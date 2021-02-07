@@ -14,7 +14,9 @@
 #include "NeuronSim/Layer.h"
 #include "NeuronSim/Log.h"
 
-ToolBox::ToolBox(std::shared_ptr<Automaton> automaton, QWidget *parent)
+using namespace std;
+
+ToolBox::ToolBox(shared_ptr<Automaton> automaton, QWidget *parent)
 	: QDockWidget(parent),
 	mAutomaton(automaton)
 {
@@ -38,6 +40,7 @@ ToolBox::ToolBox(std::shared_ptr<Automaton> automaton, QWidget *parent)
 	connect(ui.cmbRendering, &QComboBox::currentTextChanged, this, &ToolBox::renderingChanged);
 	connect(ui.btnEditingClear, &QPushButton::clicked, this, &ToolBox::editingClear);
 	connect(ui.btnEditingNoise, &QPushButton::clicked, this, &ToolBox::editingNoise);
+	connect(ui.cmbEditingTarget, &QComboBox::currentTextChanged, this, &ToolBox::editingTargetChanged);
 
 	ui.cmbSpike->setCurrentText(QString::fromStdString(mSpikes.begin()->first));
 	spikeChanged();
@@ -87,7 +90,7 @@ void ToolBox::netTypeChanged()
 
 const SpikeProcessor::Spike & ToolBox::spike()
 {
-	std::string str = ui.cmbSpike->currentText().toStdString();
+	string str = ui.cmbSpike->currentText().toStdString();
 	return mSpikes[str];
 }
 
@@ -99,13 +102,14 @@ void ToolBox::spikeChanged()
 void ToolBox::editingClear()
 {
 	mAutomaton->clearLayers();
+	emit redraw();
 }
 
 void ToolBox::editingNoise()
 {
 	float weight = ui.spinEditingWeight->value();
 	auto layer = mAutomaton->findLayer(ui.cmbEditingTarget->currentText().toStdString());
-	static std::mt19937 rnd;
+	static mt19937 rnd;
 	for (int row = 0; row < mAutomaton->height(); ++row)
 	{
 		for (int col = 0; col < mAutomaton->width(); ++col)
@@ -116,6 +120,12 @@ void ToolBox::editingNoise()
 			}
 		}
 	}
+	emit redraw();
+}
+
+void ToolBox::editingTargetChanged()
+{
+	auto layer = mAutomaton->findLayer(ui.cmbEditingTarget->currentText().toStdString());
 }
 
 int ToolBox::delay()
@@ -183,12 +193,13 @@ void ToolBox::automatonSizeChanged(int width, int height)
 	ui.spinNetHeight->blockSignals(false);
 }
 
-void ToolBox::automatonLayerCreated(std::shared_ptr<Layer> layer)
+void ToolBox::automatonLayerCreated(shared_ptr<Layer> layer)
 {
 	ui.cmbEditingTarget->addItem(QString::fromStdString(layer->name()));
+	emit redraw();
 }
 
-void ToolBox::automatonLayerRemoved(std::shared_ptr<Layer> layer)
+void ToolBox::automatonLayerRemoved(shared_ptr<Layer> layer)
 {
 	QString str = QString::fromStdString(layer->name());
 	int index = ui.cmbEditingTarget->findText(str);
@@ -196,4 +207,5 @@ void ToolBox::automatonLayerRemoved(std::shared_ptr<Layer> layer)
 	{
 		ui.cmbEditingTarget->removeItem(index);
 	}
+	emit redraw();
 }

@@ -139,7 +139,11 @@
     <ClInclude Include="Mat33f.h" />
     <QtMoc Include="SynapseDock.h" />
     <QtMoc Include="SynapseConfig.h" />
+    <ClInclude Include="resource.h" />
     <ClInclude Include="Vec3f.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Neuron.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">

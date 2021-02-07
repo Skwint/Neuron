@@ -1,5 +1,6 @@
 #include "View.h"
 
+#include <QEvent.h>
 #include <QPainter>
 #include <QPaintEngine>
 #include <QOpenGLShaderProgram>
@@ -23,7 +24,10 @@ View::View( QWidget *parent)
 	mProgram(0),
 	mZoom(1.0f),
 	mAspect(1.0f),
-	mStyle(STYLE_TILED)
+	mStyle(STYLE_TILED),
+	mTranslateX(0.0f),
+	mTranslateY(0.0f),
+	mMouseDown(false)
 {
 	ui.setupUi(this);
 }
@@ -42,6 +46,53 @@ View::~View()
 	}
 	mTextures.clear();
 	doneCurrent();
+}
+
+inline QPoint View::layerCoords(const QPoint & pos)
+{
+	return QPoint((pos.x() - width() / 2) / mPixelSize + mAutomaton->width() / 2,
+		(pos.y() - height() / 2) / mPixelSize + mAutomaton->height() / 2);
+}
+
+void View::mousePressEvent(QMouseEvent * ev)
+{
+	if (!mStyleData[mStyle].m3D)
+	{
+		mMousePos = ev->pos();
+		mMouseDown = true;
+	}
+}
+
+void View::mouseMoveEvent(QMouseEvent * ev)
+{
+	if (!mStyleData[mStyle].m3D && mMouseDown)
+	{
+		auto pos = ev->pos();
+		mTranslateX += float(pos.x() - mMousePos.x()) * mPixelSize;
+		mTranslateY += float(pos.y() - mMousePos.y()) * mPixelSize;
+		mMousePos = pos;
+		if (mStyle == STYLE_TILED)
+		{
+			if (mTranslateX < -1.0f * mZoom)
+				mTranslateX += 2.0f * mZoom;
+			else if (mTranslateX > 1.0f * mZoom)
+				mTranslateX -= 2.0f * mZoom;
+			if (mTranslateY < -1.0f * mZoom)
+				mTranslateY += 2.0f * mZoom;
+			else if (mTranslateY > 1.0f * mZoom)
+				mTranslateY -= 2.0f * mZoom;
+		}
+		setOrtho();
+		update();
+	}
+}
+
+void View::mouseReleaseEvent(QMouseEvent * ev)
+{
+	if (!mStyleData[mStyle].m3D)
+	{
+		mMouseDown = false;
+	}
 }
 
 // This can't be set in the constructor because of oddities around QtDesigner widget initialization
@@ -88,6 +139,7 @@ void View::setProjection()
 	{
 		setOrtho();
 	}
+	update();
 }
 
 void View::setPerspective()
@@ -106,14 +158,17 @@ void View::setOrtho()
 	{
 		left *= mAspect;
 		right *= mAspect;
+		mPixelSize = 2.0f / height();
 	}
 	else
 	{
 		top /= mAspect;
 		bottom /= mAspect;
+		mPixelSize = 2.0f / width();
 	}
 	mModelView.setToIdentity();
 	mModelView.ortho(left, right, bottom, top, -2.0f, 2.0f);
+	mModelView.translate(mTranslateX, mTranslateY);
 	mModelView.scale(mZoom);
 
 	CHECK_GL_ERROR;
@@ -416,8 +471,22 @@ void View::createDonutStyle()
 
 void View::setZoom(float zoom)
 {
+	float oldZoom = mZoom;
 	mZoom = zoom;
+	if (mZoom == 1.0f && mStyle == STYLE_SIMPLE)
+	{
+		// When we fully zoom out in simple mode, center the network
+		mTranslateX = 0.0f;
+		mTranslateY = 0.0f;
+	}
+	else
+	{
+		// When we change zoom we need to scale the translation also
+		mTranslateX *= mZoom / oldZoom;
+		mTranslateY *= mZoom / oldZoom;
+	}
 	setProjection();
+	update();
 }
 
 void View::checkGlError(char * fun, int line)
@@ -488,7 +557,7 @@ void View::createTextureForLayer(std::shared_ptr<Layer> layer)
 		texture->destroy();
 	}
 	texture = std::make_shared<QOpenGLTexture>(QOpenGLTexture::Target2D);
-	texture->setMinMagFilters(QOpenGLTexture::Linear, QOpenGLTexture::Linear);
+	texture->setMinMagFilters(QOpenGLTexture::Linear, QOpenGLTexture::Nearest);
 	texture->create();
 	texture->setSize(layer->width(), layer->height(), 1);
 	texture->setFormat(QOpenGLTexture::RGBA8_UNorm);

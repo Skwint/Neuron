@@ -65,7 +65,6 @@ void Life::tick(SynapseMatrix * synapses)
 	{
 		for (int cc = 0; cc < mWidth; ++cc)
 		{
-			assert(cell->potential != neuronLifeCheck);
 			assert(cell->input != neuronLifeCheck);
 			cell->firing = cell->input > mLow && cell->input < mHigh;
 			++cell;

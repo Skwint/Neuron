@@ -7,14 +7,12 @@
 #include "NeuronSim/Layer.h"
 #include "NeuronSim/Life.h"
 #include "NeuronSim/Log.h"
-#include "ToolBox.h"
 #include "SynapseDock.h"
+#include "ToolBox.h"
 
 Neuron::Neuron(QWidget *parent)
 	: QMainWindow(parent),
 	mZoom(1),
-	mLeft(0),
-	mTop(0),
 	mTimerTicked(false),
 	mWaitingForSwap(false),
 	mFpsFrameCounter(0)
@@ -48,6 +46,7 @@ Neuron::Neuron(QWidget *parent)
 	connect(mToolBox->pause(), &QPushButton::clicked, this, &Neuron::simPause);
 	connect(mToolBox->play(), &QPushButton::clicked, this, &Neuron::simPlay);
 	connect(mToolBox->step(), &QPushButton::clicked, this, &Neuron::simStep);
+	connect(mToolBox.get(), &ToolBox::redraw, this, &Neuron::redraw);
 }
 
 Neuron::~Neuron()
@@ -62,6 +61,16 @@ void Neuron::showEvent(QShowEvent *event)
 	QMainWindow::showEvent(event);
 }
 
+// TODO : this doesn't work when we are paused because we draw based on inputs but
+// we are changing the spikes, and those don't happen till we step
+// Maybe we should be drawing the spikes instead? That would require spikes to
+// know their coordinates, which they don't at the moment.
+void Neuron::redraw()
+{
+	ui.view->updateTextures();
+	ui.view->update();
+}
+
 static const qint64 stepPerTimerUpdate(20);
 void Neuron::step()
 {
@@ -71,8 +80,7 @@ void Neuron::step()
 	mAutomaton->tick();
 	if (rendering != ToolBox::RENDER_NEVER)
 	{
-		ui.view->updateTextures();
-		ui.view->update();
+		redraw();
 	}
 
 	++mFpsFrameCounter;
@@ -109,27 +117,6 @@ void Neuron::onFrameSwapped()
 	}
 }
 
-void Neuron::zoomOneToOne()
-{
-	int winWidth = ui.view->width();
-	int winHeight = ui.view->height();
-	int netWidth = mAutomaton->width();
-	int netHeight = mAutomaton->height();
-	float winAspect = float(winWidth) / float(winHeight);
-	float netAspect = float(netWidth) / float(netHeight);
-	float fzoom;
-	if (winAspect > netAspect)
-	{
-		fzoom = float(winHeight) / netHeight;
-	}
-	else
-	{
-		fzoom = float(winWidth) / netWidth;
-	}
-	setZoom(int(fzoom));
-	centerNet();
-}
-
 void Neuron::zoomFitToWindow()
 {
 	setZoom(1);
@@ -150,17 +137,6 @@ void Neuron::setZoom(int zoom)
 	mZoom = std::max(1, zoom);
 	ui.view->setZoom(float(mZoom));
 	mToolBox->displayZoom(mZoom);
-	update();
-}
-
-void Neuron::centerNet()
-{
-	int winWidth = ui.view->width();
-	int winHeight = ui.view->height();
-	int netWidth = mAutomaton->width();
-	int netHeight = mAutomaton->height();
-	mTop = (netHeight - winHeight) / 2;
-	mLeft = (netWidth - winWidth) / 2;
 }
 
 void Neuron::startTimer(int delay)
@@ -209,3 +185,15 @@ void Neuron::simStep()
 	}
 }
 
+void Neuron::viewPress(QMouseEvent * ev)
+{
+
+}
+
+void Neuron::viewMove(QMouseEvent * ev)
+{
+}
+
+void Neuron::viewRelease(QMouseEvent * ev)
+{
+}
