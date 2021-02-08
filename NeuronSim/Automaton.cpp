@@ -1,6 +1,8 @@
 #include "Automaton.h"
 
 #include <cassert>
+#include <filesystem>
+#include <fstream>
 
 #include "Constants.h"
 #include "Exception.h"
@@ -19,13 +21,14 @@ Automaton::Automaton() :
 	mWidth(DEFAULT_NET_SIZE),
 	mHeight(DEFAULT_NET_SIZE)
 {
+	LOG("Creating automaton");
 	mLayerFactory = std::make_unique<LayerFactory>();
 	mSpikeProcessor = std::make_shared<SpikeProcessor>();
 }
 
 Automaton::~Automaton()
 {
-
+	LOG("Destroying automaton");
 }
 
 void Automaton::tick()
@@ -34,7 +37,134 @@ void Automaton::tick()
 
 	for (auto synapses : mSynapses)
 	{
-		synapses->target()->tick(synapses.get());
+		auto source = synapses->source();
+		if (source)
+			source->tick(synapses.get());
+	}
+}
+
+void Automaton::save(const std::filesystem::path & path)
+{
+	LOG("Saving automaton as [" << path << "]");
+
+	if (filesystem::exists(path) && path.extension() == ".neuron")
+	{
+		filesystem::remove(path);
+	}
+
+	auto folder = path;
+	folder.replace_extension("");
+	if (filesystem::exists(folder))
+	{
+		if (filesystem::is_directory(folder))
+		{
+			filesystem::remove_all(folder);
+		}
+		else
+		{
+			NEURONTHROW("Unable to save to [" << folder << "] because it already exists in an unexpected form");
+		}
+	}
+	filesystem::create_directory(folder);
+
+	ofstream ofs(path, ios::out | ios::binary);
+	if (ofs)
+	{
+		auto typeSize = mType.size();
+		ofs.write(reinterpret_cast<char *>(&typeSize), sizeof(typeSize));
+		ofs.write(&mType[0], typeSize);
+		ofs.write(reinterpret_cast<char *>(&mWidth), sizeof(mWidth));
+		ofs.write(reinterpret_cast<char *>(&mHeight), sizeof(mHeight));
+		mSpikeProcessor->saveSpike(ofs);
+	}
+
+	if (!ofs || !ofs.good())
+	{
+		NEURONTHROW("Failed to save automaton");
+	}
+
+	for (auto layer : mLayers)
+	{
+		layer->save(folder);
+	}
+
+	int counter = 0;
+	std::stringstream str;
+	for (auto synapse : mSynapses)
+	{
+		str << "synapse_" << counter << SYNAPSE_EXTENSION;
+		synapse->save(folder / str.str());
+		str.str("");
+		++counter;
+	}
+}
+
+void Automaton::load(const std::filesystem::path & path)
+{
+	LOG("Loading automaton from [" << path << "]");
+	mSpikeProcessor->clear();
+	while (!mLayers.empty())
+	{
+		removeLayer(mLayers.back());
+	}
+
+	ifstream ifs(path, ios::in | ios::binary);
+	std::string type;
+	int width;
+	int height;
+	if (ifs)
+	{
+		size_t typeSize;
+		ifs.read(reinterpret_cast<char *>(&typeSize), sizeof(typeSize));
+		type.resize(typeSize);
+		ifs.read(&type[0], typeSize);
+		ifs.read(reinterpret_cast<char *>(&width), sizeof(width));
+		ifs.read(reinterpret_cast<char *>(&height), sizeof(height));
+		mSpikeProcessor->loadSpike(ifs);
+	}
+	
+	if (!ifs || !ifs.good())
+	{
+		NEURONTHROW("Error while reading automaton [" << path << "]");
+	}
+
+	setNetworkType(type);
+	setSize(width, height);
+
+	auto folder = path;
+	folder.replace_extension("");
+	for (auto & layerfile : filesystem::directory_iterator(folder))
+	{
+		const filesystem::path file = layerfile;
+		if (file.extension() == LAYER_EXTENSION)
+		{
+			auto layer = createDetachedLayer();
+			layer->load(file);
+			layer->setName(file.stem().string());
+			attachLayer(layer);
+		}
+	}
+	for (auto & synapsefile : filesystem::directory_iterator(folder))
+	{
+		const filesystem::path file = synapsefile;
+		if (file.extension() == SYNAPSE_EXTENSION)
+		{
+			auto synapses = createDetachedSynapses();
+			synapses->load(file);
+			auto source = findLayer(synapses->sourceName());
+			if (!source)
+			{
+				LOG("Synapse references source layer [" << synapses->sourceName() << "] which doesn't exist");
+			}
+			synapses->setSource(source);
+			auto target = findLayer(synapses->targetName());
+			if (!target)
+			{
+				LOG("Synapse references source layer [" << synapses->sourceName() << "] which doesn't exist");
+			}
+			synapses->setTarget(target);
+			attachSynapses(synapses);
+		}
 	}
 }
 
@@ -83,10 +213,15 @@ void Automaton::setNetworkType(const std::string & type)
 	}
 }
 
-std::shared_ptr<Layer> Automaton::createLayer()
+std::shared_ptr<Layer> Automaton::createDetachedLayer()
 {
 	auto layer = mLayerFactory->create(mType, mWidth, mHeight);
 	layer->setSpikeProcessor(mSpikeProcessor);
+	return layer;
+}
+
+void Automaton::attachLayer(std::shared_ptr<Layer> layer)
+{
 	mLayers.push_back(layer);
 
 	Lock lock;
@@ -94,6 +229,12 @@ std::shared_ptr<Layer> Automaton::createLayer()
 	{
 		listener->automatonLayerCreated(layer);
 	}
+}
+
+std::shared_ptr<Layer> Automaton::createLayer()
+{
+	auto layer = createDetachedLayer();
+	attachLayer(layer);
 	return layer;
 }
 
@@ -106,7 +247,7 @@ void Automaton::removeLayer(std::shared_ptr<Layer> layer)
 		keepTrying = false;
 		auto zombie = std::find_if(mSynapses.begin(), mSynapses.end(), [layer](auto synapses)
 		{
-			return (!synapses->source()) || (synapses->source() == layer || (!synapses->target()) || synapses->target() == layer);
+			return (synapses->source() == layer || synapses->target() == layer);
 		});
 		if (zombie != mSynapses.end())
 		{
@@ -126,19 +267,11 @@ void Automaton::removeLayer(std::shared_ptr<Layer> layer)
 	}
 }
 
-std::shared_ptr<SynapseMatrix> Automaton::createSynapse()
+std::shared_ptr<SynapseMatrix> Automaton::createDetachedSynapses()
 {
 	if (!mLayers.empty())
 	{
 		auto synapses = make_shared<SynapseMatrix>();
-		synapses->setSource(mLayers[0]);
-		synapses->setTarget(mLayers[0]);
-		mSynapses.push_back(synapses);
-		Lock lock;
-		for (auto listener : mListeners)
-		{
-			listener->automatonSynapsesCreated(synapses);
-		}
 		return synapses;
 	}
 	else
@@ -146,6 +279,26 @@ std::shared_ptr<SynapseMatrix> Automaton::createSynapse()
 		LOG("Attempt to create synapses when no layers exist - ignored");
 		return std::shared_ptr<SynapseMatrix>();
 	}
+}
+
+void Automaton::attachSynapses(std::shared_ptr<SynapseMatrix> synapses)
+{
+	mSynapses.push_back(synapses);
+	Lock lock;
+	for (auto listener : mListeners)
+	{
+		listener->automatonSynapsesCreated(synapses);
+	}
+}
+
+std::shared_ptr<SynapseMatrix> Automaton::createSynapse()
+{
+	auto synapses = createDetachedSynapses();
+	if (synapses)
+	{
+		attachSynapses(synapses);
+	}
+	return synapses;
 }
 
 void Automaton::removeSynapse(std::shared_ptr<SynapseMatrix> synapses)

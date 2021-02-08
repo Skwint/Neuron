@@ -1,5 +1,12 @@
 #include "SynapseMatrix.h"
 
+#include <fstream>
+
+#include "Constants.h"
+#include "Exception.h"
+#include "Layer.h"
+#include "Log.h"
+
 SynapseMatrix::SynapseMatrix() :
 	mWidth(1),
 	mHeight(1)
@@ -29,6 +36,9 @@ void SynapseMatrix::setSize(int width, int height)
 // propogation along the synapse, and the green and blue channels combined
 // as the weight of the signal, normalized to the range [-1,1]
 // The alpha channel is ignored.
+// This is really quite silly. This library should take sensible inputs.
+// If the view wants to load .png files and interpret them like this then 
+// that is a problem for the view to deal with.
 void SynapseMatrix::loadImage(uint32_t * pixels, int width, int height)
 {
 	setSize(width, height);
@@ -46,4 +56,77 @@ void SynapseMatrix::loadImage(uint32_t * pixels, int width, int height)
 			++synapse;
 		}
 	}
+}
+
+void SynapseMatrix::load(const std::filesystem::path & path)
+{
+	LOGDEBUG("Loading synapses from [" << path << "]");
+	std::ifstream ifs(path, std::ios::in | std::ios::binary);
+	if (ifs)
+	{
+		size_t length;
+		int width;
+		int height;
+		ifs.read(reinterpret_cast<char *>(&length), sizeof(length));
+		mSourceName.resize(length);
+		ifs.read(&mSourceName[0], length);
+		ifs.read(reinterpret_cast<char *>(&length), sizeof(length));
+		mTargetName.resize(length);
+		ifs.read(&mTargetName[0], length);
+		ifs.read(reinterpret_cast<char *>(&width), sizeof(width));
+		ifs.read(reinterpret_cast<char *>(&height), sizeof(height));
+		setSize(width, height);
+		ifs.read(reinterpret_cast<char *>(&mSynapses[0]), mWidth * mHeight * sizeof(Synapse));
+	}
+	
+	if (!ifs || !ifs.good())
+	{
+		NEURONTHROW("Failed to read [" << path << "]");
+	}
+}
+
+void SynapseMatrix::save(const std::filesystem::path & path)
+{
+	LOGDEBUG("Saving synapses to [" << path << "]");
+	auto filename = path;
+	filename.replace_extension(SYNAPSE_EXTENSION);
+	std::ofstream ofs(filename, std::ios::out | std::ios::binary);
+	if (ofs)
+	{
+		auto source = mSource.lock();
+		auto target = mTarget.lock();
+		if (!source || !target)
+		{
+			NEURONTHROW("Invalid state - synapse source or target nolonger exists")
+		}
+		auto sourceSize = source->name().size();
+		auto targetSize = target->name().size();
+		ofs.write(reinterpret_cast<char *>(&sourceSize), sizeof(sourceSize));
+		ofs.write(&source->name()[0], sourceSize);
+		ofs.write(reinterpret_cast<char *>(&targetSize), sizeof(targetSize));
+		ofs.write(&target->name()[0], targetSize);
+		ofs.write(reinterpret_cast<char *>(&mWidth), sizeof(mWidth));
+		ofs.write(reinterpret_cast<char *>(&mHeight), sizeof(mHeight));
+		ofs.write(reinterpret_cast<char *>(&mSynapses[0]), mWidth * mHeight * sizeof(Synapse));
+	}
+	if (!ofs || !ofs.good())
+	{
+		NEURONTHROW("Failed to write [" << filename << "]");
+	}
+}
+
+const std::string & SynapseMatrix::sourceName()
+{
+	auto sourceLayer = mSource.lock();
+	if (sourceLayer)
+		return sourceLayer->name();
+	return mSourceName;
+}
+
+const std::string & SynapseMatrix::targetName()
+{
+	auto targetLayer = mTarget.lock();
+	if (targetLayer)
+		return targetLayer->name();
+	return mTargetName;
 }

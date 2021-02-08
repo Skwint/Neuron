@@ -2,6 +2,7 @@
 #define SPIKE_PROCESSOR_H
 
 #include <vector>
+#include <iosfwd>
 
 // SpikeProcessor
 // The purpose of this class is to manage a set of synaptic spikes, each with a target
@@ -16,15 +17,15 @@ class SpikeProcessor
 private:
 	struct Target
 	{
-		Target(float * potential, float weight, int offset) :
+		Target(float * potential, float weight) :
 			potential(potential),
-			weight(weight),
-			offset(offset)
+			weight(weight)
 		{ 
 		}
+		// The floating point value to which this spike will be added
 		float * potential;
+		// The weight of this spike
 		float weight;
-		int offset;
 	};
 	typedef std::vector<Target> Targets;
 public:
@@ -34,6 +35,10 @@ public:
 	virtual ~SpikeProcessor();
 
 	void setSpike(const Spike & spike);
+	void saveSpike(std::ofstream & ofs);
+	void loadSpike(std::ifstream & ifs);
+	void save(std::ofstream & ofs, float * first, float * last);
+	void load(std::ifstream & ifs, float * first);
 	void fire(float * target, float weight, int delay);
 	void tick();
 	void clear();

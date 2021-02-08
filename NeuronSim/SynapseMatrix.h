@@ -2,6 +2,7 @@
 #define SYNAPSE_MATRIX_H
 
 #include <algorithm>
+#include <filesystem>
 #include <memory>
 #include <vector>
 
@@ -20,12 +21,16 @@ public:
 	inline int height() { return mHeight; }
 	inline int width() { return mWidth; }
 	void setSource(std::shared_ptr<Layer> source) { mSource = source; }
-	inline std::shared_ptr<Layer> source() { return std::shared_ptr<Layer>(mSource); }
+	inline std::shared_ptr<Layer> source() { return mSource.lock(); }
+	const std::string & sourceName();
 	void setTarget(std::shared_ptr<Layer> target) { mTarget = target; }
-	inline std::shared_ptr<Layer> target() { return std::shared_ptr<Layer>(mTarget); }
+	inline std::shared_ptr<Layer> target() { return mTarget.lock(); }
+	const std::string & targetName();
 	inline Synapse * synapse(int row, int col) { return &mSynapses[row * mWidth + col]; }
 	inline Synapse * begin() { return &mSynapses[0]; }
 	void loadImage(uint32_t * pixels, int width, int height);
+	void load(const std::filesystem::path & path);
+	void save(const std::filesystem::path & path);
 
 	inline int lowWrapColBegin(int col, int width) { return std::max(0, col + width - mWidth / 2) - col; }
 	inline int lowWrapColEnd(int col, int width) { return std::min(width, col + width + mWidth / 2 + 1) - col; }
@@ -46,6 +51,8 @@ private:
 	std::vector<Synapse> mSynapses;
 	std::weak_ptr<Layer> mSource;
 	std::weak_ptr<Layer> mTarget;
+	std::string mSourceName;
+	std::string mTargetName;
 };
 
 #endif

@@ -37,6 +37,8 @@ public:
 	Rendering rendering() { return mRendering; }
 	int delay();
 	const SpikeProcessor::Spike & spike();
+	void load();
+	void save();
 
 signals:
 	void redraw();

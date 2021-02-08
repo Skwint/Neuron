@@ -18,16 +18,19 @@ public:
 	Layer(int width, int height);
 	virtual ~Layer();
 
+	virtual void save(const std::filesystem::path & path) = 0;
+	virtual void load(const std::filesystem::path & path) = 0;
 	virtual void tick(SynapseMatrix * synapses) = 0;
 	virtual std::string typeName() = 0;
 	virtual void paint(uint32_t * image) = 0;
 	virtual void setConfig(const ConfigSet & config) = 0;
 	virtual ConfigSet getConfig() = 0;
 	virtual const ConfigPresets & getPresets() = 0;
-	virtual void fire(int row, int col, float weight, int delay) = 0;
+	virtual void fire(int col, int row, float weight, int delay) = 0;
 	virtual void clear() = 0;
 
 	const std::string & name() { return mName; }
+	void setName(const std::string & name) { mName = name; }
 	virtual void resize(int width, int height);
 	int width() { return mWidth; }
 	int height() { return mHeight; }

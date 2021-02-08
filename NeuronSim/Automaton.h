@@ -59,6 +59,12 @@ public:
 	void load(const std::filesystem::path & path);
 
 private:
+	std::shared_ptr<Layer> createDetachedLayer();
+	void attachLayer(std::shared_ptr<Layer> layer);
+	std::shared_ptr<SynapseMatrix> createDetachedSynapses();
+	void attachSynapses(std::shared_ptr<SynapseMatrix> synapses);
+
+private:
 	std::vector<Listener *> mListeners;
 	std::string mType;
 	int mWidth;

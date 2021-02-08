@@ -27,11 +27,11 @@ public:
 		// This is only present in Life, the performance of which is unimportant to us.
 		// This exists so that it can be used as a debugging tool in future, should
 		// we need it.
-		// The automated stability test does excercise this mechanism.
+		// The automated stability test excercises this mechanism.
 		input = neuronLifeCheck;
 	}
 
-	uint32_t color() { return firing? 0xFFFFFFFF: 0xFF000000; }
+	inline uint32_t color() { return firing? 0xFFFFFFFF: 0xFF000000; }
 public:
 	float input;
 	bool firing;

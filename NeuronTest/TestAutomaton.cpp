@@ -98,6 +98,8 @@ void TestAutomaton::testAutoSynapseRemoval()
 	mLayer1 = mAutomaton->createLayer();
 	mLayer2 = mAutomaton->createLayer();
 	mSynapses1 = mAutomaton->createSynapse();
+	mSynapses1->setSource(mLayer1);
+	mSynapses1->setTarget(mLayer1);
 	mSynapses2 = mAutomaton->createSynapse();
 	mSynapses2->setSource(mLayer2);
 	mSynapses2->setTarget(mLayer2);

@@ -2,10 +2,12 @@
 
 #include <qcombobox.h>
 #include <qdiriterator.h>
+#include <qfiledialog.h>
 #include <qgroupbox.h>
 #include <qimage.h>
 #include <qpushbutton.h>
 #include <qspinbox.h>
+#include <qtoolbutton.h>
 #include <map>
 #include <random>
 #include <string>
@@ -19,6 +21,7 @@ using namespace std;
 
 static const QString NOISE_DENSE("Noise (dense)");
 static const QString NOISE_SPARSE("Noise (sparse)");
+static const QString NEURON_FILETYPE("*.neuron");
 
 ToolBox::ToolBox(shared_ptr<Automaton> automaton, QWidget *parent)
 	: QDockWidget(parent),
@@ -48,6 +51,8 @@ ToolBox::ToolBox(shared_ptr<Automaton> automaton, QWidget *parent)
 	connect(ui.btnEditingClearLayer, &QPushButton::clicked, this, &ToolBox::editingClearLayer);
 	connect(ui.btnEditingClearAll , &QPushButton::clicked, this, &ToolBox::editingClearAll);
 	connect(ui.btnEditingSpike, &QPushButton::clicked, this, &ToolBox::editingSpike);
+	connect(ui.btnLoad, &QToolButton::clicked, this, &ToolBox::load);
+	connect(ui.btnSave, &QToolButton::clicked, this, &ToolBox::save);
 
 	spikeChanged();
 	renderingChanged();
@@ -80,6 +85,24 @@ void ToolBox::simToggle()
 void ToolBox::editingToggle()
 {
 	ui.editingPanel->setVisible(ui.editingGroup->isChecked());
+}
+
+void ToolBox::load()
+{
+	QString fileName = QFileDialog::getOpenFileName(this, "Choose a location", "Data/Saves/", NEURON_FILETYPE);
+	if (!fileName.isEmpty() && !fileName.isNull())
+	{
+		mAutomaton->load(fileName.toStdString());
+	}
+}
+
+void ToolBox::save()
+{
+	QString fileName = QFileDialog::getSaveFileName(this, "Choose a location", "Data/Saves/", NEURON_FILETYPE, nullptr);
+	if (!fileName.isEmpty() && !fileName.isNull())
+	{
+		mAutomaton->save(fileName.toStdString());
+	}
 }
 
 void ToolBox::netSizeChanged()
@@ -154,7 +177,6 @@ void ToolBox::editingNoise(int density)
 	auto layer = mAutomaton->findLayer(ui.cmbEditingTarget->currentText().toStdString());
 	if (layer)
 	{
-		LOG("Spiking layer [" << layer->name() << "] with random noise");
 		static mt19937 rnd;
 		for (int row = 0; row < mAutomaton->height(); ++row)
 		{
@@ -162,7 +184,7 @@ void ToolBox::editingNoise(int density)
 			{
 				if (rnd() < density)
 				{
-					layer->fire(row, col, weight, 0);
+					layer->fire(col, row, weight, 0);
 				}
 			}
 		}
@@ -206,7 +228,7 @@ void ToolBox::editingSpike()
 						{
 							weight = weightMultiplier * (float(pixel & 0xFFFF) / 32768.0f - 1.0f);
 							delay = (pixel & 0x00FF0000) >> 16;
-							layer->fire(rr + rowOffset, cc + colOffset, weight, delay);
+							layer->fire(cc + colOffset, rr + rowOffset,weight, delay);
 						}
 						++pixels;
 					}

@@ -4,8 +4,13 @@
 #include "Layer.h"
 
 #include <algorithm>
+#include <filesystem>
+#include <fstream>
+#include <string>
 #include <vector>
 
+#include "Constants.h"
+#include "Exception.h"
 #include "Log.h"
 
 template <typename Neuron>
@@ -15,12 +20,13 @@ public:
 	Net(int width, int height);
 	virtual ~Net();
 
+	void save(const std::filesystem::path & path);
+	void load(const std::filesystem::path & path);
 	void tick(SynapseMatrix * synapses);
 	void resize(int width, int height);
-	Neuron * row(int r) { return &mNeurons[mWidth * r]; }
-	int rowStep() { return mWidth; }
+	inline Neuron * row(int r) { return &mNeurons[mWidth * r]; }
 	void paint(uint32_t * image);
-	void fire(int row, int col, float weight, int delay);
+	void fire(int col, int row, float weight, int delay);
 	void clear();
 private:
 	inline void tickSegment(int cs, int ce, Neuron * dst, Synapse * synapse);
@@ -41,7 +47,50 @@ Net<Neuron>::Net(int width, int height) :
 template <typename Neuron>
 Net<Neuron>::~Net()
 {
+	LOG("Destroying layer [" << mName << "] size: " << mWidth << " x " << mHeight);
+}
 
+// This function works for any neuron type that can be treated as a block of data.
+// If a neuron contains references to external data then this will need to be
+// overloaded.
+template <typename Neuron>
+void Net<Neuron>::save(const std::filesystem::path & path)
+{
+	auto filename = path / mName;
+	filename.replace_extension(LAYER_EXTENSION);
+	std::ofstream ofs(filename, std::ios::out | std::ios::binary);
+	if (ofs)
+	{
+		ofs.write(reinterpret_cast<char *>(&mWidth), sizeof(mWidth));
+		ofs.write(reinterpret_cast<char *>(&mHeight), sizeof(mHeight));
+		ofs.write(reinterpret_cast<char *>(&mNeurons[0]), mWidth * mHeight * sizeof(Neuron));
+		mSpikeProcessor->save(ofs, &mNeurons[0].input, &mNeurons.back().input);
+	}
+	else
+	{
+		NEURONTHROW("Failed to write [" << filename << "]");
+	}
+}
+
+template <typename Neuron>
+void Net<Neuron>::load(const std::filesystem::path & path)
+{
+	std::ifstream ifs(path, std::ios::in | std::ios::binary);
+	if (ifs)
+	{
+		mName = path.stem().string();
+		int width;
+		int height;
+		ifs.read(reinterpret_cast<char *>(&width), sizeof(width));
+		ifs.read(reinterpret_cast<char *>(&height), sizeof(height));
+		resize(width, height);
+		ifs.read(reinterpret_cast<char *>(&mNeurons[0]), mWidth * mHeight * sizeof(Neuron));
+		mSpikeProcessor->load(ifs, &mNeurons[0].input);
+	}
+	else
+	{
+		NEURONTHROW("Failed to read [" << path.string() << "]");
+	}
 }
 
 template <typename Neuron>
@@ -59,6 +108,11 @@ inline void Net<Neuron>::tickSegment(int cs, int ce, Neuron * dst, Synapse * syn
 template <typename Neuron>
 void Net<Neuron>::tick(SynapseMatrix * synapses)
 {
+	auto target = synapses->target();
+	if (!target)
+		return;
+	Net<Neuron> * targetNet = static_cast<Net<Neuron> *>(target.get());
+
 	for (int rr = 0; rr < mHeight; ++rr)
 	{
 		int lowRowBegin = synapses->lowWrapRowBegin(rr, mHeight);
@@ -89,7 +143,7 @@ void Net<Neuron>::tick(SynapseMatrix * synapses)
 				Synapse * synapse = synapses->begin();
 				for (int tr = lowRowBegin; tr < lowRowEnd; ++tr)
 				{
-					dst = cell + tr * rowStep();
+					dst = targetNet->row(rr + tr) + cc;
 					tickSegment(lowColBegin, lowColEnd, dst, synapse);
 					synapse += lowStep;
 					tickSegment(normColBegin, normColEnd, dst, synapse);
@@ -99,7 +153,7 @@ void Net<Neuron>::tick(SynapseMatrix * synapses)
 				}
 				for (int tr = normRowBegin; tr < normRowEnd; ++tr)
 				{
-					dst = cell + tr * rowStep();
+					dst = targetNet->row(rr + tr) + cc;
 					tickSegment(lowColBegin, lowColEnd, dst, synapse);
 					synapse += lowStep;
 					tickSegment(normColBegin, normColEnd, dst, synapse);
@@ -109,7 +163,7 @@ void Net<Neuron>::tick(SynapseMatrix * synapses)
 				}
 				for (int tr = highRowBegin; tr < highRowEnd; ++tr)
 				{
-					dst = cell + tr * rowStep();
+					dst = targetNet->row(rr + tr) + cc;
 					tickSegment(lowColBegin, lowColEnd, dst, synapse);
 					synapse += lowStep;
 					tickSegment(normColBegin, normColEnd, dst, synapse);
@@ -148,7 +202,7 @@ void Net<Neuron>::paint(uint32_t * image)
 }
 
 template <typename Neuron>
-inline void Net<Neuron>::fire(int rr, int cc, float weight, int delay)
+inline void Net<Neuron>::fire(int cc, int rr, float weight, int delay)
 {
 	Neuron * neuron = row(rr) + cc;
 	mSpikeProcessor->fire(&neuron->input, weight, delay);

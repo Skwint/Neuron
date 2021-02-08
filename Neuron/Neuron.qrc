@@ -9,5 +9,7 @@
         <file>Data/Icons/ZoomFit.png</file>
         <file>Data/Icons/ZoomIn.png</file>
         <file>Data/Icons/ZoomOut.png</file>
+        <file>Data/Icons/load.png</file>
+        <file>Data/Icons/save.png</file>
     </qresource>
 </RCC>

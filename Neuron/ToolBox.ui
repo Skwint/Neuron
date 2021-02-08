@@ -19,7 +19,7 @@
   <property name="minimumSize">
    <size>
     <width>284</width>
-    <height>551</height>
+    <height>641</height>
    </size>
   </property>
   <property name="features">
@@ -221,6 +221,38 @@
               </property>
              </widget>
             </item>
+            <item row="5" column="1">
+             <layout class="QHBoxLayout" name="horizontalLayout_4">
+              <item>
+               <widget class="QToolButton" name="btnLoad">
+                <property name="toolTip">
+                 <string>Open</string>
+                </property>
+                <property name="text">
+                 <string>...</string>
+                </property>
+                <property name="icon">
+                 <iconset resource="Neuron.qrc">
+                  <normaloff>:/Neuron/Data/Icons/load.png</normaloff>:/Neuron/Data/Icons/load.png</iconset>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QToolButton" name="btnSave">
+                <property name="toolTip">
+                 <string>Save</string>
+                </property>
+                <property name="text">
+                 <string>...</string>
+                </property>
+                <property name="icon">
+                 <iconset resource="Neuron.qrc">
+                  <normaloff>:/Neuron/Data/Icons/save.png</normaloff>:/Neuron/Data/Icons/save.png</iconset>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
            </layout>
           </item>
          </layout>
@@ -296,6 +328,9 @@
            <layout class="QHBoxLayout" name="horizontalLayout_2">
             <item>
              <widget class="QToolButton" name="btnViewZoomFitToWindow">
+              <property name="toolTip">
+               <string>Fit to Window</string>
+              </property>
               <property name="text">
                <string>Fit to window</string>
               </property>
@@ -307,6 +342,9 @@
             </item>
             <item>
              <widget class="QToolButton" name="btnViewZoomOut">
+              <property name="toolTip">
+               <string>Zoom Out</string>
+              </property>
               <property name="text">
                <string>Zoom Out</string>
               </property>
@@ -318,6 +356,9 @@
             </item>
             <item>
              <widget class="QToolButton" name="btnViewZoomIn">
+              <property name="toolTip">
+               <string>Zoom In</string>
+              </property>
               <property name="text">
                <string>Zoom In</string>
               </property>
@@ -502,6 +543,9 @@
            <layout class="QHBoxLayout" name="horizontalLayout">
             <item>
              <widget class="QToolButton" name="btnSimPause">
+              <property name="toolTip">
+               <string>Pause</string>
+              </property>
               <property name="autoFillBackground">
                <bool>true</bool>
               </property>
@@ -516,6 +560,9 @@
             </item>
             <item>
              <widget class="QToolButton" name="btnSimPlay">
+              <property name="toolTip">
+               <string>Run</string>
+              </property>
               <property name="autoFillBackground">
                <bool>true</bool>
               </property>
@@ -530,6 +577,9 @@
             </item>
             <item>
              <widget class="QToolButton" name="btnSimStep">
+              <property name="toolTip">
+               <string>Step</string>
+              </property>
               <property name="autoFillBackground">
                <bool>true</bool>
               </property>

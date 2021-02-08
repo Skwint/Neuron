@@ -4,6 +4,7 @@
 
 #include "TestAutomaton.h"
 #include "TestConfigs.h"
+#include "TestLife.h"
 #include "TestMat33f.h"
 #include "TestSpikeProcessor.h"
 #include "TestStability.h"
@@ -18,6 +19,7 @@ Tester::Tester()
 	mTests.push_back(make_shared<TestConfigs>());
 	mTests.push_back(make_shared<TestSpikeProcessor>());
 	mTests.push_back(make_shared<TestAutomaton>());
+	mTests.push_back(make_shared<TestLife>());
 	mTests.push_back(make_shared<TestStability>());
 }
 
@@ -55,7 +57,8 @@ void Tester::run()
 		}
 	}
 
-	TEST_LOG("Passed:     " << mPasses);
-	TEST_LOG("Failed:     " << mFails);
+	TEST_LOG("--------------------------");
+	TEST_LOG("Passed     : " << mPasses);
+	TEST_LOG("Failed     : " << mFails);
 	TEST_LOG("Exceptions : " << mExceptions);
 }
