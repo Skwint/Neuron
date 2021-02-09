@@ -15,14 +15,14 @@ using namespace std;
 
 Tester::Tester()
 {
-	mTests.push_back(make_shared<TestVec3f>());
-	mTests.push_back(make_shared<TestMat33f>());
-	mTests.push_back(make_shared<TestConfigs>());
-	mTests.push_back(make_shared<TestSpikeProcessor>());
-	mTests.push_back(make_shared<TestNet>());
-	mTests.push_back(make_shared<TestAutomaton>());
-	mTests.push_back(make_shared<TestLife>());
-	mTests.push_back(make_shared<TestStability>());
+	mTests.push_back([] { return make_shared<TestVec3f>(); });
+	mTests.push_back([] { return make_shared<TestMat33f>(); });
+	mTests.push_back([] { return make_shared<TestConfigs>(); });
+	mTests.push_back([] { return make_shared<TestSpikeProcessor>(); });
+	mTests.push_back([] { return make_shared<TestNet>(); });
+	mTests.push_back([] { return make_shared<TestAutomaton>(); });
+	mTests.push_back([] { return make_shared<TestLife>(); });
+	mTests.push_back([] { return make_shared<TestStability>(); });
 }
 
 Tester::~Tester()
@@ -35,8 +35,9 @@ void Tester::run()
 	mPasses = 0;
 	mFails = 0;
 	mExceptions = 0;
-	for (auto test : mTests)
+	for (auto allocator : mTests)
 	{
+		auto test = allocator();
 		TEST_LOG("Running [" << test->name() << "]");
 		try
 		{

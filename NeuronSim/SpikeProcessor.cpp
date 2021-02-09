@@ -15,6 +15,7 @@ using namespace std;
 SpikeProcessor::SpikeProcessor() :
 	mCurrentFrame(0)
 {
+	LOG("Creating spike processor");
 	// preallocate a circular buffer (indexed on time until fire)
 	mFrames.resize(MAX_FRAMES);
 	// Our default spike is just a single 1
@@ -23,25 +24,26 @@ SpikeProcessor::SpikeProcessor() :
 
 SpikeProcessor::~SpikeProcessor()
 {
-
+	LOG("Destroying spike processor");
 }
 
 void SpikeProcessor::setSpike(const std::vector<float> & spike)
 {
 	assert(spike.size() <= MAX_SPIKE_LENGTH);
+	LOG("Setting spike with length [" << spike.size() << "]");
 	mSpike = spike;
 }
 
 void SpikeProcessor::saveSpike(ofstream & ofs)
 {
-	size_t size = mSpike.size();
+	uint32_t size = uint32_t(mSpike.size());
 	ofs.write(reinterpret_cast<char *>(&size), sizeof(size));
 	ofs.write(reinterpret_cast<char *>(&mSpike[0]), size * sizeof(float));
 }
 
 void SpikeProcessor::loadSpike(ifstream & ifs)
 {
-	size_t size;
+	uint32_t size;
 	ifs.read(reinterpret_cast<char *>(&size), sizeof(size));
 	mSpike.resize(size);
 	ifs.read(reinterpret_cast<char *>(&mSpike[0]), size * sizeof(float));
@@ -49,6 +51,9 @@ void SpikeProcessor::loadSpike(ifstream & ifs)
 
 void SpikeProcessor::save(std::ofstream & ofs, float * first, float * last)
 {
+	uint32_t size = uint32_t(mSpike.size());
+	ofs.write(reinterpret_cast<char *>(&size), sizeof(uint32_t));
+	ofs.write(reinterpret_cast<char *>(&mSpike[0]), size * sizeof(float));
 	for (int frameNum = 0; frameNum < mFrames.size(); ++frameNum)
 	{
 		auto & frame = mFrames[(mCurrentFrame + frameNum) % mFrames.size()];
@@ -69,6 +74,10 @@ void SpikeProcessor::save(std::ofstream & ofs, float * first, float * last)
 
 void SpikeProcessor::load(std::ifstream & ifs, float * first)
 {
+	uint32_t size;
+	ifs.read(reinterpret_cast<char *>(&size), sizeof(uint32_t));
+	mSpike.resize(size);
+	ifs.read(reinterpret_cast<char *>(&mSpike[0]), size * sizeof(float));
 	mCurrentFrame = 0;
 	int delay = 0;
 	while (!ifs.eof())

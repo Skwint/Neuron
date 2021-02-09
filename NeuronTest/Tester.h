@@ -1,6 +1,7 @@
 #ifndef TESTER_H
 #define TESTER_H
 
+#include <functional>
 #include <vector>
 #include <memory>
 
@@ -16,7 +17,7 @@ public:
 	void run();
 
 private:
-	std::vector<std::shared_ptr<Test>> mTests;
+	std::vector<std::function<std::shared_ptr<Test>()>> mTests;
 	int mPasses;
 	int mFails;
 	int mExceptions;

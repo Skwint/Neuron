@@ -35,6 +35,7 @@ public:
 	virtual ~SpikeProcessor();
 
 	void setSpike(const Spike & spike);
+	const Spike & spike() const { return mSpike; }
 	void saveSpike(std::ofstream & ofs);
 	void loadSpike(std::ifstream & ifs);
 	void save(std::ofstream & ofs, float * first, float * last);

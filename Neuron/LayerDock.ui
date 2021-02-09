@@ -6,14 +6,14 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>200</width>
-    <height>215</height>
+    <width>242</width>
+    <height>183</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
     <width>200</width>
-    <height>183</height>
+    <height>100</height>
    </size>
   </property>
   <property name="features">
@@ -52,8 +52,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>198</width>
-         <height>191</height>
+         <width>240</width>
+         <height>159</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -76,13 +76,6 @@
          <widget class="QPushButton" name="btnNewLayer">
           <property name="text">
            <string>New Layer</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="btnApply">
-          <property name="text">
-           <string>Apply All</string>
           </property>
          </widget>
         </item>

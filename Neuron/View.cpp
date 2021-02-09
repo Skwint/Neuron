@@ -13,7 +13,6 @@
 #include "NeuronSim/Constants.h"
 #include "NeuronSim/Layer.h"
 #include "NeuronSim/Log.h"
-#include "LayerData.h"
 #include "Mat33f.h"
 #include "Vec3f.h"
 
@@ -145,7 +144,7 @@ void View::setProjection()
 void View::setPerspective()
 {
 	mModelView.setToIdentity();
-	mModelView.perspective(90.0f, mAspect, 0.1f, 100.0f);
+	mModelView.perspective(mStyleData[mStyle].mPov, mAspect, 0.1f, 100.0f);
 }
 
 void View::setOrtho()
@@ -182,11 +181,12 @@ void View::initializeGL()
 	const char *vertexSource =
 		"attribute highp vec4 vertex;\n"
 		"attribute highp vec4 texCoord;\n"
+		"uniform highp vec4 pos;\n"
 		"uniform mediump mat4 matrix;\n"
 		"varying highp vec4 texc;\n"
 		"void main(void)\n"
 		"{\n"
-		"    gl_Position = matrix * vertex;\n"
+		"    gl_Position = matrix * (pos + vertex);\n"
 		"    texc = texCoord;\n"
 		"}\n";
 	mVertexShader->compileSourceCode(vertexSource);
@@ -209,6 +209,7 @@ void View::initializeGL()
 
 	mAttrVertex = mProgram->attributeLocation("vertex");
 	mAttrTexCoord = mProgram->attributeLocation("texCoord");
+	mAttrPos = mProgram->uniformLocation("pos");
 	mAttrMatrix = mProgram->uniformLocation("matrix");
 	mAttrTexture = mProgram->uniformLocation("tex");
 	mAttrColor = mProgram->uniformLocation("color");
@@ -240,7 +241,7 @@ void View::paintGL()
 	if (mStyleData[mStyle].m3D)
 	{
 		QMatrix4x4 matrix;
-		matrix.lookAt(QVector3D(0.0f, 0.7f, -1.4f), QVector3D(0.0f, -0.7f, 0.0f), QVector3D(0.0f, 0.707f, 0.707f));
+		matrix.lookAt(mStyleData[mStyle].mEyePos, mStyleData[mStyle].mLookAt, mStyleData[mStyle].mUp);
 		mProgram->setUniformValue(mAttrMatrix, mModelView * matrix);
 	}
 	else
@@ -258,20 +259,45 @@ void View::paintGL()
 
 void View::paintTexture()
 {
-	for (auto & texture : mTextures)
+	StyleData * data = &mStyleData[mStyle];
+	if (mStyle == STYLE_STACKED && mTextures.size() > 1)
 	{
-		StyleData * data = &mStyleData[mStyle];
+		static const float top = 0.5f;
+		static const float bottom = -0.5f;
+		float y = top;
+		float deltay = (bottom - top) / (mTextures.size() - 1);
+		for (auto & texture : mTextures)
+		{
+			texture.second->bind();
+			mProgram->setUniformValue(mAttrColor, QColor(0xFFFFFFFF));
+			mProgram->setUniformValue(mAttrPos, 0.0f, y, 0.0f, 0.0f);
 
-		texture.second->bind();
-		LayerData * layerData = static_cast<LayerData *>(texture.first->userData());
-		mProgram->setUniformValue(mAttrColor, layerData->color);
+			data->mVao.bind();
 
-		data->mVao.bind();
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, data->mIndexBuffer);
+			glDrawElements(GL_TRIANGLES, data->mIndexCount, GL_UNSIGNED_SHORT, 0);
 
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, data->mIndexBuffer);
-		glDrawElements(GL_TRIANGLES, data->mIndexCount, GL_UNSIGNED_SHORT, 0);
+			data->mVao.release();
 
-		data->mVao.release();
+			y += deltay;
+		}
+	}
+	else
+	{
+		mProgram->setUniformValue(mAttrPos, 0.0f, 0.0f, 0.0f, 0.0f);
+		for (auto & texture : mTextures)
+		{
+			texture.second->bind();
+			mProgram->setUniformValue(mAttrColor, QColor(0xFFFFFFFF));
+			mProgram->setUniformValue(mAttrPos, 0.0f, 0.0f, 0.0f, 0.0f);
+
+			data->mVao.bind();
+
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, data->mIndexBuffer);
+			glDrawElements(GL_TRIANGLES, data->mIndexCount, GL_UNSIGNED_SHORT, 0);
+
+			data->mVao.release();
+		}
 	}
 }
 
@@ -280,6 +306,7 @@ void View::createMesh()
 	createSimpleStyle();
 	createTiledStyle();
 	createDonutStyle();
+	createStackedStyle();
 }
 
 void View::createSimpleStyle()
@@ -424,6 +451,10 @@ void View::createDonutStyle()
 
 	auto * data = &mStyleData[STYLE_DONUT];
 	data->m3D = true;
+	data->mEyePos = QVector3D(0.0f, 0.7f, -1.4f);
+	data->mLookAt = QVector3D(0.0f, -0.7f, 0.0f);
+	data->mUp = QVector3D(0.0f, 0.707f, 0.707f);
+	data->mPov = 90.0f;
 
 	data->mVao.create();
 	data->mVao.bind();
@@ -462,6 +493,50 @@ void View::createDonutStyle()
 	assert(indices.size() < pow(2, 16));
 
 	data->mIndexCount = indices.size();
+	glGenBuffers(1, &data->mIndexBuffer);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, data->mIndexBuffer);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, data->mIndexCount * sizeof(GLushort), &indices[0], GL_STATIC_DRAW);
+
+	CHECK_GL_ERROR;
+}
+
+void View::createStackedStyle()
+{
+	int vertexCount = 4;
+	Vertex quad[] =
+	{
+		{-1.0f, 0.0f, -1.0f, 0.0f, 0.0f},
+		{ 1.0f, 0.0f,  1.0f, 1.0f, 1.0f},
+		{-1.0f, 0.0f,  1.0f, 0.0f, 1.0f},
+		{ 1.0f, 0.0f, -1.0f, 1.0f, 0.0f}
+	};
+
+	StyleData * data = &mStyleData[STYLE_STACKED];
+	data->m3D = true;
+	data->mEyePos = QVector3D(0.0f, 2.0f, -5.0f);
+	data->mLookAt = QVector3D(0.0f, 0.0f, 0.0f);
+	data->mUp = QVector3D(0.0f, 0.707f, 0.707f);
+	data->mPov = 30.0f;
+
+	data->mVao.create();
+	data->mVao.bind();
+
+	data->mVertexBuffer.create();
+	data->mVertexBuffer.bind();
+	data->mVertexBuffer.setUsagePattern(QOpenGLBuffer::StaticDraw);
+	data->mVertexBuffer.allocate(vertexCount * sizeof(Vertex));
+	data->mVertexBuffer.write(0, &quad[0], vertexCount * sizeof(Vertex));
+
+	mProgram->enableAttributeArray(mAttrVertex);
+	mProgram->enableAttributeArray(mAttrTexCoord);
+	mProgram->setAttributeBuffer(mAttrVertex, GL_FLOAT, 0, 3, sizeof(Vertex));
+	mProgram->setAttributeBuffer(mAttrTexCoord, GL_FLOAT, 3 * sizeof(GLfloat), 2, sizeof(Vertex));
+
+	data->mVertexBuffer.release();
+	data->mVao.release();
+
+	GLushort indices[] = { 0,2,1,3,0,1 };
+	data->mIndexCount = sizeof(indices);
 	glGenBuffers(1, &data->mIndexBuffer);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, data->mIndexBuffer);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, data->mIndexCount * sizeof(GLushort), &indices[0], GL_STATIC_DRAW);
@@ -513,6 +588,10 @@ void View::setStyle(const QString & style)
 	else if (!style.compare("Donut"))
 	{
 		mStyle = STYLE_DONUT;
+	}
+	else if (!style.compare("Stacked"))
+	{
+		mStyle = STYLE_STACKED;
 	}
 	else
 	{

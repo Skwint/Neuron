@@ -1,59 +1,66 @@
 #include "LayerConfig.h"
 
 #include <qcolordialog.h>
+#include <qspinbox.h>
+#include <qmessagebox.h>
 
 #include "NeuronSim/Automaton.h"
 #include "NeuronSim/Layer.h"
+#include "NeuronSim/Log.h"
 
 using namespace std;
 
-LayerConfig::LayerConfig(std::shared_ptr<Layer> layer, QWidget *parent)
+LayerConfig::LayerConfig(std::shared_ptr<Automaton> automaton, std::shared_ptr<Layer> layer, QWidget *parent)
 	: QGroupBox(parent),
-	mLayer(layer),
-	mLayerData(make_unique<LayerData>())
+	mAutomaton(automaton),
+	mLayerName(layer->name()),
+	mLoadingPreset(false)
 {
 	ui.setupUi(this);
-	mLayerData->color = QColor(0xFFFFFFFF);
-	layer->setUserData(mLayerData.get());
-	mFixedConfigRows = ui.formLayout->rowCount();
 
+	loadPresets();
 	repopulate();
-	setTitle(QString::fromStdString(layer->name()));
+	setTitle(QString::fromStdString(mLayerName));
 
 	connect(this, &QGroupBox::toggled, this, [this]() { ui.panel->setVisible(isChecked()); });
-	connect(ui.btnApply, &QPushButton::clicked, this, &LayerConfig::apply);
-	connect(ui.btnColour, &QPushButton::clicked, this, &LayerConfig::color);
 	connect(ui.cmbPreset, &QComboBox::currentTextChanged, this, &LayerConfig::presetSelected);
+	connect(ui.btnDelete, &QPushButton::clicked, this, [this]() { mAutomaton->removeLayer(mLayerName); });
+
 }
 
 LayerConfig::~LayerConfig()
 {
 }
 
+void LayerConfig::loadPresets()
+{
+	auto layer = mAutomaton->findLayer(mLayerName);
+	if (layer)
+	{
+		auto presets = layer->getPresets();
+		for (auto & config : presets.configs())
+		{
+			ui.cmbPreset->addItem(QString::fromStdString(config.first));
+		}
+		mConfig = layer->getConfig();
+	}
+}
+
 void LayerConfig::repopulate()
 {
-	ui.cmbPreset->clear();
-	auto presets = mLayer->getPresets();
-	for (auto & config : presets.configs())
+	while (ui.configLayout->rowCount())
 	{
-		ui.cmbPreset->addItem(QString::fromStdString(config.first));
-	}
-
-	while (ui.formLayout->rowCount() > mFixedConfigRows)
-	{
-		ui.formLayout->removeRow(mFixedConfigRows);
+		ui.configLayout->removeRow(0);
 	}
 	mConfigWidgets.clear();
 
-	mConfig = presets.configs().begin()->second;
-
-	int row = ui.formLayout->rowCount();
+	int row = 0;
 	for (auto & item : mConfig.items())
 	{
 		auto label = new QLabel(ui.panel);
 		label->setText(item.first.c_str());
 
-		ui.formLayout->setWidget(row, QFormLayout::LabelRole, label);
+		ui.configLayout->setWidget(row, QFormLayout::LabelRole, label);
 
 		switch (item.second.mType)
 		{
@@ -63,7 +70,8 @@ void LayerConfig::repopulate()
 			editor->setSingleStep(1.0f);
 			editor->setValue(item.second.mFloat);
 			mConfigWidgets.push_back(ConfigWidget(item.first, editor));
-			ui.formLayout->setWidget(row, QFormLayout::FieldRole, editor);
+			ui.configLayout->setWidget(row, QFormLayout::FieldRole, editor);
+			connect(editor, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &LayerConfig::configItemChanged);
 			break;
 		}
 		case ConfigItem::INT:
@@ -72,13 +80,13 @@ void LayerConfig::repopulate()
 			editor->setSingleStep(1.0f);
 			editor->setValue(item.second.mInt);
 			mConfigWidgets.push_back(ConfigWidget(item.first, editor));
-			ui.formLayout->setWidget(row, QFormLayout::FieldRole, editor);
+			ui.configLayout->setWidget(row, QFormLayout::FieldRole, editor);
+			connect(editor, QOverload<int>::of(&QSpinBox::valueChanged), this, &LayerConfig::configItemChanged);
 			break;
 		}
 		default:
-			// We intentionally ignore this error - we should probably
-			// report it instead, but an exception would be excessive.
-			// TODO
+			QMessageBox::warning(0, "Malformed configuration data", QString::number(item.second.mType));
+			LOG("Unexpected config type [" << item.second.mType << "] in " << mConfig.name());
 			break;
 		}
 
@@ -89,56 +97,76 @@ void LayerConfig::repopulate()
 	ui.panel->update();
 }
 
-void LayerConfig::apply()
+void LayerConfig::configItemChanged()
 {
-	ConfigItem config;
-	for (int item = 0; item < mConfigWidgets.size(); ++item)
+	auto layer = mAutomaton->findLayer(mLayerName);
+	if (layer && !mLoadingPreset)
 	{
-		auto & widget = mConfigWidgets[item];
-		auto config = mConfig[widget.name];
-		switch (config.mType)
+		ConfigItem config;
+		for (int item = 0; item < mConfigWidgets.size(); ++item)
 		{
-		case ConfigItem::FLOAT:
-		{
-			QDoubleSpinBox * spin = dynamic_cast<QDoubleSpinBox *>(widget.widget);
-			if (spin)
-				mConfig[widget.name] = float(spin->value());
-			break;
+			auto & widget = mConfigWidgets[item];
+			auto config = mConfig[widget.name];
+			switch (config.mType)
+			{
+			case ConfigItem::FLOAT:
+			{
+				QDoubleSpinBox * spin = dynamic_cast<QDoubleSpinBox *>(widget.widget);
+				if (spin)
+					mConfig[widget.name] = float(spin->value());
+				break;
+			}
+			case ConfigItem::INT:
+			{
+				QSpinBox * spin = dynamic_cast<QSpinBox *>(widget.widget);
+				if (spin)
+					mConfig[widget.name] = spin->value();
+				break;
+			}
+			default:
+				// We ignore this. It's an error, but it has already been reported when
+				// the config was loaded - we don't need to report it again.
+				break;
+			}
 		}
-		case ConfigItem::INT:
-		{
-			QSpinBox * spin = dynamic_cast<QSpinBox *>(widget.widget);
-			if (spin)
-				mConfig[widget.name] = spin->value();
-			break;
-		}
-		default:
-			break;
-		}
+		layer->setConfig(mConfig);
+		ui.cmbPreset->setCurrentIndex(0);
 	}
-	mLayer->setConfig(mConfig);
-}
-
-void LayerConfig::color()
-{
-	mLayerData->color = QColorDialog::getColor();
-	ui.btnColour->setText(mLayerData->color.name(QColor::HexRgb));
 }
 
 void LayerConfig::presetSelected()
 {
-	auto & presets = mLayer->getPresets();
-	auto & config = presets[ui.cmbPreset->currentText().toStdString()];
-	for (auto & widget : mConfigWidgets)
+	mLoadingPreset = true;
+	auto layer = mAutomaton->findLayer(mLayerName);
+	if (layer)
 	{
-		switch (config[widget.name].mType)
+		auto & presets = layer->getPresets();
+		std::string name = ui.cmbPreset->currentText().toStdString();
+		if (presets.contains(name))
 		{
-		case ConfigItem::FLOAT:
-			dynamic_cast<QDoubleSpinBox *>(widget.widget)->setValue(config[widget.name].mFloat);
-			break;
-		case ConfigItem::INT:
-			dynamic_cast<QSpinBox *>(widget.widget)->setValue(config[widget.name].mInt);
-			break;
+			auto & config = presets[name];
+			for (auto & widget : mConfigWidgets)
+			{
+				switch (config[widget.name].mType)
+				{
+				case ConfigItem::FLOAT:
+				{
+					auto spinner = dynamic_cast<QDoubleSpinBox *>(widget.widget);
+					if (spinner)
+						spinner->setValue(config[widget.name].mFloat);
+					break;
+				}
+				case ConfigItem::INT:
+				{
+					auto spinner = dynamic_cast<QSpinBox *>(widget.widget);
+					if (spinner)
+						spinner->setValue(config[widget.name].mInt);
+					break;
+				}
+				}
+			}
 		}
+		mLoadingPreset = false;
+		layer->setConfig(mConfig);
 	}
 }

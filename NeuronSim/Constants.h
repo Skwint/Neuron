@@ -15,5 +15,6 @@ const int DEFAULT_NET_SIZE(64);
 
 static const char * LAYER_EXTENSION(".layer");
 static const char * SYNAPSE_EXTENSION(".synapse");
+static const char * CONFIG_EXTENSION(".cfg");
 
 #endif

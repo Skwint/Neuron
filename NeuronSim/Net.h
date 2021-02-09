@@ -13,6 +13,10 @@
 #include "Exception.h"
 #include "Log.h"
 
+//
+// The Neuron template argument should not contain virtual functions
+// If it is necessary it can be done, but the save and load functions
+// will then need to be overridden.
 template <typename Neuron>
 class Net : public Layer
 {
@@ -40,7 +44,7 @@ template <typename Neuron>
 Net<Neuron>::Net(int width, int height) :
 	Layer(width, height)
 {
-	LOG("Creating layer");
+	LOG("Creating layer [" << mName << "] size: " << mWidth << " x " << mHeight);
 	// We have to call this explicitly - the v-table wasn't set up yet when the layer constructor
 	// was called so it can't call it for us.
 	resize(width, height);
@@ -72,6 +76,8 @@ void Net<Neuron>::save(const std::filesystem::path & path)
 	{
 		NEURONTHROW("Failed to write [" << filename << "]");
 	}
+	filename.replace_extension(CONFIG_EXTENSION);
+	getConfig().write(filename);
 }
 
 template <typename Neuron>
@@ -93,6 +99,11 @@ void Net<Neuron>::load(const std::filesystem::path & path)
 	{
 		NEURONTHROW("Failed to read [" << path.string() << "]");
 	}
+	auto filename = path;
+	filename.replace_extension(CONFIG_EXTENSION);
+	ConfigSet config;
+	config.read(filename);
+	setConfig(config);
 }
 
 template <typename Neuron>
@@ -232,7 +243,7 @@ std::ostream & operator<<(std::ostream & os, const Net<Neuron> & net)
 	{
 		for (int cc = 0; cc < net.width(); ++cc)
 		{
-			os << neuron->input << "   ";
+			os << neuron->input << (neuron->firing?"*":" ") << "   ";
 			++neuron;
 		}
 		os << "\n";

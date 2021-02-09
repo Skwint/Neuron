@@ -5,7 +5,6 @@
 
 #include "NeuronSim/Automaton.h"
 #include "NeuronSim/ConfigPresets.h"
-#include "LayerData.h"
 
 class LayerConfig : public QGroupBox
 {
@@ -21,23 +20,23 @@ private:
 		QWidget * widget;
 	};
 public:
-	LayerConfig(std::shared_ptr<Layer> layer, QWidget *parent = Q_NULLPTR);
+	LayerConfig(std::shared_ptr<Automaton> mAutomaton, std::shared_ptr<Layer> layer, QWidget *parent = Q_NULLPTR);
 	~LayerConfig();
 
 	void repopulate();
-	void apply();
-	QPushButton * deleteButton() { return ui.btnDelete; }
-	std::shared_ptr<Layer> layer() { return mLayer; }
+	const std::string & layerName() { return mLayerName; }
 
 private:
 	void color();
 	void presetSelected();
+	void loadPresets();
+	void configItemChanged();
 
 private:
 	Ui::LayerConfig ui;
-	std::shared_ptr<Layer> mLayer;
-	std::unique_ptr<LayerData> mLayerData;
+	std::shared_ptr<Automaton> mAutomaton;
+	std::string mLayerName;
 	ConfigSet mConfig;
-	int mFixedConfigRows;
 	std::vector<ConfigWidget> mConfigWidgets;
+	bool mLoadingPreset;
 };

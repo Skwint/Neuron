@@ -35,12 +35,35 @@ void Automaton::tick()
 {
 	mSpikeProcessor->tick();
 
+	for (auto layer : mLayers)
+	{
+		layer->preTick();
+	}
 	for (auto synapses : mSynapses)
 	{
 		auto source = synapses->source();
 		if (source)
 			source->tick(synapses.get());
 	}
+	for (auto layer : mLayers)
+	{
+		layer->postTick();
+	}
+}
+
+void Automaton::reset()
+{
+	mSpikeProcessor->clear();
+	mSynapses.clear();
+	Lock lock;
+	for (auto layer : mLayers)
+	{
+		for (auto listener : mListeners)
+		{
+			listener->automatonLayerRemoved(layer);
+		}
+	}
+	mLayers.clear();
 }
 
 void Automaton::save(const std::filesystem::path & path)
@@ -70,7 +93,7 @@ void Automaton::save(const std::filesystem::path & path)
 	ofstream ofs(path, ios::out | ios::binary);
 	if (ofs)
 	{
-		auto typeSize = mType.size();
+		uint32_t typeSize = uint32_t(mType.size());
 		ofs.write(reinterpret_cast<char *>(&typeSize), sizeof(typeSize));
 		ofs.write(&mType[0], typeSize);
 		ofs.write(reinterpret_cast<char *>(&mWidth), sizeof(mWidth));
@@ -114,7 +137,7 @@ void Automaton::load(const std::filesystem::path & path)
 	int height;
 	if (ifs)
 	{
-		size_t typeSize;
+		uint32_t typeSize;
 		ifs.read(reinterpret_cast<char *>(&typeSize), sizeof(typeSize));
 		type.resize(typeSize);
 		ifs.read(&type[0], typeSize);
@@ -194,17 +217,7 @@ void Automaton::setNetworkType(const std::string & type)
 	if (type != mType)
 	{
 		LOG("Changing network type to [" << type << "]");
-		mSpikeProcessor->clear();
-		mSynapses.clear();
-		Lock lock;
-		for (auto layer : mLayers)
-		{
-			for (auto listener : mListeners)
-			{
-				listener->automatonLayerRemoved(layer);
-			}
-		}
-		mLayers.clear();
+		reset();
 		mType = type;
 		for (auto listener : mListeners)
 		{
@@ -236,6 +249,13 @@ std::shared_ptr<Layer> Automaton::createLayer()
 	auto layer = createDetachedLayer();
 	attachLayer(layer);
 	return layer;
+}
+
+void Automaton::removeLayer(const std::string & name)
+{
+	auto layer = findLayer(name);
+	if (layer)
+		removeLayer(layer);
 }
 
 void Automaton::removeLayer(std::shared_ptr<Layer> layer)
@@ -366,14 +386,4 @@ inline Automaton::Lock::~Lock()
 {
 	assert(mLocked);
 	mLocked = false;
-}
-
-void save(const std::filesystem::path & path)
-{
-
-}
-
-void load(const std::filesystem::path & path)
-{
-
 }

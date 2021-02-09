@@ -58,7 +58,7 @@ const ConfigPresets & Life::presets()
 	return presets;
 }
 
-void Life::tick(SynapseMatrix * synapses)
+void Life::preTick()
 {
 	NeuronLife * cell = &mNeurons[0];
 	for (int rr = 0; rr < mHeight; ++rr)
@@ -70,10 +70,11 @@ void Life::tick(SynapseMatrix * synapses)
 			++cell;
 		}
 	}
+}
 
-	Net::tick(synapses);
-
-	cell = &mNeurons[0];
+void Life::postTick()
+{
+	NeuronLife * cell = &mNeurons[0];
 	for (int rr = 0; rr < mHeight; ++rr)
 	{
 		for (int cc = 0; cc < mWidth; ++cc)
@@ -85,3 +86,4 @@ void Life::tick(SynapseMatrix * synapses)
 		}
 	}
 }
+

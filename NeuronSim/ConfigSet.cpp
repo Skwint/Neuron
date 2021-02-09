@@ -23,7 +23,7 @@ void ConfigSet::read(const filesystem::path & path)
 	LOG("Reading config [" << mName << "]");
 
 	ifstream is(path);
-	while (!is.eof())
+	while (is && !is.eof())
 	{
 		std::string name;
 		ConfigItem item;

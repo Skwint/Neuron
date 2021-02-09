@@ -13,7 +13,7 @@ public:
 
 	static std::string name();
 	static const ConfigSet & defaultConfig();
-	virtual void tick(SynapseMatrix * synapses);
+	void postTick();
 	std::string typeName() { return name(); }
 	void setConfig(const ConfigSet & config);
 	ConfigSet getConfig();
@@ -25,6 +25,7 @@ private:
 	float mLeak;
 	float mThreshold;
 	float mReset;
+	float mLowerLimit;
 	int mRefractory;
 };
 

@@ -35,9 +35,6 @@ private:
 	void simStep();
 	void startTimer(int delay);
 	void onFrameSwapped();
-	void viewPress(QMouseEvent * ev);
-	void viewMove(QMouseEvent * ev);
-	void viewRelease(QMouseEvent * ev);
 	void redraw();
 
 private:

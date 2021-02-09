@@ -14,6 +14,7 @@ public:
 	void read(const std::string & layerType);
 
 	std::map<std::string, ConfigSet> configs() { return mConfigs; }
+	inline bool contains(const std::string & name) const { return mConfigs.count(name); }
 	ConfigSet & operator[](const std::string & name) { return mConfigs[name]; }
 	const ConfigSet & operator[](const std::string & name) const { return mConfigs.at(name); }
 	

@@ -62,7 +62,7 @@ void SynapseMatrix::load(const std::filesystem::path & path)
 	std::ifstream ifs(path, std::ios::in | std::ios::binary);
 	if (ifs)
 	{
-		size_t length;
+		uint32_t length;
 		int width;
 		int height;
 		ifs.read(reinterpret_cast<char *>(&length), sizeof(length));
@@ -97,8 +97,8 @@ void SynapseMatrix::save(const std::filesystem::path & path)
 		{
 			NEURONTHROW("Invalid state - synapse source or target nolonger exists")
 		}
-		auto sourceSize = source->name().size();
-		auto targetSize = target->name().size();
+		uint32_t sourceSize = uint32_t(source->name().size());
+		uint32_t targetSize = uint32_t(target->name().size());
 		ofs.write(reinterpret_cast<char *>(&sourceSize), sizeof(sourceSize));
 		ofs.write(&source->name()[0], sourceSize);
 		ofs.write(reinterpret_cast<char *>(&targetSize), sizeof(targetSize));

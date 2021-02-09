@@ -15,7 +15,7 @@ struct NeuronLife
 	NeuronLife() : input(0.0f), firing(false)
 	{
 	}
-	virtual ~NeuronLife()
+	~NeuronLife()
 	{
 		// This was added because an off by one error during development managed to
 		// evade detection by std::vector and caused a crash that took most of a day

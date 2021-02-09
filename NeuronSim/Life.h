@@ -15,7 +15,8 @@ public:
 
 	static std::string name();
 	static const ConfigPresets & presets();
-	void tick(SynapseMatrix * synapses);
+	void preTick();
+	void postTick();
 	std::string typeName() { return name(); }
 	void setConfig(const ConfigSet & config);
 	ConfigSet getConfig();

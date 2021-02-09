@@ -71,7 +71,3 @@ const ConfigPresets & Izhikevich::getPresets()
 {
 	return Izhikevich::presets();
 }
-
-void Izhikevich::tick(SynapseMatrix * synapses)
-{
-}

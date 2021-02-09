@@ -19,6 +19,7 @@ public:
 private:
 	void testBasicLife();
 	void testInterleavedLife();
+	void testSaveLoad();
 
 private:
 	std::unique_ptr<Automaton> mAutomaton;

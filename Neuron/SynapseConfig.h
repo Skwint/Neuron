@@ -21,7 +21,6 @@ public:
 	void sourceChanged();
 	void targetChanged();
 	std::shared_ptr<SynapseMatrix> synapses() { return mSynapses; }
-	bool isReferencingLayer(const std::string & name);
 
 private:
 	Ui::SynapseConfig ui;

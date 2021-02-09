@@ -40,6 +40,7 @@ private:
 		STYLE_SIMPLE = 0,
 		STYLE_TILED,
 		STYLE_DONUT,
+		STYLE_STACKED,
 
 		STYLE_COUNT
 	};
@@ -50,6 +51,10 @@ private:
 		int mIndexCount;
 		GLuint mIndexBuffer;
 		bool m3D;
+		QVector3D mEyePos;
+		QVector3D mLookAt;
+		QVector3D mUp;
+		float mPov;
 	};
 public:
 	View(QWidget *parent = Q_NULLPTR);
@@ -83,6 +88,7 @@ private:
 	void createSimpleStyle();
 	void createTiledStyle();
 	void createDonutStyle();
+	void createStackedStyle();
 	void paintTexture();
 	void checkGlError(char * fun, int line);
 	void createTextureForLayer(std::shared_ptr<Layer> layer);
@@ -98,6 +104,7 @@ private:
 	std::map<std::shared_ptr<Layer>, std::shared_ptr<QOpenGLTexture>> mTextures;
 	int mAttrVertex;
 	int mAttrTexCoord;
+	int mAttrPos;
 	int mAttrMatrix;
 	int mAttrTexture;
 	int mAttrColor;

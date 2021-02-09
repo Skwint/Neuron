@@ -24,6 +24,10 @@ public:
 		virtual void automatonSynapsesCreated(std::shared_ptr<SynapseMatrix> synapses) {};
 		virtual void automatonSynapsesRemoved(std::shared_ptr<SynapseMatrix> synapses) {};
 	};
+	// The lock is to detect (and throw exceptions when) a user of
+	// this class attempts to add or remove a listener while the listeners
+	// are being iterated.
+	// TODO - fix it so that it remembers dead listeners and removes them later
 	class Lock
 	{
 	public:
@@ -36,6 +40,7 @@ public:
 	Automaton();
 	~Automaton();
 
+	void reset();
 	void setNetworkType(const std::string & type);
 	const std::string & networkType() const { return mType; }
 	void setSize(int width, int height);
@@ -43,6 +48,7 @@ public:
 	int height() { return mHeight; }
 	std::shared_ptr<Layer> createLayer();
 	void removeLayer(std::shared_ptr<Layer> layer);
+	void removeLayer(const std::string & name);
 	const std::vector<std::shared_ptr<Layer> > layers() { return mLayers; }
 	std::shared_ptr<Layer> findLayer(const std::string & name);
 	std::vector<std::string> typeNames();
@@ -52,6 +58,7 @@ public:
 	void removeListener(Listener * listener);
 	void tick();
 	void setSpike(const SpikeProcessor::Spike & spike);
+	const SpikeProcessor::Spike & spike() { return mSpikeProcessor->spike(); }
 	void clearLayers();
 	// Save the current state of all layers and synapses to the given path
 	void save(const std::filesystem::path & path);

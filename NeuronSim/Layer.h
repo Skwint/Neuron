@@ -12,6 +12,12 @@
 class SpikeProcessor;
 class ConfigPresets;
 
+// In each frame of animation the functions are called in the following order:
+// - preTick()    - once per frame
+// - tick()       - once per synapse sourced from this layer
+// - postTick()   - once per frame
+// - paint()      - zero or one times per frame
+// Under most circumstaces tick() does not need to be overridden.
 class Layer
 {
 public:
@@ -20,7 +26,9 @@ public:
 
 	virtual void save(const std::filesystem::path & path) = 0;
 	virtual void load(const std::filesystem::path & path) = 0;
+	virtual void preTick() {}
 	virtual void tick(SynapseMatrix * synapses) = 0;
+	virtual void postTick() {}
 	virtual std::string typeName() = 0;
 	virtual void paint(uint32_t * image) = 0;
 	virtual void setConfig(const ConfigSet & config) = 0;
@@ -36,17 +44,12 @@ public:
 	int height() const { return mHeight; }
 	void setSpikeProcessor(std::shared_ptr<SpikeProcessor> spikeProcessor) { mSpikeProcessor = spikeProcessor; }
 	void selectPreset(const std::string & name);
-	void setUserData(void * data) { mUserData = data; }
-	void * userData() { return mUserData; }
 
 protected:
 	std::string mName;
 	int mWidth;
 	int mHeight;
 	std::shared_ptr<SpikeProcessor> mSpikeProcessor;
-
-private:
-	void * mUserData;
 };
 
 #endif

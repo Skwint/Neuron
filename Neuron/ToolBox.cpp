@@ -22,6 +22,7 @@ using namespace std;
 static const QString NOISE_DENSE("Noise (dense)");
 static const QString NOISE_SPARSE("Noise (sparse)");
 static const QString NEURON_FILETYPE("*.neuron");
+static const QString SAVE_DIR("Data/Saves/");
 
 ToolBox::ToolBox(shared_ptr<Automaton> automaton, QWidget *parent)
 	: QDockWidget(parent),
@@ -89,16 +90,18 @@ void ToolBox::editingToggle()
 
 void ToolBox::load()
 {
-	QString fileName = QFileDialog::getOpenFileName(this, "Choose a location", "Data/Saves/", NEURON_FILETYPE);
+	QString fileName = QFileDialog::getOpenFileName(this, "Choose a location", SAVE_DIR, NEURON_FILETYPE);
 	if (!fileName.isEmpty() && !fileName.isNull())
 	{
 		mAutomaton->load(fileName.toStdString());
 	}
+	ui.spinSpikeDuration->setValue(mAutomaton->spike().size());
+	ui.cmbSpikeShape->setCurrentIndex(-1);
 }
 
 void ToolBox::save()
 {
-	QString fileName = QFileDialog::getSaveFileName(this, "Choose a location", "Data/Saves/", NEURON_FILETYPE, nullptr);
+	QString fileName = QFileDialog::getSaveFileName(this, "Choose a location", SAVE_DIR, NEURON_FILETYPE, nullptr);
 	if (!fileName.isEmpty() && !fileName.isNull())
 	{
 		mAutomaton->save(fileName.toStdString());

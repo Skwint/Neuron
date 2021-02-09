@@ -54,11 +54,13 @@ Neuron::~Neuron()
 	mAutomaton->removeListener(this);
 }
 
-// We wait until the show event to do these initialisations because otherwise the opengl
-// view widget gets upset.
+// We do not need to override this. However, when debugging it is often convenient
+// to automatically initialize things on startup and this is the place to do it.
 void Neuron::showEvent(QShowEvent *event)
 {
 	QMainWindow::showEvent(event);
+
+	// mAutomaton->load("Data/Saves/linear_lif_two_layer.neuron");
 }
 
 // TODO : this doesn't work when we are paused because we draw based on inputs but
@@ -183,17 +185,4 @@ void Neuron::simStep()
 		mFpsFrameCounter = 0;
 		tick();
 	}
-}
-
-void Neuron::viewPress(QMouseEvent * ev)
-{
-
-}
-
-void Neuron::viewMove(QMouseEvent * ev)
-{
-}
-
-void Neuron::viewRelease(QMouseEvent * ev)
-{
 }

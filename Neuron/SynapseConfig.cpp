@@ -76,12 +76,6 @@ void SynapseConfig::removeLayer(const string & name)
 	}
 }
 
-bool SynapseConfig::isReferencingLayer(const std::string & name)
-{
-	return (ui.cmbSource->currentText().toStdString() == name ||
-		ui.cmbTarget->currentText().toStdString() == name);
-}
-
 void SynapseConfig::synapseChanged()
 {
 	if (!ui.cmbSynapse->currentText().isEmpty())

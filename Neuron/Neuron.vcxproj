@@ -135,7 +135,6 @@
     <QtMoc Include="LayerDock.h" />
     <QtMoc Include="LayerConfig.h" />
     <QtMoc Include="App.h" />
-    <ClInclude Include="LayerData.h" />
     <ClInclude Include="Mat33f.h" />
     <QtMoc Include="SynapseDock.h" />
     <QtMoc Include="SynapseConfig.h" />

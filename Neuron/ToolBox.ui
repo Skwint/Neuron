@@ -399,6 +399,11 @@
         <string>Donut</string>
        </property>
       </item>
+      <item>
+       <property name="text">
+        <string>Stacked</string>
+       </property>
+      </item>
      </widget>
     </item>
     <item>

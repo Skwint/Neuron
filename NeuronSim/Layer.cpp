@@ -11,8 +11,7 @@ using namespace std;
 
 Layer::Layer(int width, int height) :
 	mWidth(width),
-	mHeight(height),
-	mUserData(0)
+	mHeight(height)
 {
 	stringstream str;
 	str << "Layer " << nextName;

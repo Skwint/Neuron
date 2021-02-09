@@ -1,6 +1,7 @@
 #include "TestLife.h"
 
 #include "NeuronSim/Layer.h"
+#include "NeuronSim/Life.h"
 #include "NeuronSim/SpikeProcessor.h"
 #include "NeuronSim/SynapseMatrix.h"
 
@@ -23,6 +24,7 @@ void TestLife::run()
 
 	testBasicLife();
 	testInterleavedLife();
+	testSaveLoad();
 }
 
 // Uses the Life network type to run a completely normal
@@ -32,6 +34,7 @@ void TestLife::testBasicLife()
 	TEST_SUB;
 
 	// Initialize a 5x5 life layer
+	mAutomaton->reset();
 	mAutomaton->setNetworkType("Life");
 	mAutomaton->setSize(5, 5);
 	auto layer = mAutomaton->createLayer();
@@ -112,6 +115,7 @@ void TestLife::testInterleavedLife()
 	TEST_SUB;
 
 	// Initialize a 5x5 life layer
+	mAutomaton->reset();
 	mAutomaton->setNetworkType("Life");
 	mAutomaton->setSize(5, 5);
 	auto layer1 = mAutomaton->createLayer();
@@ -204,3 +208,75 @@ void TestLife::testInterleavedLife()
 	TEST(image == windmillStart);
 }
 
+void TestLife::testSaveLoad()
+{
+	TEST_SUB;
+
+	// Initialize a 5x5 life layer
+	mAutomaton->reset();
+	mAutomaton->setNetworkType("Life");
+	mAutomaton->setSize(5, 5);
+	auto layer = mAutomaton->createLayer();
+	auto synapse = mAutomaton->createSynapse();
+	synapse->setSource(layer);
+	synapse->setTarget(layer);
+	uint32_t syn[] =
+	{
+		0xFFFF, 0xFFFF, 0xFFFF,
+		0xFFFF, 0xB000, 0xFFFF,
+		0xFFFF, 0xFFFF, 0xFFFF,
+	};
+	SpikeProcessor::Spike spike = { 1.0f };
+	synapse->loadImage(syn, 3, 3, 1.0f);
+	mAutomaton->setSpike(spike);
+
+	// Create a glider in the middle of the layer
+	float weight = 3.0f;
+	layer->fire(1, 1, weight, 0);
+	layer->fire(2, 1, weight, 0);
+	layer->fire(3, 1, weight, 0);
+	layer->fire(3, 2, weight, 0);
+	layer->fire(2, 3, weight, 0);
+
+	const uint32_t live(0xFFFFFFFF);
+	const uint32_t dead(0xFF000000);
+	std::vector<uint32_t> image;
+	image.resize(25);
+
+	// Run for one step so that the spikes arrive
+	mAutomaton->tick();
+	std::vector<uint32_t> gliderStart =
+	{
+		dead, dead, dead, dead, dead,
+		dead, live, live, live, dead,
+		dead, dead, dead, live, dead,
+		dead, dead, live, dead, dead,
+		dead, dead, dead, dead, dead
+	};
+	layer->paint(&image[0]);
+	TEST(image == gliderStart);
+
+	// Save state to file
+	mAutomaton->save("Data/Test/Life.neuron");
+
+	// Load it
+	mAutomaton->clearLayers();
+	mAutomaton->load("Data/Test/Life.neuron");
+	layer = mAutomaton->layers()[0];
+
+	// Tick to the next state
+	mAutomaton->tick();
+	std::vector<uint32_t> gliderNext =
+	{
+		dead, dead, live, dead, dead,
+		dead, dead, live, live, dead,
+		dead, live, dead, live, dead,
+		dead, dead, dead, dead, dead,
+		dead, dead, dead, dead, dead
+	};
+	layer->paint(&image[0]);
+	TEST(image == gliderNext);
+
+	// Destroy a layer which was loaded (regression test for a crash)
+	mAutomaton->removeLayer(layer);
+}
