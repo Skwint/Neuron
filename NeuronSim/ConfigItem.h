@@ -5,13 +5,32 @@
 
 struct ConfigItem
 {
+	enum Type
+	{
+		INVALID,
+		FLOAT,
+		INT
+	};
 	ConfigItem() :
-		value(0.0f)
+		mType(INVALID)
 	{}
 	ConfigItem(float value) :
-		value(value)
+		mType(FLOAT),
+		mFloat(value)
 	{}
-	float value;
+	ConfigItem(int value) :
+		mType(INT),
+		mInt(value)
+	{}
+	Type mType;
+	union
+	{
+		float mFloat;
+		int mInt;
+	};
 };
+
+std::ostream & operator<<(std::ostream & os, ConfigItem & item);
+std::istream & operator>>(std::istream & is, ConfigItem & item);
 
 #endif

@@ -34,13 +34,13 @@ std::string Izhikevich::name()
 
 void Izhikevich::setConfig(const ConfigSet & config)
 {
-	mV2 = config.items().at(CFG_V2).value;
-	mV1 = config.items().at(CFG_V1).value;
-	mV0 = config.items().at(CFG_V0).value;
-	mA = config.items().at(CFG_A).value;
-	mB = config.items().at(CFG_B).value;
-	mC = config.items().at(CFG_C).value;
-	mD = config.items().at(CFG_D).value;
+	mV2 = config.items().at(CFG_V2).mFloat;
+	mV1 = config.items().at(CFG_V1).mFloat;
+	mV0 = config.items().at(CFG_V0).mFloat;
+	mA = config.items().at(CFG_A).mFloat;
+	mB = config.items().at(CFG_B).mFloat;
+	mC = config.items().at(CFG_C).mFloat;
+	mD = config.items().at(CFG_D).mFloat;
 }
 
 const ConfigPresets & Izhikevich::presets()

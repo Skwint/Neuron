@@ -31,8 +31,8 @@ string Life::name()
 
 void Life::setConfig(const ConfigSet & config)
 {
-	mLow = config.items().at(CFG_LOW).value;
-	mHigh = config.items().at(CFG_HIGH).value;
+	mLow = config.items().at(CFG_LOW).mFloat;
+	mHigh = config.items().at(CFG_HIGH).mFloat;
 }
 
 ConfigSet Life::getConfig()

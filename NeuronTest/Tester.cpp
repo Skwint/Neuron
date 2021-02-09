@@ -6,6 +6,7 @@
 #include "TestConfigs.h"
 #include "TestLife.h"
 #include "TestMat33f.h"
+#include "TestNet.h"
 #include "TestSpikeProcessor.h"
 #include "TestStability.h"
 #include "TestVec3f.h"
@@ -18,6 +19,7 @@ Tester::Tester()
 	mTests.push_back(make_shared<TestMat33f>());
 	mTests.push_back(make_shared<TestConfigs>());
 	mTests.push_back(make_shared<TestSpikeProcessor>());
+	mTests.push_back(make_shared<TestNet>());
 	mTests.push_back(make_shared<TestAutomaton>());
 	mTests.push_back(make_shared<TestLife>());
 	mTests.push_back(make_shared<TestStability>());

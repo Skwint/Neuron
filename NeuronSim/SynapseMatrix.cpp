@@ -31,15 +31,13 @@ void SynapseMatrix::setSize(int width, int height)
 	mSynapses.resize(mWidth * mHeight);
 }
 
-// loadImage takes an image of 32 bit pixels in RGBA format, with a size
+// loadImage takes an image of 32 bit pixels in ARGB format, with a size
 // of width x height, and uses the red channel as the delay for signal
 // propogation along the synapse, and the green and blue channels combined
-// as the weight of the signal, normalized to the range [-1,1]
+// as the weight of the signal, normalized to the range [-1,1] and then
+// multiplied by the weight
 // The alpha channel is ignored.
-// This is really quite silly. This library should take sensible inputs.
-// If the view wants to load .png files and interpret them like this then 
-// that is a problem for the view to deal with.
-void SynapseMatrix::loadImage(uint32_t * pixels, int width, int height)
+void SynapseMatrix::loadImage(uint32_t * pixels, int width, int height, float weight)
 {
 	setSize(width, height);
 	Synapse * synapse = &mSynapses[0];
@@ -49,7 +47,7 @@ void SynapseMatrix::loadImage(uint32_t * pixels, int width, int height)
 		for (int w = 0; w < width; ++w)
 		{
 			uint32_t gb = (*pixel & 0x0000FFFF);
-			synapse->weight = float(gb) / 32767.0f - 1.0f;
+			synapse->weight = weight * (float(gb) / 0x8000 - 1.0f);
 			uint32_t r = (*pixel & 0x00FF0000) >> 16;
 			synapse->delay = r;
 			++pixel;

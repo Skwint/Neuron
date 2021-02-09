@@ -55,12 +55,32 @@ void LayerConfig::repopulate()
 
 		ui.formLayout->setWidget(row, QFormLayout::LabelRole, label);
 
-		auto editor = new QDoubleSpinBox(ui.panel);
-		editor->setSingleStep(1.0f);
-		editor->setValue(item.second.value);
-		mConfigWidgets.push_back(ConfigWidget(item.first, editor));
-
-		ui.formLayout->setWidget(row, QFormLayout::FieldRole, editor);
+		switch (item.second.mType)
+		{
+		case ConfigItem::FLOAT:
+		{
+			auto editor = new QDoubleSpinBox(ui.panel);
+			editor->setSingleStep(1.0f);
+			editor->setValue(item.second.mFloat);
+			mConfigWidgets.push_back(ConfigWidget(item.first, editor));
+			ui.formLayout->setWidget(row, QFormLayout::FieldRole, editor);
+			break;
+		}
+		case ConfigItem::INT:
+		{
+			auto editor = new QSpinBox(ui.panel);
+			editor->setSingleStep(1.0f);
+			editor->setValue(item.second.mInt);
+			mConfigWidgets.push_back(ConfigWidget(item.first, editor));
+			ui.formLayout->setWidget(row, QFormLayout::FieldRole, editor);
+			break;
+		}
+		default:
+			// We intentionally ignore this error - we should probably
+			// report it instead, but an exception would be excessive.
+			// TODO
+			break;
+		}
 
 		++row;
 	}
@@ -71,12 +91,30 @@ void LayerConfig::repopulate()
 
 void LayerConfig::apply()
 {
+	ConfigItem config;
 	for (int item = 0; item < mConfigWidgets.size(); ++item)
 	{
 		auto & widget = mConfigWidgets[item];
-		QDoubleSpinBox * spin = dynamic_cast<QDoubleSpinBox *>(widget.widget);
-		if (spin)
-			mConfig[widget.name] = ConfigItem(spin->value());
+		auto config = mConfig[widget.name];
+		switch (config.mType)
+		{
+		case ConfigItem::FLOAT:
+		{
+			QDoubleSpinBox * spin = dynamic_cast<QDoubleSpinBox *>(widget.widget);
+			if (spin)
+				mConfig[widget.name] = float(spin->value());
+			break;
+		}
+		case ConfigItem::INT:
+		{
+			QSpinBox * spin = dynamic_cast<QSpinBox *>(widget.widget);
+			if (spin)
+				mConfig[widget.name] = spin->value();
+			break;
+		}
+		default:
+			break;
+		}
 	}
 	mLayer->setConfig(mConfig);
 }
@@ -93,7 +131,14 @@ void LayerConfig::presetSelected()
 	auto & config = presets[ui.cmbPreset->currentText().toStdString()];
 	for (auto & widget : mConfigWidgets)
 	{
-		// bad! but we will be changing to support types so OK for now.
-		dynamic_cast<QDoubleSpinBox *>(widget.widget)->setValue(config[widget.name].value);
+		switch (config[widget.name].mType)
+		{
+		case ConfigItem::FLOAT:
+			dynamic_cast<QDoubleSpinBox *>(widget.widget)->setValue(config[widget.name].mFloat);
+			break;
+		case ConfigItem::INT:
+			dynamic_cast<QSpinBox *>(widget.widget)->setValue(config[widget.name].mInt);
+			break;
+		}
 	}
 }

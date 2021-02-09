@@ -45,6 +45,9 @@
     <ClCompile Include="TestLife.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="TestNet.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Test.h">
@@ -72,6 +75,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="TestLife.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TestNet.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

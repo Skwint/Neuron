@@ -2,6 +2,7 @@
 
 #include "Exception.h"
 #include "Life.h"
+#include "LinearLif.h"
 #include "Izhikevich.h"
 
 #define MAKE_ALLOCATOR(x) static LayerFactory::Allocator<x> x##Allocator; mAllocators[x::name()] = &x##Allocator;
@@ -9,6 +10,7 @@
 LayerFactory::LayerFactory()
 {
 	MAKE_ALLOCATOR(Life);
+	MAKE_ALLOCATOR(LinearLif);
 	MAKE_ALLOCATOR(Izhikevich);
 }
 

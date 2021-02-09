@@ -26,12 +26,12 @@ void ConfigSet::read(const filesystem::path & path)
 	while (!is.eof())
 	{
 		std::string name;
-		float value;
+		ConfigItem item;
 		is >> name;
-		is >> value;
+		is >> item;
 		if (!is.eof())
 		{
-			mItems[name] = ConfigItem(value);
+			mItems[name] = item;
 		}
 	}
 }
@@ -43,7 +43,7 @@ void ConfigSet::write(const filesystem::path & path)
 	{
 		os << item.first;
 		os << " ";
-		os << item.second.value;
+		os << item.second;
 		os << "\n";
 	}
 }

@@ -22,9 +22,6 @@ public:
 	const ConfigPresets & getPresets();
 
 private:
-	inline void tickSegment(int cs, int ce, NeuronLife * cell, NeuronLife * dst, Synapse * synapse);
-
-private:
 	float mLow;
 	float mHigh;
 };

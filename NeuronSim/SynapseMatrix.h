@@ -26,9 +26,9 @@ public:
 	void setTarget(std::shared_ptr<Layer> target) { mTarget = target; }
 	inline std::shared_ptr<Layer> target() { return mTarget.lock(); }
 	const std::string & targetName();
-	inline Synapse * synapse(int row, int col) { return &mSynapses[row * mWidth + col]; }
+	inline Synapse * synapse(int col, int row) { return &mSynapses[row * mWidth + col]; }
 	inline Synapse * begin() { return &mSynapses[0]; }
-	void loadImage(uint32_t * pixels, int width, int height);
+	void loadImage(uint32_t * pixels, int width, int height, float weight);
 	void load(const std::filesystem::path & path);
 	void save(const std::filesystem::path & path);
 

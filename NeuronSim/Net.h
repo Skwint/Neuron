@@ -25,6 +25,8 @@ public:
 	void tick(SynapseMatrix * synapses);
 	void resize(int width, int height);
 	inline Neuron * row(int r) { return &mNeurons[mWidth * r]; }
+	inline Neuron * first() { return &mNeurons[0]; }
+	inline const Neuron * first() const { return &mNeurons[0]; }
 	void paint(uint32_t * image);
 	void fire(int col, int row, float weight, int delay);
 	void clear();
@@ -222,5 +224,20 @@ inline void Net<Neuron>::clear()
 	}
 }
 
+template <typename Neuron>
+std::ostream & operator<<(std::ostream & os, const Net<Neuron> & net)
+{
+	const Neuron * neuron = net.first();
+	for (int rr = 0; rr < net.height(); ++rr)
+	{
+		for (int cc = 0; cc < net.width(); ++cc)
+		{
+			os << neuron->input << "   ";
+			++neuron;
+		}
+		os << "\n";
+	}
+	return os;
+}
 
 #endif

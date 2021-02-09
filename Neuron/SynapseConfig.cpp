@@ -2,6 +2,7 @@
 
 #include <qcombobox.h>
 #include <qpushbutton.h>
+#include <qspinbox.h>
 
 #include "NeuronSim/Automaton.h"
 #include "NeuronSim/Layer.h"
@@ -38,6 +39,7 @@ SynapseConfig::SynapseConfig(shared_ptr<Automaton> automaton, shared_ptr<Synapse
 	connect(ui.cmbSynapse, &QComboBox::currentTextChanged, this, &SynapseConfig::synapseChanged);
 	connect(ui.cmbSource, &QComboBox::currentTextChanged, this, &SynapseConfig::sourceChanged);
 	connect(ui.cmbTarget, &QComboBox::currentTextChanged, this, &SynapseConfig::targetChanged);
+	connect(ui.spinWeight, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &SynapseConfig::synapseChanged);
 	connect(ui.btnDelete, &QPushButton::clicked, this, [this]() { mAutomaton->removeSynapse(mSynapses); });
 }
 
@@ -85,10 +87,11 @@ void SynapseConfig::synapseChanged()
 	if (!ui.cmbSynapse->currentText().isEmpty())
 	{
 		LOG("Loading synapse matrix [" << ui.cmbSynapse->currentText().toStdString() << "]");
+		float weight = ui.spinWeight->value();
 		QImage image(mSynapseDir.absolutePath() + "/" + ui.cmbSynapse->currentText());
 		ui.lblSynapse->setPixmap(QPixmap::fromImage(image));
 		uint32_t * pixels = reinterpret_cast<uint32_t *>(image.bits());
-		mSynapses->loadImage(pixels, image.width(), image.height());
+		mSynapses->loadImage(pixels, image.width(), image.height(), weight);
 	}
 }
 

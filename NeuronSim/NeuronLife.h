@@ -10,9 +10,8 @@ static const float neuronLifeCheck(-12345.0f);
 // The neuron type used by the Life automaton type.
 // This is the simplest possible neuron - the input is the only
 // state that is maintained.
-class NeuronLife
+struct NeuronLife
 {
-public:
 	NeuronLife() : input(0.0f), firing(false)
 	{
 	}
@@ -32,7 +31,7 @@ public:
 	}
 
 	inline uint32_t color() { return firing? 0xFFFFFFFF: 0xFF000000; }
-public:
+
 	float input;
 	bool firing;
 };

@@ -129,12 +129,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Automaton.cpp" />
+    <ClCompile Include="ConfigItem.cpp" />
     <ClCompile Include="ConfigPresets.cpp" />
     <ClCompile Include="ConfigSet.cpp" />
     <ClCompile Include="Izhikevich.cpp" />
     <ClCompile Include="Layer.cpp" />
     <ClCompile Include="LayerFactory.cpp" />
     <ClCompile Include="Life.cpp" />
+    <ClCompile Include="LinearLif.cpp" />
     <ClCompile Include="Log.cpp" />
     <ClCompile Include="SpikeProcessor.cpp" />
     <ClCompile Include="SynapseMatrix.cpp" />
@@ -146,6 +148,8 @@
     <ClInclude Include="ConfigSet.h" />
     <ClInclude Include="Layer.h" />
     <ClInclude Include="LayerFactory.h" />
+    <ClInclude Include="LinearLif.h" />
+    <ClInclude Include="NeuronLif.h" />
     <ClInclude Include="NeuronLife.h" />
     <ClInclude Include="Constants.h" />
     <ClInclude Include="Exception.h" />

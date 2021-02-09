@@ -135,6 +135,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="TestNet.cpp" />
     <ClCompile Include="Test.cpp" />
     <ClCompile Include="TestAutomaton.cpp" />
     <ClCompile Include="TestConfigs.cpp" />
@@ -146,6 +147,7 @@
     <ClCompile Include="TestVec3f.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="TestNet.h" />
     <ClInclude Include="Test.h" />
     <ClInclude Include="TestAutomaton.h" />
     <ClInclude Include="TestConfigs.h" />

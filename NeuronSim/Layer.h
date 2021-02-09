@@ -29,11 +29,11 @@ public:
 	virtual void fire(int col, int row, float weight, int delay) = 0;
 	virtual void clear() = 0;
 
-	const std::string & name() { return mName; }
+	const std::string & name() const { return mName; }
 	void setName(const std::string & name) { mName = name; }
 	virtual void resize(int width, int height);
-	int width() { return mWidth; }
-	int height() { return mHeight; }
+	int width() const { return mWidth; }
+	int height() const { return mHeight; }
 	void setSpikeProcessor(std::shared_ptr<SpikeProcessor> spikeProcessor) { mSpikeProcessor = spikeProcessor; }
 	void selectPreset(const std::string & name);
 	void setUserData(void * data) { mUserData = data; }

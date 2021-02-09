@@ -21,7 +21,9 @@ void TestConfigs::run()
 	auto & config = presets["test1"];
 	TEST_EQUAL(int(config.items().size()), 3);
 	TEST_EQUAL(config.name(), std::string("test1"));
-	TEST_EQUAL(config["one"].value, 1.0f);
-	TEST_EQUAL(config["two"].value, 2.0f);
-	TEST_EQUAL(config["thousand"].value, 1000.0f);
+	TEST_EQUAL(config["one"].mType, ConfigItem::FLOAT);
+	TEST_EQUAL(config["one"].mFloat, 1.0f);
+	TEST_EQUAL(config["two"].mType, ConfigItem::INT);
+	TEST_EQUAL(config["two"].mInt, 2);
+	TEST_EQUAL(config["thousand"].mFloat, 1000.0f);
 }

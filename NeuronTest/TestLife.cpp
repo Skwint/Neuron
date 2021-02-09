@@ -45,7 +45,7 @@ void TestLife::testBasicLife()
 		0xFFFF, 0xFFFF, 0xFFFF,
 	};
 	SpikeProcessor::Spike spike = { 1.0f };
-	synapse->loadImage(syn, 3, 3);
+	synapse->loadImage(syn, 3, 3, 1.0f);
 	mAutomaton->setSpike(spike);
 
 	// Create a glider in the middle of the layer
@@ -128,8 +128,8 @@ void TestLife::testInterleavedLife()
 		0xFFFF, 0xB000, 0xFFFF,
 		0xFFFF, 0xFFFF, 0xFFFF,
 	};
-	synapses1->loadImage(syn, 3, 3);
-	synapses2->loadImage(syn, 3, 3);
+	synapses1->loadImage(syn, 3, 3, 1.0f);
+	synapses2->loadImage(syn, 3, 3, 1.0f);
 
 	SpikeProcessor::Spike spike = { 1.0f };
 	mAutomaton->setSpike(spike);
