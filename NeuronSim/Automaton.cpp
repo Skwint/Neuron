@@ -10,11 +10,18 @@
 #include "Log.h"
 #include "LayerFactory.h"
 #include "SpikeProcessor.h"
+#include "StreamHelpers.h"
 #include "SynapseMatrix.h"
 
 using namespace std;
 
 bool Automaton::Lock::mLocked(false);
+
+const uint8_t TAG_TYPE('t');
+const uint8_t TAG_WIDTH('w');
+const uint8_t TAG_HEIGHT('h');
+const uint8_t TAG_SPIKE('s');
+const uint8_t TAG_END('E');
 
 Automaton::Automaton() :
 	mType("Life"),
@@ -93,12 +100,15 @@ void Automaton::save(const std::filesystem::path & path)
 	ofstream ofs(path, ios::out | ios::binary);
 	if (ofs)
 	{
-		uint32_t typeSize = uint32_t(mType.size());
-		ofs.write(reinterpret_cast<char *>(&typeSize), sizeof(typeSize));
-		ofs.write(&mType[0], typeSize);
-		ofs.write(reinterpret_cast<char *>(&mWidth), sizeof(mWidth));
-		ofs.write(reinterpret_cast<char *>(&mHeight), sizeof(mHeight));
+		writePod(TAG_TYPE, ofs);
+		writeString(mType, ofs);
+		writePod(TAG_WIDTH, ofs);
+		writePod(mWidth, ofs);
+		writePod(TAG_HEIGHT, ofs);
+		writePod(mHeight, ofs);
+		writePod(TAG_SPIKE, ofs);
 		mSpikeProcessor->saveSpike(ofs);
+		writePod(TAG_END, ofs);
 	}
 
 	if (!ofs || !ofs.good())
@@ -133,24 +143,36 @@ void Automaton::load(const std::filesystem::path & path)
 
 	ifstream ifs(path, ios::in | ios::binary);
 	std::string type;
-	int width;
-	int height;
-	if (ifs)
+	int width = 0;
+	int height = 0;
+	bool end = false;
+	while (!end && ifs && ifs.good())
 	{
-		uint32_t typeSize;
-		ifs.read(reinterpret_cast<char *>(&typeSize), sizeof(typeSize));
-		type.resize(typeSize);
-		ifs.read(&type[0], typeSize);
-		ifs.read(reinterpret_cast<char *>(&width), sizeof(width));
-		ifs.read(reinterpret_cast<char *>(&height), sizeof(height));
-		mSpikeProcessor->loadSpike(ifs);
+		uint8_t tag = 1;
+		readPod(tag, ifs);
+		switch (tag)
+		{
+		case TAG_TYPE:
+			readString(type, ifs);
+			break;
+		case TAG_WIDTH:
+			readPod(width, ifs);
+			break;
+		case TAG_HEIGHT:
+			readPod(height, ifs);
+			break;
+		case TAG_SPIKE:
+			mSpikeProcessor->loadSpike(ifs);
+			break;
+		case TAG_END:
+			end = true;
+			break;
+		default:
+			NEURONTHROW("Error while reading automaton [" << path << "] - unexpected tag [" << tag << "]");
+			break;
+		}
 	}
 	
-	if (!ifs || !ifs.good())
-	{
-		NEURONTHROW("Error while reading automaton [" << path << "]");
-	}
-
 	setNetworkType(type);
 	setSize(width, height);
 

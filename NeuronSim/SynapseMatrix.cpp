@@ -6,15 +6,28 @@
 #include "Exception.h"
 #include "Layer.h"
 #include "Log.h"
+#include "StreamHelpers.h"
+
+static const uint8_t TAG_TYPE('T');
+static const uint8_t TAG_WIDTH('w');
+static const uint8_t TAG_HEIGHT('h');
+static const uint8_t TAG_SOURCE('s');
+static const uint8_t TAG_TARGET('t');
+static const uint8_t TAG_DATA('d');
+static const uint8_t TAG_END('E');
+
+using namespace std;
 
 SynapseMatrix::SynapseMatrix() :
+	mType(ADD),
 	mWidth(1),
 	mHeight(1)
 {
 	mSynapses.resize(1);
 }
 
-SynapseMatrix::SynapseMatrix(int width, int height)
+SynapseMatrix::SynapseMatrix(int width, int height) :
+	mType(ADD)
 {
 	setSize(width, height);
 }
@@ -60,26 +73,41 @@ void SynapseMatrix::load(const std::filesystem::path & path)
 {
 	LOGDEBUG("Loading synapses from [" << path << "]");
 	std::ifstream ifs(path, std::ios::in | std::ios::binary);
-	if (ifs)
+	int width = 1;
+	int height = 1;
+	bool end = false;
+	while (!end && ifs && ifs.good())
 	{
-		uint32_t length;
-		int width;
-		int height;
-		ifs.read(reinterpret_cast<char *>(&length), sizeof(length));
-		mSourceName.resize(length);
-		ifs.read(&mSourceName[0], length);
-		ifs.read(reinterpret_cast<char *>(&length), sizeof(length));
-		mTargetName.resize(length);
-		ifs.read(&mTargetName[0], length);
-		ifs.read(reinterpret_cast<char *>(&width), sizeof(width));
-		ifs.read(reinterpret_cast<char *>(&height), sizeof(height));
-		setSize(width, height);
-		ifs.read(reinterpret_cast<char *>(&mSynapses[0]), mWidth * mHeight * sizeof(Synapse));
-	}
-	
-	if (!ifs || !ifs.good())
-	{
-		NEURONTHROW("Failed to read [" << path << "]");
+		uint8_t tag;
+		ifs.read(reinterpret_cast<char *>(&tag), sizeof(tag));
+		switch (tag)
+		{
+		case TAG_TYPE:
+			ifs.read(reinterpret_cast<char *>(&mType), sizeof(mType));
+			break;
+		case TAG_WIDTH:
+			ifs.read(reinterpret_cast<char *>(&width), sizeof(width));
+			break;
+		case TAG_HEIGHT:
+			ifs.read(reinterpret_cast<char *>(&height), sizeof(height));
+			break;
+		case TAG_SOURCE:
+			readString(mSourceName, ifs);
+			break;
+		case TAG_TARGET:
+			readString(mTargetName, ifs);
+			break;
+		case TAG_DATA:
+			setSize(width, height);
+			ifs.read(reinterpret_cast<char *>(&mSynapses[0]), mWidth * mHeight * sizeof(Synapse));
+			break;
+		case TAG_END:
+			end = true;
+			break;
+		default:
+			NEURONTHROW("Failed to read [" << path << "]");
+			break;
+		}
 	}
 }
 
@@ -99,13 +127,19 @@ void SynapseMatrix::save(const std::filesystem::path & path)
 		}
 		uint32_t sourceSize = uint32_t(source->name().size());
 		uint32_t targetSize = uint32_t(target->name().size());
-		ofs.write(reinterpret_cast<char *>(&sourceSize), sizeof(sourceSize));
-		ofs.write(&source->name()[0], sourceSize);
-		ofs.write(reinterpret_cast<char *>(&targetSize), sizeof(targetSize));
-		ofs.write(&target->name()[0], targetSize);
-		ofs.write(reinterpret_cast<char *>(&mWidth), sizeof(mWidth));
-		ofs.write(reinterpret_cast<char *>(&mHeight), sizeof(mHeight));
+		writePod(TAG_TYPE, ofs);
+		writePod(mType, ofs);
+		writePod(TAG_WIDTH, ofs);
+		writePod(mWidth, ofs);
+		writePod(TAG_HEIGHT, ofs);
+		writePod(mHeight, ofs);
+		writePod(TAG_SOURCE, ofs);
+		writeString(source->name(), ofs);
+		writePod(TAG_TARGET, ofs);
+		writeString(target->name(), ofs);
+		writePod(TAG_DATA, ofs);
 		ofs.write(reinterpret_cast<char *>(&mSynapses[0]), mWidth * mHeight * sizeof(Synapse));
+		writePod(TAG_END, ofs);
 	}
 	if (!ofs || !ofs.good())
 	{

@@ -20,6 +20,7 @@ public:
 	void synapseChanged();
 	void sourceChanged();
 	void targetChanged();
+	void typeChanged();
 	std::shared_ptr<SynapseMatrix> synapses() { return mSynapses; }
 
 private:

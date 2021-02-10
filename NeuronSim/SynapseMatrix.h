@@ -13,6 +13,13 @@ class Layer;
 class SynapseMatrix
 {
 public:
+	// Types of synapse matrix
+	enum Type
+	{
+		ADD,		// Integrator (additive) behaviour
+		MULTIPLY	// Shunting (divisive if weight < 1) behaviour
+	};
+public:
 	SynapseMatrix();
 	SynapseMatrix(int width, int height);
 	~SynapseMatrix();
@@ -20,6 +27,8 @@ public:
 	void setSize(int width, int height);
 	inline int height() { return mHeight; }
 	inline int width() { return mWidth; }
+	void setType(Type type) { mType = type; }
+	Type type() const { return mType; }
 	void setSource(std::shared_ptr<Layer> source) { mSource = source; }
 	inline std::shared_ptr<Layer> source() { return mSource.lock(); }
 	const std::string & sourceName();
@@ -46,6 +55,7 @@ public:
 	inline int highWrapRowEnd(int row, int height) { return std::min(height, row - height + mHeight / 2 + 1) - row; }
 
 private:
+	Type mType;
 	int mWidth;
 	int mHeight;
 	std::vector<Synapse> mSynapses;

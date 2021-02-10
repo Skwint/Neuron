@@ -39,9 +39,11 @@ void Tester::run()
 	{
 		auto test = allocator();
 		TEST_LOG("Running [" << test->name() << "]");
+		bool ok = false;
 		try
 		{
 			test->run();
+			ok = true;
 		}
 		catch (const runtime_error & re)
 		{
@@ -54,7 +56,7 @@ void Tester::run()
 			TEST_LOG(" " << test->fails() << " FAILED");
 			++mFails;
 		}
-		else
+		else if (ok)
 		{
 			++mPasses;
 		}

@@ -12,6 +12,13 @@
 #include "Constants.h"
 #include "Exception.h"
 #include "Log.h"
+#include "StreamHelpers.h"
+
+const uint8_t TAG_WIDTH('w');
+const uint8_t TAG_HEIGHT('h');
+const uint8_t TAG_DATA('d');
+const uint8_t TAG_SPIKES('s');
+const uint8_t TAG_END('E');
 
 //
 // The Neuron template argument should not contain virtual functions
@@ -67,10 +74,15 @@ void Net<Neuron>::save(const std::filesystem::path & path)
 	std::ofstream ofs(filename, std::ios::out | std::ios::binary);
 	if (ofs)
 	{
-		ofs.write(reinterpret_cast<char *>(&mWidth), sizeof(mWidth));
-		ofs.write(reinterpret_cast<char *>(&mHeight), sizeof(mHeight));
+		writePod(TAG_WIDTH, ofs);
+		writePod(mWidth, ofs);
+		writePod(TAG_HEIGHT, ofs);
+		writePod(mHeight, ofs);
+		writePod(TAG_DATA, ofs);
 		ofs.write(reinterpret_cast<char *>(&mNeurons[0]), mWidth * mHeight * sizeof(Neuron));
+		writePod(TAG_SPIKES, ofs);
 		mSpikeProcessor->save(ofs, &mNeurons[0].input, &mNeurons.back().input);
+		writePod(TAG_END, ofs);
 	}
 	else
 	{
@@ -84,21 +96,42 @@ template <typename Neuron>
 void Net<Neuron>::load(const std::filesystem::path & path)
 {
 	std::ifstream ifs(path, std::ios::in | std::ios::binary);
-	if (ifs)
+	mName = path.stem().string();
+	int width = 0;
+	int height = 0;
+	bool end = false;
+	while(!end && ifs && ifs.good())
 	{
-		mName = path.stem().string();
-		int width;
-		int height;
-		ifs.read(reinterpret_cast<char *>(&width), sizeof(width));
-		ifs.read(reinterpret_cast<char *>(&height), sizeof(height));
-		resize(width, height);
-		ifs.read(reinterpret_cast<char *>(&mNeurons[0]), mWidth * mHeight * sizeof(Neuron));
-		mSpikeProcessor->load(ifs, &mNeurons[0].input);
+		uint8_t tag = 0;
+		readPod(tag, ifs);
+		switch (tag)
+		{
+		case TAG_WIDTH:
+			readPod(width, ifs);
+			break;
+		case TAG_HEIGHT:
+			readPod(height, ifs);
+			break;
+		case TAG_DATA:
+			if (!width || !height)
+			{
+				NEURONTHROW("Corrupt layer file [" << path << "]");
+			}
+			resize(width, height);
+			ifs.read(reinterpret_cast<char *>(&mNeurons[0]), mWidth * mHeight * sizeof(Neuron));
+			break;
+		case TAG_SPIKES:
+			mSpikeProcessor->load(ifs, &mNeurons[0].input);
+			break;
+		case TAG_END:
+			end = true;
+			break;
+		default:
+			NEURONTHROW("Corrupt layer file [" << path.string() << "] unknown tag [" << tag << "]");
+			break;
+		}
 	}
-	else
-	{
-		NEURONTHROW("Failed to read [" << path.string() << "]");
-	}
+
 	auto filename = path;
 	filename.replace_extension(CONFIG_EXTENSION);
 	ConfigSet config;

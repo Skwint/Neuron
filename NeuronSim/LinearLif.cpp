@@ -122,18 +122,16 @@ void LinearLif::paint(uint32_t * image)
 	{
 		for (int cc = 0; cc < mWidth; ++cc)
 		{
-			if (cc == 0 && rr == 0 && mName == "Layer 1")
-			{
-				LOG("paint : " << neuron->firing);
-			}
 			float lum = 255.0f * neuron->potential / mThreshold;
 			uint32_t val = min(uint32_t(0xFF), uint32_t(fabs(lum)));
 			if (lum > 0)
 			{
+				// negative potential in red, positive in green:
 				val = val << 8;
 			}
 			if (neuron->firing)
 			{
+				// firing in blue
 				val |= 0xFF0000;
 			}
 			*pixel = 0xFF000000 | val;

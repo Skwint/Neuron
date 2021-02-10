@@ -139,6 +139,7 @@
     <ClCompile Include="LinearLif.cpp" />
     <ClCompile Include="Log.cpp" />
     <ClCompile Include="SpikeProcessor.cpp" />
+    <ClCompile Include="StreamHelpers.cpp" />
     <ClCompile Include="SynapseMatrix.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -159,6 +160,7 @@
     <ClInclude Include="Net.h" />
     <ClInclude Include="NeuronIzhikevich.h" />
     <ClInclude Include="SpikeProcessor.h" />
+    <ClInclude Include="StreamHelpers.h" />
     <ClInclude Include="Synapse.h" />
     <ClInclude Include="SynapseMatrix.h" />
   </ItemGroup>
