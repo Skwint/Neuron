@@ -18,6 +18,8 @@ Layer::Layer(int width, int height) :
 	mName = str.str();
 	// Let's just assume we never make 2^32 layers in one run.
 	++nextName;
+
+	mSpikeProcessor = std::make_unique<SpikeProcessor>();
 }
 
 Layer::~Layer()
@@ -25,8 +27,14 @@ Layer::~Layer()
 
 }
 
+void Layer::clear()
+{
+	mSpikeProcessor->clear();
+}
+
 void Layer::resize(int width, int height)
 {
+	clear();
 	mWidth = width;
 	mHeight = height;
 }
@@ -34,4 +42,9 @@ void Layer::resize(int width, int height)
 void Layer::selectPreset(const std::string & name)
 {
 	setConfig(getPresets()[name]);
+}
+
+void Layer::spikeTick()
+{
+	mSpikeProcessor->tick();
 }

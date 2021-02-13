@@ -36,7 +36,6 @@ ToolBox::ToolBox(shared_ptr<Automaton> automaton, QWidget *parent)
 	{
 		ui.cmbType->addItem(name.c_str());
 	}
-	ui.spinSpikeDuration->setMaximum(MAX_SPIKE_LENGTH);
 	loadSpikeMaps();
 
 	connect(ui.cmbType, &QComboBox::currentTextChanged, this, &ToolBox::netTypeChanged);
@@ -44,8 +43,6 @@ ToolBox::ToolBox(shared_ptr<Automaton> automaton, QWidget *parent)
 	connect(ui.viewGroup, &QGroupBox::toggled, this, &ToolBox::viewToggle);
 	connect(ui.simGroup, &QGroupBox::toggled, this, &ToolBox::simToggle);
 	connect(ui.editingGroup, &QGroupBox::toggled, this, &ToolBox::editingToggle);
-	connect(ui.cmbSpikeShape, &QComboBox::currentTextChanged, this, &ToolBox::spikeChanged);
-	connect(ui.spinSpikeDuration, QOverload<int>::of(&QSpinBox::valueChanged), this, &ToolBox::spikeChanged);
 	connect(ui.spinNetWidth, QOverload<int>::of(&QSpinBox::valueChanged), this, &ToolBox::netSizeChanged);
 	connect(ui.spinNetHeight, QOverload<int>::of(&QSpinBox::valueChanged), this, &ToolBox::netSizeChanged);
 	connect(ui.cmbRendering, &QComboBox::currentTextChanged, this, &ToolBox::renderingChanged);
@@ -55,7 +52,6 @@ ToolBox::ToolBox(shared_ptr<Automaton> automaton, QWidget *parent)
 	connect(ui.btnLoad, &QToolButton::clicked, this, &ToolBox::load);
 	connect(ui.btnSave, &QToolButton::clicked, this, &ToolBox::save);
 
-	spikeChanged();
 	renderingChanged();
 
 	automatonTypeChanged();
@@ -95,8 +91,6 @@ void ToolBox::load()
 	{
 		mAutomaton->load(fileName.toStdString());
 	}
-	ui.spinSpikeDuration->setValue(mAutomaton->spike().size());
-	ui.cmbSpikeShape->setCurrentIndex(-1);
 }
 
 void ToolBox::save()
@@ -118,44 +112,6 @@ void ToolBox::netSizeChanged()
 void ToolBox::netTypeChanged()
 {
 	mAutomaton->setNetworkType(ui.cmbType->currentText().toStdString());
-}
-
-void ToolBox::spikeChanged()
-{
-	QString spikeShape = ui.cmbSpikeShape->currentText();
-	int spikeDuration = ui.spinSpikeDuration->value();
-	SpikeProcessor::Spike spike;
-	if (!spikeShape.compare("Square") || spikeDuration == 1)
-	{
-		for (int ll = 0; ll < spikeDuration; ++ll)
-		{
-			spike.push_back(1.0f);
-		}
-	}
-	else
-	{
-		float halfDuration = 0.5f * spikeDuration;
-		float x = 0.5f - halfDuration;
-		if (!spikeShape.compare("Triangle"))
-		{
-			for (int ll = 0; ll < spikeDuration; ++ll)
-			{
-				spike.push_back(1.0f - fabs(x) / halfDuration);
-				x += 1.0f;
-			}
-		}
-		else
-		{
-			for (int ll = 0; ll < spikeDuration; ++ll)
-			{
-				float xnorm = x / halfDuration;
-				spike.push_back(exp(-4.0f*xnorm*xnorm));
-				x += 1.0f;
-			}
-		}
-	}
-
-	mAutomaton->setSpike(spike);
 }
 
 void ToolBox::editingClearLayer()

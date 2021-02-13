@@ -30,7 +30,6 @@ Automaton::Automaton() :
 {
 	LOG("Creating automaton");
 	mLayerFactory = std::make_unique<LayerFactory>();
-	mSpikeProcessor = std::make_shared<SpikeProcessor>();
 }
 
 Automaton::~Automaton()
@@ -40,7 +39,10 @@ Automaton::~Automaton()
 
 void Automaton::tick()
 {
-	mSpikeProcessor->tick();
+	for (auto layer : mLayers)
+	{
+		layer->spikeTick();
+	}
 
 	for (auto layer : mLayers)
 	{
@@ -60,7 +62,6 @@ void Automaton::tick()
 
 void Automaton::reset()
 {
-	mSpikeProcessor->clear();
 	mSynapses.clear();
 	Lock lock;
 	for (auto layer : mLayers)
@@ -106,8 +107,6 @@ void Automaton::save(const std::filesystem::path & path)
 		writePod(mWidth, ofs);
 		writePod(TAG_HEIGHT, ofs);
 		writePod(mHeight, ofs);
-		writePod(TAG_SPIKE, ofs);
-		mSpikeProcessor->saveSpike(ofs);
 		writePod(TAG_END, ofs);
 	}
 
@@ -135,7 +134,6 @@ void Automaton::save(const std::filesystem::path & path)
 void Automaton::load(const std::filesystem::path & path)
 {
 	LOG("Loading automaton from [" << path << "]");
-	mSpikeProcessor->clear();
 	while (!mLayers.empty())
 	{
 		removeLayer(mLayers.back());
@@ -160,9 +158,6 @@ void Automaton::load(const std::filesystem::path & path)
 			break;
 		case TAG_HEIGHT:
 			readPod(height, ifs);
-			break;
-		case TAG_SPIKE:
-			mSpikeProcessor->loadSpike(ifs);
 			break;
 		case TAG_END:
 			end = true;
@@ -215,7 +210,6 @@ void Automaton::load(const std::filesystem::path & path)
 
 void Automaton::clearLayers()
 {
-	mSpikeProcessor->clear();
 	for (auto layer : mLayers)
 	{
 		layer->clear();
@@ -251,7 +245,6 @@ void Automaton::setNetworkType(const std::string & type)
 std::shared_ptr<Layer> Automaton::createDetachedLayer()
 {
 	auto layer = mLayerFactory->create(mType, mWidth, mHeight);
-	layer->setSpikeProcessor(mSpikeProcessor);
 	return layer;
 }
 
@@ -364,7 +357,6 @@ void Automaton::setSize(int width, int height)
 		{
 			layer->resize(mWidth, mHeight);
 		}
-		mSpikeProcessor->clear();
 
 		Lock lock;
 		for (auto listener : mListeners)
@@ -377,11 +369,6 @@ void Automaton::setSize(int width, int height)
 vector<string> Automaton::typeNames()
 {
 	return mLayerFactory->getNames();
-}
-
-void Automaton::setSpike(const SpikeProcessor::Spike & spike)
-{
-	mSpikeProcessor->setSpike(spike);
 }
 
 // Returns the layer with the given name, or an empty pointer if it can't find it.

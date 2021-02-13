@@ -31,6 +31,7 @@ private:
 	void presetSelected();
 	void loadPresets();
 	void configItemChanged();
+	void spikeChanged();
 
 private:
 	Ui::LayerConfig ui;

@@ -57,8 +57,6 @@ public:
 	void addListener(Listener * listener);
 	void removeListener(Listener * listener);
 	void tick();
-	void setSpike(const SpikeProcessor::Spike & spike);
-	const SpikeProcessor::Spike & spike() { return mSpikeProcessor->spike(); }
 	void clearLayers();
 	// Save the current state of all layers and synapses to the given path
 	void save(const std::filesystem::path & path);
@@ -77,7 +75,6 @@ private:
 	int mWidth;
 	int mHeight;
 	std::unique_ptr<LayerFactory> mLayerFactory;
-	std::shared_ptr<SpikeProcessor> mSpikeProcessor;
 	std::vector<std::shared_ptr<Layer> > mLayers;
 	std::vector<std::shared_ptr<SynapseMatrix> > mSynapses;
 };

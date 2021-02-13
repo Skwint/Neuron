@@ -52,7 +52,6 @@ private:
 	void netTypeChanged();
 	void netSizeChanged();
 	void renderingChanged();
-	void spikeChanged();
 	void editingClearLayer();
 	void editingClearAll();
 	void editingNoise(int density);

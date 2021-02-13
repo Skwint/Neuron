@@ -5,6 +5,7 @@
 #include <qmessagebox.h>
 
 #include "NeuronSim/Automaton.h"
+#include "NeuronSim/Constants.h"
 #include "NeuronSim/Layer.h"
 #include "NeuronSim/Log.h"
 
@@ -18,6 +19,7 @@ LayerConfig::LayerConfig(std::shared_ptr<Automaton> automaton, std::shared_ptr<L
 {
 	ui.setupUi(this);
 
+	ui.spinSpikeDuration->setMaximum(MAX_SPIKE_LENGTH);
 	loadPresets();
 	repopulate();
 	setTitle(QString::fromStdString(mLayerName));
@@ -25,7 +27,10 @@ LayerConfig::LayerConfig(std::shared_ptr<Automaton> automaton, std::shared_ptr<L
 	connect(this, &QGroupBox::toggled, this, [this]() { ui.panel->setVisible(isChecked()); });
 	connect(ui.cmbPreset, &QComboBox::currentTextChanged, this, &LayerConfig::presetSelected);
 	connect(ui.btnDelete, &QPushButton::clicked, this, [this]() { mAutomaton->removeLayer(mLayerName); });
+	connect(ui.cmbSpikeShape, &QComboBox::currentTextChanged, this, &LayerConfig::spikeChanged);
+	connect(ui.spinSpikeDuration, QOverload<int>::of(&QSpinBox::valueChanged), this, &LayerConfig::spikeChanged);
 
+	spikeChanged();
 }
 
 LayerConfig::~LayerConfig()
@@ -168,5 +173,47 @@ void LayerConfig::presetSelected()
 		}
 		mLoadingPreset = false;
 		layer->setConfig(mConfig);
+	}
+}
+
+void LayerConfig::spikeChanged()
+{
+	auto layer = mAutomaton->findLayer(mLayerName);
+	if (layer)
+	{
+		QString spikeShape = ui.cmbSpikeShape->currentText();
+		int spikeDuration = ui.spinSpikeDuration->value();
+		SpikeProcessor::Spike spike;
+		if (!spikeShape.compare("Square") || spikeDuration == 1)
+		{
+			for (int ll = 0; ll < spikeDuration; ++ll)
+			{
+				spike.push_back(1.0f);
+			}
+		}
+		else
+		{
+			float halfDuration = 0.5f * spikeDuration;
+			float x = 0.5f - halfDuration;
+			if (!spikeShape.compare("Triangle"))
+			{
+				for (int ll = 0; ll < spikeDuration; ++ll)
+				{
+					spike.push_back(1.0f - fabs(x) / halfDuration);
+					x += 1.0f;
+				}
+			}
+			else
+			{
+				for (int ll = 0; ll < spikeDuration; ++ll)
+				{
+					float xnorm = x / halfDuration;
+					spike.push_back(exp(-4.0f*xnorm*xnorm));
+					x += 1.0f;
+				}
+			}
+		}
+
+		layer->setSpike(spike);
 	}
 }

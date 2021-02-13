@@ -17,6 +17,7 @@
 const uint8_t TAG_WIDTH('w');
 const uint8_t TAG_HEIGHT('h');
 const uint8_t TAG_DATA('d');
+const uint8_t TAG_SPIKE_SHAPE('S');
 const uint8_t TAG_SPIKES('s');
 const uint8_t TAG_END('E');
 
@@ -80,6 +81,8 @@ void Net<Neuron>::save(const std::filesystem::path & path)
 		writePod(mHeight, ofs);
 		writePod(TAG_DATA, ofs);
 		ofs.write(reinterpret_cast<char *>(&mNeurons[0]), mWidth * mHeight * sizeof(Neuron));
+		writePod(TAG_SPIKE_SHAPE, ofs);
+		mSpikeProcessor->saveSpike(ofs);
 		writePod(TAG_SPIKES, ofs);
 		mSpikeProcessor->save(ofs, &mNeurons[0].input, &mNeurons.back().input);
 		writePod(TAG_END, ofs);
@@ -119,6 +122,9 @@ void Net<Neuron>::load(const std::filesystem::path & path)
 			}
 			resize(width, height);
 			ifs.read(reinterpret_cast<char *>(&mNeurons[0]), mWidth * mHeight * sizeof(Neuron));
+			break;
+		case TAG_SPIKE_SHAPE:
+			mSpikeProcessor->loadSpike(ifs);
 			break;
 		case TAG_SPIKES:
 			mSpikeProcessor->load(ifs, &mNeurons[0].input);
@@ -257,14 +263,10 @@ inline void Net<Neuron>::fire(int cc, int rr, float weight, int delay)
 template <typename Neuron>
 inline void Net<Neuron>::clear()
 {
-	for (int rr = 0; rr < mHeight; ++rr)
+	Layer::clear();
+	for (auto neuron = mNeurons.begin(); neuron != mNeurons.end(); ++neuron)
 	{
-		Neuron * neuron = row(rr);
-		for (int cc = 0; cc < mWidth; ++cc)
-		{
-			new (neuron) Neuron;
-			++neuron;
-		}
+		new (&*neuron) Neuron;
 	}
 }
 

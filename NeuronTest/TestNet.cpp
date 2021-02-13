@@ -81,13 +81,11 @@ void TestNet::run()
 	synapses.setSource(net);
 
 	SpikeProcessor::Spike spike = { 1.0f };
-	auto spikeProc = make_shared<SpikeProcessor>();
-	spikeProc->setSpike(spike);
-	net->setSpikeProcessor(spikeProc);
+	net->setSpike(spike);
 
 	// Nothing should happen - our state is boring and we have no spikes
 	net->tick(&synapses);
-	spikeProc->tick();
+	net->spikeTick();
 	TEST_EQUAL(net->at(1, 2).test, TEST_INIT);
 	TEST_EQUAL(net->at(10, 12).test, TEST_INIT);
 	TEST_EQUAL(net->at(3, 1).input, 0.0f);
@@ -99,7 +97,7 @@ void TestNet::run()
 	net->at(0, 0).test = FIRE_ONCE;
 	net->tick(&synapses);
 	TEST_EQUAL(net->at(0, 0).test, REST);
-	spikeProc->tick();
+	net->spikeTick();
 	// wrapping up and left
 	for (int rr = 0; rr < 4; ++rr)
 	{
@@ -153,7 +151,7 @@ void TestNet::run()
 	net->at(width - sizec + size / 2, height - sizer + size / 2).test = FIRE_ONCE;
 	net->tick(&synapses);
 	TEST_EQUAL(net->at(width - sizec + size / 2, height - sizer + size / 2).test, REST);
-	spikeProc->tick();
+	net->spikeTick();
 	// not wrapping
 	for (int rr = 0; rr < sizer; ++rr)
 	{
