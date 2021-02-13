@@ -150,6 +150,7 @@
     <ClInclude Include="Layer.h" />
     <ClInclude Include="LayerFactory.h" />
     <ClInclude Include="LinearLif.h" />
+    <ClInclude Include="Cell.h" />
     <ClInclude Include="NeuronLif.h" />
     <ClInclude Include="NeuronLife.h" />
     <ClInclude Include="Constants.h" />

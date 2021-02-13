@@ -39,7 +39,6 @@ SynapseConfig::SynapseConfig(shared_ptr<Automaton> automaton, shared_ptr<Synapse
 	connect(ui.cmbSynapse, &QComboBox::currentTextChanged, this, &SynapseConfig::synapseChanged);
 	connect(ui.cmbSource, &QComboBox::currentTextChanged, this, &SynapseConfig::sourceChanged);
 	connect(ui.cmbTarget, &QComboBox::currentTextChanged, this, &SynapseConfig::targetChanged);
-	connect(ui.cmbType, &QComboBox::currentTextChanged, this, &SynapseConfig::typeChanged);
 	connect(ui.spinWeight, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &SynapseConfig::synapseChanged);
 	connect(ui.btnDelete, &QPushButton::clicked, this, [this]() { mAutomaton->removeSynapse(mSynapses); });
 }
@@ -87,18 +86,6 @@ void SynapseConfig::synapseChanged()
 		ui.lblSynapse->setPixmap(QPixmap::fromImage(image));
 		uint32_t * pixels = reinterpret_cast<uint32_t *>(image.bits());
 		mSynapses->loadImage(pixels, image.width(), image.height(), weight);
-		switch (mSynapses->type())
-		{
-		case SynapseMatrix::ADD:
-			ui.cmbType->setCurrentText("Additive");
-			break;
-		case SynapseMatrix::MULTIPLY:
-			ui.cmbType->setCurrentText("Multiplicative");
-			break;
-		default:
-			ui.cmbType->setCurrentText("ERROR");
-			break;
-		}
 	}
 }
 
@@ -112,20 +99,4 @@ void SynapseConfig::targetChanged()
 {
 	auto layer = mAutomaton->findLayer(ui.cmbTarget->currentText().toStdString());
 	mSynapses->setTarget(layer);
-}
-
-void SynapseConfig::typeChanged()
-{
-	if (ui.cmbType->currentText() == "Additive")
-	{
-		mSynapses->setType(SynapseMatrix::ADD);
-	}
-	else if (ui.cmbType->currentText() == "Multiplicative")
-	{
-		mSynapses->setType(SynapseMatrix::MULTIPLY);
-	}
-	else
-	{
-		LOG("Attempt to set a synapse type to [" << ui.cmbType->currentText().toStdString() << "]");
-	}
 }

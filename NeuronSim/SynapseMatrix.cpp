@@ -8,7 +8,6 @@
 #include "Log.h"
 #include "StreamHelpers.h"
 
-static const uint8_t TAG_TYPE('T');
 static const uint8_t TAG_WIDTH('w');
 static const uint8_t TAG_HEIGHT('h');
 static const uint8_t TAG_SOURCE('s');
@@ -19,15 +18,13 @@ static const uint8_t TAG_END('E');
 using namespace std;
 
 SynapseMatrix::SynapseMatrix() :
-	mType(ADD),
 	mWidth(1),
 	mHeight(1)
 {
 	mSynapses.resize(1);
 }
 
-SynapseMatrix::SynapseMatrix(int width, int height) :
-	mType(ADD)
+SynapseMatrix::SynapseMatrix(int width, int height)
 {
 	setSize(width, height);
 }
@@ -82,9 +79,6 @@ void SynapseMatrix::load(const std::filesystem::path & path)
 		ifs.read(reinterpret_cast<char *>(&tag), sizeof(tag));
 		switch (tag)
 		{
-		case TAG_TYPE:
-			ifs.read(reinterpret_cast<char *>(&mType), sizeof(mType));
-			break;
 		case TAG_WIDTH:
 			ifs.read(reinterpret_cast<char *>(&width), sizeof(width));
 			break;
@@ -127,8 +121,6 @@ void SynapseMatrix::save(const std::filesystem::path & path)
 		}
 		uint32_t sourceSize = uint32_t(source->name().size());
 		uint32_t targetSize = uint32_t(target->name().size());
-		writePod(TAG_TYPE, ofs);
-		writePod(mType, ofs);
 		writePod(TAG_WIDTH, ofs);
 		writePod(mWidth, ofs);
 		writePod(TAG_HEIGHT, ofs);

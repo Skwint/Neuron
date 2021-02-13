@@ -126,7 +126,6 @@ void SpikeProcessor::tick()
 	{
 		*(target->potential) += target->weight;
 	}
-
 	frame->clear();
 	mCurrentFrame = (mCurrentFrame + 1) % MAX_FRAMES;
 }

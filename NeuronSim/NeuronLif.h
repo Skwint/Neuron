@@ -1,6 +1,8 @@
 #ifndef NEURON_LIF_H
 #define NEURON_LIF_H
 
+#include "Cell.h"
+
 #include <algorithm>
 #include <cstdint>
 
@@ -8,9 +10,9 @@
 // Synapses feed into the input, are integrated into the potential, and cause
 // a spike if the refractory period is not blocking.
 // @see LinearLif
-struct NeuronLif
+struct NeuronLif : public Cell
 {
-	NeuronLif() : input(0.0f), potential(0.0f), refractory(0), firing(false) {	}
+	NeuronLif() : potential(0.0f), refractory(0) {	}
 
 	inline uint32_t color()
 	{
@@ -18,10 +20,8 @@ struct NeuronLif
 		return 0xFF000000 | intensity | intensity << 8 | intensity << 16;
 	}
 
-	float input;
 	float potential;
 	int refractory;
-	bool firing;
 };
 
 #endif

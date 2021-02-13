@@ -1,6 +1,8 @@
 #ifndef NEURON_LIFE_H
 #define NEURON_LIFE_H
 
+#include "Cell.h"
+
 #include <cstdint>
 #include <random>
 
@@ -8,11 +10,11 @@
 static const float neuronLifeCheck(-12345.0f);
 
 // The neuron type used by the Life automaton type.
-// This is the simplest possible neuron - the input is the only
-// state that is maintained.
-struct NeuronLife
+// This is the simplest possible neuron, and in Life
+// the shunt will always be 1.0
+struct NeuronLife : public Cell
 {
-	NeuronLife() : input(0.0f), firing(false)
+	NeuronLife()
 	{
 	}
 	~NeuronLife()
@@ -31,9 +33,6 @@ struct NeuronLife
 	}
 
 	inline uint32_t color() { return firing? 0xFFFFFFFF: 0xFF000000; }
-
-	float input;
-	bool firing;
 };
 
 #endif

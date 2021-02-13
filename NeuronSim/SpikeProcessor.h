@@ -6,12 +6,11 @@
 
 // SpikeProcessor
 // The purpose of this class is to manage a set of synaptic spikes, each with a target
-// neuron potential and, possibly, a delay before firing.
+// neuron potential and, possibly, a delay before arriving.
 // All spikes are the same shape and length, defined with the setSpike function.
 // Note that we are maintaining pointers to memory in this object and it must be
 // cleared if the neurons that the spikes are destined for are destroyed.
-// We are doing this because the alternative is to define a polymorphic interface
-// and we cannot afford the processing cost per spike.
+// We are doing this for reasons of speed, not because we think it is neat.
 class SpikeProcessor
 {
 private:
