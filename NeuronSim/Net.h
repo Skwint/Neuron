@@ -17,8 +17,7 @@
 const uint8_t TAG_WIDTH('w');
 const uint8_t TAG_HEIGHT('h');
 const uint8_t TAG_DATA('d');
-const uint8_t TAG_SPIKE_SHAPE('S');
-const uint8_t TAG_SPIKES('s');
+const uint8_t TAG_SPIKE_SHAPE('s');
 const uint8_t TAG_END('E');
 
 //
@@ -44,6 +43,8 @@ public:
 	void clear();
 private:
 	inline void tickSegment(int cs, int ce, Neuron * dst, Synapse * synapse);
+	void * begin() { return &mNeurons[0]; }
+	void * end() { return &mNeurons.back() + 1; }
 protected:
 	std::vector<Neuron> mNeurons;
 };
@@ -83,8 +84,6 @@ void Net<Neuron>::save(const std::filesystem::path & path)
 		ofs.write(reinterpret_cast<char *>(&mNeurons[0]), mWidth * mHeight * sizeof(Neuron));
 		writePod(TAG_SPIKE_SHAPE, ofs);
 		mSpikeProcessor->saveSpike(ofs);
-		writePod(TAG_SPIKES, ofs);
-		mSpikeProcessor->save(ofs, &mNeurons[0].input, &mNeurons.back().input);
 		writePod(TAG_END, ofs);
 	}
 	else
@@ -125,9 +124,6 @@ void Net<Neuron>::load(const std::filesystem::path & path)
 			break;
 		case TAG_SPIKE_SHAPE:
 			mSpikeProcessor->loadSpike(ifs);
-			break;
-		case TAG_SPIKES:
-			mSpikeProcessor->load(ifs, &mNeurons[0].input);
 			break;
 		case TAG_END:
 			end = true;

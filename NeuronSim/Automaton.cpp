@@ -129,6 +129,26 @@ void Automaton::save(const std::filesystem::path & path)
 		str.str("");
 		++counter;
 	}
+
+	// Write the spikes. We don't really care where they originate from, we just
+	// need to write where they are going to, but that isn't stored information
+	// and we have to work it out as we go.
+	for (auto target : mLayers)
+	{
+		auto filename = folder / target->name();
+		filename.replace_extension(SPIKE_EXTENSION);
+		std::ofstream ofs(filename, std::ios::out | std::ios::binary);
+
+		for (auto source : mLayers)
+		{
+			source->writeSpikes(target, ofs);
+		}
+
+		if (!ofs || !ofs.good())
+		{
+			NEURONTHROW("Failed to save automaton");
+		}
+	}
 }
 
 void Automaton::load(const std::filesystem::path & path)
@@ -204,6 +224,23 @@ void Automaton::load(const std::filesystem::path & path)
 			}
 			synapses->setTarget(target);
 			attachSynapses(synapses);
+		}
+	}
+
+	// Read the spikes. We didn't save where they originate from, and don't care.
+	// After loading them here, the processor of each layer will contain the spikes
+	// targetting it.
+	for (auto layer : mLayers)
+	{
+		auto filename = folder / layer->name();
+		filename.replace_extension(SPIKE_EXTENSION);
+		std::ifstream ifs(filename, std::ios::in | std::ios::binary);
+
+		layer->readSpikes(ifs);
+
+		if (!ifs || !ifs.good())
+		{
+			NEURONTHROW("Failed to load automaton");
 		}
 	}
 }

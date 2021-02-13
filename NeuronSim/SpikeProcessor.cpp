@@ -6,6 +6,7 @@
 
 #include "Constants.h"
 #include "Log.h"
+#include "StreamHelpers.h"
 
 static const int MAX_FRAMES = MAX_SPIKE_LENGTH + MAX_SPIKE_DELAY;
 static const int END_FRAME_MARKER = -1;
@@ -49,50 +50,41 @@ void SpikeProcessor::loadSpike(ifstream & ifs)
 	ifs.read(reinterpret_cast<char *>(&mSpike[0]), size * sizeof(float));
 }
 
-void SpikeProcessor::save(std::ofstream & ofs, float * first, float * last)
+void SpikeProcessor::save(std::ofstream & ofs, void * begin, void * end)
 {
-	uint32_t size = uint32_t(mSpike.size());
-	ofs.write(reinterpret_cast<char *>(&size), sizeof(uint32_t));
-	ofs.write(reinterpret_cast<char *>(&mSpike[0]), size * sizeof(float));
 	for (int frameNum = 0; frameNum < mFrames.size(); ++frameNum)
 	{
 		auto & frame = mFrames[(mCurrentFrame + frameNum) % mFrames.size()];
 		for (auto & target : frame)
 		{
-			if (target.weight != 0.0f && target.potential >= first && target.potential <= last)
+			if (target.weight != 0.0f && target.potential >= begin && target.potential < end)
 			{
-				int delta = static_cast<int>(target.potential - first);
-				ofs.write(reinterpret_cast<char *>(&delta), sizeof(delta));
-				ofs.write(reinterpret_cast<char *>(&target.weight), sizeof(target.weight));
+				int delta = static_cast<int>(target.potential - (float *)begin);
+				writePod(delta, ofs);
+				writePod(target.weight, ofs);
 			}
 		}
-		ofs.write(reinterpret_cast<const char *>(&END_FRAME_MARKER), sizeof(END_FRAME_MARKER));
-		float zero = 0.0f;
-		ofs.write(reinterpret_cast<char *>(&zero), sizeof(zero));
+		writePod(END_FRAME_MARKER, ofs);
 	}
 }
 
-void SpikeProcessor::load(std::ifstream & ifs, float * first)
+void SpikeProcessor::load(std::ifstream & ifs, void * begin)
 {
-	uint32_t size;
-	ifs.read(reinterpret_cast<char *>(&size), sizeof(uint32_t));
-	mSpike.resize(size);
-	ifs.read(reinterpret_cast<char *>(&mSpike[0]), size * sizeof(float));
 	mCurrentFrame = 0;
-	int delay = 0;
-	while (!ifs.eof())
+	for (int frameNum = 0; frameNum < mFrames.size() && !ifs.eof(); ++frameNum)
 	{
+		auto & frame = mFrames[frameNum];
 		int index;
 		float weight;
-		ifs.read(reinterpret_cast<char *>(&index), sizeof(index));
-		ifs.read(reinterpret_cast<char *>(&weight), sizeof(weight));
-		if (index == END_FRAME_MARKER)
+		while (!ifs.eof())
 		{
-			++delay;
-		}
-		else
-		{
-			fire(first + index, weight, delay);
+			ifs.read(reinterpret_cast<char *>(&index), sizeof(index));
+			if (index == END_FRAME_MARKER)
+			{
+				break;
+			}
+			ifs.read(reinterpret_cast<char *>(&weight), sizeof(weight));
+			frame.push_back(Target((float *)begin + index, weight));
 		}
 	}
 }

@@ -26,6 +26,8 @@ public:
 
 	virtual void save(const std::filesystem::path & path) = 0;
 	virtual void load(const std::filesystem::path & path) = 0;
+	void writeSpikes(std::shared_ptr<Layer> target, std::ofstream & ofs);
+	void readSpikes(std::ifstream & ifs);
 	void spikeTick();
 	virtual void preTick() {}
 	virtual void tick(SynapseMatrix * synapses) = 0;
@@ -46,6 +48,14 @@ public:
 	void setSpike(const SpikeProcessor::Spike & spike) { mSpikeProcessor->setSpike(spike); }
 	const SpikeProcessor::Spike & spike() { return mSpikeProcessor->spike(); }
 	void selectPreset(const std::string & name);
+
+protected:
+	// Return pointer to the first Neuron
+	// Used internally for backtracking synapses during save operation
+	virtual void * begin() = 0;
+	// Return pointer past the end of the last Neuron
+	// Used internally for backtracking synapses during save operation
+	virtual void * end() = 0;
 
 protected:
 	std::string mName;

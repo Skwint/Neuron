@@ -39,7 +39,7 @@ void Layer::resize(int width, int height)
 	mHeight = height;
 }
 
-void Layer::selectPreset(const std::string & name)
+void Layer::selectPreset(const string & name)
 {
 	setConfig(getPresets()[name]);
 }
@@ -47,4 +47,14 @@ void Layer::selectPreset(const std::string & name)
 void Layer::spikeTick()
 {
 	mSpikeProcessor->tick();
+}
+
+void Layer::writeSpikes(shared_ptr<Layer> target, ofstream & ofs)
+{
+	mSpikeProcessor->save(ofs, target->begin(), target->end());
+}
+
+void Layer::readSpikes(ifstream & ifs)
+{
+	mSpikeProcessor->load(ifs, begin());
 }
