@@ -301,7 +301,7 @@
            <number>0</number>
           </property>
           <property name="bottomMargin">
-           <number>0</number>
+           <number>8</number>
           </property>
           <item>
            <layout class="QHBoxLayout" name="horizontalLayout_3">
@@ -370,40 +370,54 @@
             </item>
            </layout>
           </item>
+          <item>
+           <layout class="QFormLayout" name="formLayout_3">
+            <property name="bottomMargin">
+             <number>8</number>
+            </property>
+            <item row="0" column="0">
+             <widget class="QLabel" name="renderStyleLabel">
+              <property name="text">
+               <string>Render Style</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QComboBox" name="cmbViewStyle">
+              <property name="currentText">
+               <string>Infinite Tiles</string>
+              </property>
+              <property name="currentIndex">
+               <number>1</number>
+              </property>
+              <item>
+               <property name="text">
+                <string>Simple</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Infinite Tiles</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Donut</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Stacked</string>
+               </property>
+              </item>
+             </widget>
+            </item>
+           </layout>
+          </item>
          </layout>
         </widget>
        </item>
       </layout>
-     </widget>
-    </item>
-    <item>
-     <widget class="QComboBox" name="cmbViewStyle">
-      <property name="currentText">
-       <string>Infinite Tiles</string>
-      </property>
-      <property name="currentIndex">
-       <number>1</number>
-      </property>
-      <item>
-       <property name="text">
-        <string>Simple</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>Infinite Tiles</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>Donut</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>Stacked</string>
-       </property>
-      </item>
      </widget>
     </item>
     <item>

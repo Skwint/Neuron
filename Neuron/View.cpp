@@ -234,9 +234,6 @@ void View::paintGL()
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_ONE, GL_ONE);
 
-	// Eventually we want to scroll, and this will be how we do that.
-	//mModelView.translate(0.0f, 0.0f, 0.0f);
-
 	mProgram->bind();
 	if (mStyleData[mStyle].m3D)
 	{
