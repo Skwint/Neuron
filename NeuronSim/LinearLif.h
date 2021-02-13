@@ -26,7 +26,6 @@ private:
 	float mThreshold;
 	float mReset;
 	float mLowerLimit;
-	int mRefractory;
 };
 
 #endif

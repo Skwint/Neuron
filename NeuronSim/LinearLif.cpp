@@ -11,7 +11,6 @@ using namespace std;
 static const string CFG_LEAK("leakage");
 static const string CFG_THRESHOLD("threshold");
 static const string CFG_RESET("reset");
-static const string CFG_REFRACTORY("refractory");
 static const string CFG_LOWER_LIMIT("lower_limit");
 
 LinearLif::LinearLif(int width, int height) :
@@ -19,8 +18,7 @@ LinearLif::LinearLif(int width, int height) :
 	mLeak(0.99f),
 	mThreshold(3.0f),
 	mReset(0.0f),
-	mLowerLimit(0.0f),
-	mRefractory(2)
+	mLowerLimit(0.0f)
 {
 }
 
@@ -39,7 +37,6 @@ void LinearLif::setConfig(const ConfigSet & config)
 	mThreshold = config.items().at(CFG_THRESHOLD).mFloat;
 	mReset = config.items().at(CFG_RESET).mFloat;
 	mLowerLimit = config.items().at(CFG_LOWER_LIMIT).mFloat;
-	mRefractory = config.items().at(CFG_REFRACTORY).mInt;
 }
 
 ConfigSet LinearLif::getConfig()
@@ -49,7 +46,6 @@ ConfigSet LinearLif::getConfig()
 	config[CFG_THRESHOLD] = mThreshold;
 	config[CFG_RESET] = mReset;
 	config[CFG_LOWER_LIMIT] = mLowerLimit;
-	config[CFG_REFRACTORY] = mRefractory;
 
 	return config;
 }
@@ -77,35 +73,14 @@ void LinearLif::postTick()
 		for (int cc = 0; cc < mWidth; ++cc)
 		{
 			cell->potential *= mLeak;
-			if (cell->refractory > 0)
+			cell->potential += cell->input;
+			cell->potential = max(cell->potential, mLowerLimit);
+			cell->firing = (cell->potential > mThreshold);
+			if (cell->firing)
 			{
-				--cell->refractory;
-				if (cc == 0 && rr == 0 && mName == "Layer 1")
-				{
-					LOG("cell firing blocked");
-				}
-				cell->firing = false;
-			}
-			else
-			{
-				cell->potential += cell->input;
-				cell->potential = max(cell->potential, mLowerLimit);
-				cell->firing = (cell->potential > mThreshold);
-				if (cell->firing)
-				{
-					if (cc == 0 && rr == 0 && mName == "Layer 1")
-					{
-						LOG("cell fires!");
-					}
-					cell->potential = mReset;
-					cell->refractory = mRefractory;
-				}
+				cell->potential = mReset;
 			}
 			cell->input = 0.0f;
-			if (cc == 0 && rr == 0 && mName == "Layer 1")
-			{
-				LOG("post tick : " << cell->firing);
-			}
 
 			++cell;
 		}
