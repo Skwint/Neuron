@@ -115,11 +115,6 @@
           </item>
           <item>
            <property name="text">
-            <string>Exponential</string>
-           </property>
-          </item>
-          <item>
-           <property name="text">
             <string>Triangle</string>
            </property>
           </item>

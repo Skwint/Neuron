@@ -44,12 +44,11 @@ void TestLife::testBasicLife()
 	uint32_t syn[] =
 	{
 		0xFFFF, 0xFFFF, 0xFFFF,
-		0xFFFF, 0xB000, 0xFFFF,
+		0xFFFF, 0x8080, 0xFFFF,
 		0xFFFF, 0xFFFF, 0xFFFF,
 	};
-	SpikeProcessor::Spike spike = { 1.0f };
 	synapse->loadImage(syn, 3, 3, 1.0f);
-	layer->setSpike(spike);
+	layer->setSpike(SpikeProcessor::SHAPE_SQUARE, 1);
 
 	// Create a glider in the middle of the layer
 	float weight = 3.0f;
@@ -129,15 +128,14 @@ void TestLife::testInterleavedLife()
 	uint32_t syn[] =
 	{
 		0xFFFF, 0xFFFF, 0xFFFF,
-		0xFFFF, 0xB000, 0xFFFF,
+		0xFFFF, 0x8080, 0xFFFF,
 		0xFFFF, 0xFFFF, 0xFFFF,
 	};
 	synapses1->loadImage(syn, 3, 3, 1.0f);
 	synapses2->loadImage(syn, 3, 3, 1.0f);
 
-	SpikeProcessor::Spike spike = { 1.0f };
-	layer1->setSpike(spike);
-	layer2->setSpike(spike);
+	layer1->setSpike(SpikeProcessor::SHAPE_SQUARE, 1);
+	layer2->setSpike(SpikeProcessor::SHAPE_SQUARE, 1);
 
 	// Create a glider in the middle of the first layer
 	float weight = 3.0f;
@@ -224,12 +222,11 @@ void TestLife::testSaveLoad()
 	uint32_t syn[] =
 	{
 		0xFFFF, 0xFFFF, 0xFFFF,
-		0xFFFF, 0xB000, 0xFFFF,
+		0xFFFF, 0x8080, 0xFFFF,
 		0xFFFF, 0xFFFF, 0xFFFF,
 	};
-	SpikeProcessor::Spike spike = { 1.0f };
 	synapse->loadImage(syn, 3, 3, 1.0f);
-	layer->setSpike(spike);
+	layer->setSpike(SpikeProcessor::SHAPE_SQUARE, 1);
 
 	// Create a glider in the middle of the layer
 	float weight = 3.0f;

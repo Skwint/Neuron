@@ -18,6 +18,7 @@ const uint8_t TAG_WIDTH('w');
 const uint8_t TAG_HEIGHT('h');
 const uint8_t TAG_DATA('d');
 const uint8_t TAG_SPIKE_SHAPE('s');
+const uint8_t TAG_SPIKE_DURATION('D');
 const uint8_t TAG_END('E');
 
 //
@@ -80,10 +81,12 @@ void Net<Neuron>::save(const std::filesystem::path & path)
 		writePod(mWidth, ofs);
 		writePod(TAG_HEIGHT, ofs);
 		writePod(mHeight, ofs);
+		writePod(TAG_SPIKE_SHAPE, ofs);
+		writePod(uint8_t(mSpikeProcessor->spikeShape()), ofs);
+		writePod(TAG_SPIKE_DURATION, ofs);
+		writePod(mSpikeProcessor->spikeDuration(), ofs);
 		writePod(TAG_DATA, ofs);
 		ofs.write(reinterpret_cast<char *>(&mNeurons[0]), mWidth * mHeight * sizeof(Neuron));
-		writePod(TAG_SPIKE_SHAPE, ofs);
-		mSpikeProcessor->saveSpike(ofs);
 		writePod(TAG_END, ofs);
 	}
 	else
@@ -101,6 +104,8 @@ void Net<Neuron>::load(const std::filesystem::path & path)
 	mName = path.stem().string();
 	int width = 0;
 	int height = 0;
+	uint8_t shape = 0;
+	int duration = 1;
 	bool end = false;
 	while(!end && ifs && ifs.good())
 	{
@@ -123,7 +128,10 @@ void Net<Neuron>::load(const std::filesystem::path & path)
 			ifs.read(reinterpret_cast<char *>(&mNeurons[0]), mWidth * mHeight * sizeof(Neuron));
 			break;
 		case TAG_SPIKE_SHAPE:
-			mSpikeProcessor->loadSpike(ifs);
+			readPod(shape, ifs);
+			break;
+		case TAG_SPIKE_DURATION:
+			readPod(duration, ifs);
 			break;
 		case TAG_END:
 			end = true;
@@ -133,6 +141,7 @@ void Net<Neuron>::load(const std::filesystem::path & path)
 			break;
 		}
 	}
+	setSpike(SpikeProcessor::SpikeShape(shape), duration);
 
 	auto filename = path;
 	filename.replace_extension(CONFIG_EXTENSION);

@@ -80,8 +80,7 @@ void TestNet::run()
 	synapses.setTarget(net);
 	synapses.setSource(net);
 
-	SpikeProcessor::Spike spike = { 1.0f };
-	net->setSpike(spike);
+	net->setSpike(SpikeProcessor::SHAPE_SQUARE, 1);
 
 	// Nothing should happen - our state is boring and we have no spikes
 	net->tick(&synapses);

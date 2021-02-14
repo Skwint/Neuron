@@ -20,7 +20,7 @@ SpikeProcessor::SpikeProcessor() :
 	// preallocate a circular buffer (indexed on time until fire)
 	mFrames.resize(MAX_FRAMES);
 	// Our default spike is just a single 1
-	mSpike.push_back(1.0f);
+	setSpike(SHAPE_SQUARE, 1);
 }
 
 SpikeProcessor::~SpikeProcessor()
@@ -28,11 +28,46 @@ SpikeProcessor::~SpikeProcessor()
 	LOG("Destroying spike processor");
 }
 
-void SpikeProcessor::setSpike(const std::vector<float> & spike)
+void SpikeProcessor::setSpike(SpikeShape shape, int duration)
 {
-	assert(spike.size() <= MAX_SPIKE_LENGTH);
-	LOG("Setting spike with length [" << spike.size() << "]");
-	mSpike = spike;
+	assert(duration <= MAX_SPIKE_LENGTH);
+	mSpikeShape = shape;
+	mSpikeDuration = duration;
+
+	mSpike.resize(duration);
+	switch (shape)
+	{
+	case SHAPE_SQUARE:
+		for (auto & potential : mSpike)
+		{
+			potential = 1.0f;
+		}
+		break;
+	case SHAPE_TRIANGLE:
+	{
+		float halfDuration = 0.5f * duration;
+		float pos = 0.5f;
+		for (int x = 0; x < duration; ++x)
+		{
+			float xnorm = (pos - halfDuration) / halfDuration;
+			mSpike[x] = 1.0f - fabs(xnorm);
+			pos += 1.0f;
+		}
+		break;
+	}
+	case SHAPE_GAUSS:
+	{
+		float halfDuration = 0.5f * duration;
+		float pos = 0.5f;
+		for (int x = 0; x < duration; ++x)
+		{
+			float xnorm = float(pos - halfDuration) / halfDuration;
+			mSpike[x] = exp(-4.0f * xnorm * xnorm);
+			pos += 1.0f;
+		}
+		break;
+	}
+	}
 }
 
 void SpikeProcessor::saveSpike(ofstream & ofs)

@@ -28,13 +28,20 @@ private:
 	};
 	typedef std::vector<Target> Targets;
 public:
+	enum SpikeShape
+	{
+		SHAPE_SQUARE,
+		SHAPE_TRIANGLE,
+		SHAPE_GAUSS
+	};
 	typedef std::vector<float> Spike;
 public:
 	SpikeProcessor();
 	virtual ~SpikeProcessor();
 
-	void setSpike(const Spike & spike);
-	const Spike & spike() const { return mSpike; }
+	void setSpike(SpikeShape shape, int duration);
+	SpikeShape spikeShape() const { return mSpikeShape; }
+	int spikeDuration() const { return mSpikeDuration; }
 	void saveSpike(std::ofstream & ofs);
 	void loadSpike(std::ifstream & ifs);
 	void save(std::ofstream & ofs, void * begin, void * end);
@@ -44,6 +51,8 @@ public:
 	void clear();
 
 private:
+	SpikeShape mSpikeShape;
+	int mSpikeDuration;
 	Spike mSpike;
 	std::vector<Targets> mFrames;
 	int mCurrentFrame;

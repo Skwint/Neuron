@@ -24,12 +24,10 @@ void TestSpikeProcessor::run()
 void TestSpikeProcessor::testSpike()
 {
 	float target = 0.0f;
-	float expected[] = { 0.0f, 0.0f, 1.0f, 3.0f, 3.5f, 3.5f };
-	SpikeProcessor::Spike spike;
-	spike = { 1.0, 2.0, 0.5 };
+	float expected[] = { 0.0f, 0.0f, 0.5f / 1.5f, 2.0f / 1.5f, 2.5f / 1.5f, 2.5f / 1.5f };
 
 	SpikeProcessor proc;
-	proc.setSpike(spike);
+	proc.setSpike(SpikeProcessor::SHAPE_TRIANGLE, 3);
 	proc.fire(&target, 1.0f, 1);
 
 	for (auto expect : expected)
@@ -44,11 +42,9 @@ void TestSpikeProcessor::testClear()
 {
 	float target = 0.0f;
 	float expected[] = { 0.0f, 0.0f, 0.0f };
-	SpikeProcessor::Spike spike;
-	spike = { 1.0 };
 
 	SpikeProcessor proc;
-	proc.setSpike(spike);
+	proc.setSpike(SpikeProcessor::SHAPE_SQUARE, 1);
 	proc.fire(&target, 1.0f, 1);
 	proc.clear();
 
@@ -66,12 +62,10 @@ void TestSpikeProcessor::testCircularBuffer()
 {
 	float target = 0.0f;
 
-	SpikeProcessor::Spike spike;
-	spike = { 0.1f, 0.2f, 0.3f, 0.4f };
-	float expect[] = { 0.0f, 0.1f, 0.3f, 0.6f, 1.0f };
+	float expect[] = { 0.0f, 0.25f, 1.0f, 1.75f, 2.0f, 2.0f };
 
 	SpikeProcessor proc;
-	proc.setSpike(spike);
+	proc.setSpike(SpikeProcessor::SHAPE_TRIANGLE, 4);
 
 	// Fire a spike right at the start (which we don't care about)
 	// to make sure it isn't still there when we loop

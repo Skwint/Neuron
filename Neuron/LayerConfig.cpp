@@ -29,8 +29,6 @@ LayerConfig::LayerConfig(std::shared_ptr<Automaton> automaton, std::shared_ptr<L
 	connect(ui.btnDelete, &QPushButton::clicked, this, [this]() { mAutomaton->removeLayer(mLayerName); });
 	connect(ui.cmbSpikeShape, &QComboBox::currentTextChanged, this, &LayerConfig::spikeChanged);
 	connect(ui.spinSpikeDuration, QOverload<int>::of(&QSpinBox::valueChanged), this, &LayerConfig::spikeChanged);
-
-	spikeChanged();
 }
 
 LayerConfig::~LayerConfig()
@@ -96,6 +94,13 @@ void LayerConfig::repopulate()
 		}
 
 		++row;
+	}
+
+	auto layer = mAutomaton->findLayer(mLayerName);
+	if (layer)
+	{
+		ui.cmbSpikeShape->setCurrentIndex(int(layer->spikeShape()));
+		ui.spinSpikeDuration->setValue(layer->spikeDuration());
 	}
 
 	ui.cmbPreset->setCurrentIndex(0);
@@ -181,39 +186,8 @@ void LayerConfig::spikeChanged()
 	auto layer = mAutomaton->findLayer(mLayerName);
 	if (layer)
 	{
-		QString spikeShape = ui.cmbSpikeShape->currentText();
+		SpikeProcessor::SpikeShape shape = SpikeProcessor::SpikeShape(ui.cmbSpikeShape->currentIndex());
 		int spikeDuration = ui.spinSpikeDuration->value();
-		SpikeProcessor::Spike spike;
-		if (!spikeShape.compare("Square") || spikeDuration == 1)
-		{
-			for (int ll = 0; ll < spikeDuration; ++ll)
-			{
-				spike.push_back(1.0f);
-			}
-		}
-		else
-		{
-			float halfDuration = 0.5f * spikeDuration;
-			float x = 0.5f - halfDuration;
-			if (!spikeShape.compare("Triangle"))
-			{
-				for (int ll = 0; ll < spikeDuration; ++ll)
-				{
-					spike.push_back(1.0f - fabs(x) / halfDuration);
-					x += 1.0f;
-				}
-			}
-			else
-			{
-				for (int ll = 0; ll < spikeDuration; ++ll)
-				{
-					float xnorm = x / halfDuration;
-					spike.push_back(exp(-4.0f*xnorm*xnorm));
-					x += 1.0f;
-				}
-			}
-		}
-
-		layer->setSpike(spike);
+		layer->setSpike(shape, spikeDuration);
 	}
 }

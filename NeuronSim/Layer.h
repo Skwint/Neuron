@@ -45,8 +45,9 @@ public:
 	virtual void resize(int width, int height);
 	int width() const { return mWidth; }
 	int height() const { return mHeight; }
-	void setSpike(const SpikeProcessor::Spike & spike) { mSpikeProcessor->setSpike(spike); }
-	const SpikeProcessor::Spike & spike() { return mSpikeProcessor->spike(); }
+	void setSpike(SpikeProcessor::SpikeShape shape, int duration) { mSpikeProcessor->setSpike(shape, duration); }
+	SpikeProcessor::SpikeShape spikeShape() { return mSpikeProcessor->spikeShape(); }
+	int spikeDuration() { return mSpikeProcessor->spikeDuration(); }
 	void selectPreset(const std::string & name);
 
 protected:
