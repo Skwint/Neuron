@@ -15,6 +15,7 @@ static const uint8_t TAG_WEIGHT('W');
 static const uint8_t TAG_DELAY('D');
 static const uint8_t TAG_SOURCE('s');
 static const uint8_t TAG_TARGET('t');
+static const uint8_t TAG_SHUNT('S');
 static const uint8_t TAG_DATA('d');
 static const uint8_t TAG_END('E');
 
@@ -24,7 +25,8 @@ SynapseMatrix::SynapseMatrix() :
 	mWidth(1),
 	mHeight(1),
 	mWeight(1.0f),
-	mDelay(DELAY_NONE)
+	mDelay(DELAY_NONE),
+	mShunt(false)
 {
 	mSynapses.resize(1);
 }
@@ -155,6 +157,13 @@ void SynapseMatrix::load(const std::filesystem::path & path)
 		case TAG_TARGET:
 			readString(mTargetName, ifs);
 			break;
+		case TAG_SHUNT:
+		{
+			uint8_t shunt;
+			readPod(shunt, ifs);
+			mShunt = shunt ? true : false;
+			break;
+		}
 		case TAG_DATA:
 			setSize(width, height);
 			ifs.read(reinterpret_cast<char *>(&mSynapses[0]), mWidth * mHeight * sizeof(Synapse));
@@ -193,6 +202,8 @@ void SynapseMatrix::save(const std::filesystem::path & path)
 		writePod(mWeight, ofs);
 		writePod(TAG_DELAY, ofs);
 		writePod(uint8_t(mDelay), ofs);
+		writePod(TAG_SHUNT, ofs);
+		writePod(uint8_t(mShunt), ofs);
 		writePod(TAG_SOURCE, ofs);
 		writeString(source->name(), ofs);
 		writePod(TAG_TARGET, ofs);

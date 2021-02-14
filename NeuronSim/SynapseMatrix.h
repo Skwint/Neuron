@@ -43,6 +43,8 @@ public:
 	void loadImage(uint32_t * pixels, int width, int height, float weight);
 	void load(const std::filesystem::path & path);
 	void save(const std::filesystem::path & path);
+	bool isShunt() { return mShunt; }
+	void setShunt(bool shunt) { mShunt = shunt; }
 
 	inline int lowWrapColBegin(int col, int width) { return std::max(0, col + width - mWidth / 2) - col; }
 	inline int lowWrapColEnd(int col, int width) { return std::min(width, col + width + mWidth / 2 + 1) - col; }
@@ -62,6 +64,7 @@ private:
 	int mHeight;
 	float mWeight;
 	Delay mDelay;
+	bool mShunt;
 	std::vector<Synapse> mSynapses;
 	std::weak_ptr<Layer> mSource;
 	std::weak_ptr<Layer> mTarget;

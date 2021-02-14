@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>198</width>
-    <height>242</height>
+    <height>268</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -75,14 +75,14 @@
         <item row="1" column="1">
          <widget class="QComboBox" name="cmbTarget"/>
         </item>
-        <item row="2" column="0">
+        <item row="3" column="0">
          <widget class="QLabel" name="weightLabel">
           <property name="text">
            <string>Weight</string>
           </property>
          </widget>
         </item>
-        <item row="2" column="1">
+        <item row="3" column="1">
          <widget class="QDoubleSpinBox" name="spinWeight">
           <property name="enabled">
            <bool>false</bool>
@@ -101,14 +101,14 @@
           </property>
          </widget>
         </item>
-        <item row="4" column="0">
+        <item row="5" column="0">
          <widget class="QLabel" name="patternLabel">
           <property name="text">
            <string>Pattern</string>
           </property>
          </widget>
         </item>
-        <item row="4" column="1">
+        <item row="5" column="1">
          <widget class="QComboBox" name="cmbSynapse">
           <property name="currentIndex">
            <number>0</number>
@@ -120,14 +120,14 @@
           </item>
          </widget>
         </item>
-        <item row="3" column="0">
+        <item row="4" column="0">
          <widget class="QLabel" name="delaysLabel">
           <property name="text">
            <string>Delays</string>
           </property>
          </widget>
         </item>
-        <item row="3" column="1">
+        <item row="4" column="1">
          <widget class="QComboBox" name="cmbDelays">
           <property name="enabled">
            <bool>false</bool>
@@ -148,6 +148,30 @@
           <item>
            <property name="text">
             <string>Grid</string>
+           </property>
+          </item>
+         </widget>
+        </item>
+        <item row="2" column="0">
+         <widget class="QLabel" name="typeLabel">
+          <property name="text">
+           <string>Type</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1">
+         <widget class="QComboBox" name="cmbType">
+          <property name="currentIndex">
+           <number>0</number>
+          </property>
+          <item>
+           <property name="text">
+            <string>Exciting</string>
+           </property>
+          </item>
+          <item>
+           <property name="text">
+            <string>Shunting</string>
            </property>
           </item>
          </widget>

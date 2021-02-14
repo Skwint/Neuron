@@ -42,6 +42,7 @@ SynapseConfig::SynapseConfig(shared_ptr<Automaton> automaton, shared_ptr<Synapse
 	connect(ui.cmbSynapse, &QComboBox::currentTextChanged, this, &SynapseConfig::synapseChanged);
 	connect(ui.cmbSource, &QComboBox::currentTextChanged, this, &SynapseConfig::sourceChanged);
 	connect(ui.cmbTarget, &QComboBox::currentTextChanged, this, &SynapseConfig::targetChanged);
+	connect(ui.cmbType, &QComboBox::currentTextChanged, this, &SynapseConfig::typeChanged);
 	connect(ui.spinWeight, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &SynapseConfig::synapseChanged);
 	connect(ui.cmbDelays, &QComboBox::currentTextChanged, this, &SynapseConfig::delaysChanged);
 	connect(ui.btnDelete, &QPushButton::clicked, this, [this]() { mAutomaton->removeSynapse(mSynapses); });
@@ -113,6 +114,18 @@ void SynapseConfig::delaysChanged()
 	{
 		LOG("Unrecognized delay type in synapse [" << name.toStdString() << "]");
 		ui.cmbDelays->setCurrentIndex(0);
+	}
+}
+
+void SynapseConfig::typeChanged()
+{
+	if (ui.cmbType->currentText() == "Shunting")
+	{
+		mSynapses->setShunt(true);
+	}
+	else
+	{
+		mSynapses->setShunt(false);
 	}
 }
 

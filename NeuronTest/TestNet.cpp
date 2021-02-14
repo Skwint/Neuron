@@ -2,6 +2,7 @@
 
 #include <memory>
 
+#include "NeuronSim/Cell.h"
 #include "NeuronSim/ConfigPresets.h"
 #include "NeuronSim/Net.h"
 
@@ -21,13 +22,11 @@ static const int TEST_INIT(-12345);
 static const int FIRE_ONCE(1);
 static const int REST(2);
 
-struct NeuronTest
+struct NeuronTest : public Cell
 {
-	NeuronTest() : input(0.0f), test(TEST_INIT), firing(false) {}
+	NeuronTest() : test(TEST_INIT) {}
 	uint32_t color() { return test; }
-	float input;
 	int test;
-	bool firing;
 };
 
 class TestNetLayer : public Net<NeuronTest>

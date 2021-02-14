@@ -29,6 +29,7 @@ public:
 	void writeSpikes(std::shared_ptr<Layer> target, std::ofstream & ofs);
 	void readSpikes(std::ifstream & ifs);
 	void spikeTick();
+	virtual void shuntTick() = 0;
 	virtual void preTick() {}
 	virtual void tick(SynapseMatrix * synapses) = 0;
 	virtual void postTick() {}

@@ -510,10 +510,10 @@ void View::createStackedStyle()
 
 	StyleData * data = &mStyleData[STYLE_STACKED];
 	data->m3D = true;
-	data->mEyePos = QVector3D(0.0f, 2.0f, -5.0f);
+	data->mEyePos = QVector3D(0.0f, 2.0f, -6.0f);
 	data->mLookAt = QVector3D(0.0f, 0.0f, 0.0f);
 	data->mUp = QVector3D(0.0f, 0.707f, 0.707f);
-	data->mPov = 30.0f;
+	data->mPov = 20.0f;
 
 	data->mVao.create();
 	data->mVao.bind();

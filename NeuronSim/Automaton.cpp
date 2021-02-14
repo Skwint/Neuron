@@ -43,7 +43,10 @@ void Automaton::tick()
 	{
 		layer->spikeTick();
 	}
-
+	for (auto layer : mLayers)
+	{
+		layer->shuntTick();
+	}
 	for (auto layer : mLayers)
 	{
 		layer->preTick();

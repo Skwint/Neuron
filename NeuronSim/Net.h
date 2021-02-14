@@ -34,6 +34,7 @@ public:
 
 	void save(const std::filesystem::path & path);
 	void load(const std::filesystem::path & path);
+	void shuntTick();
 	void tick(SynapseMatrix * synapses);
 	void resize(int width, int height);
 	inline Neuron * row(int r) { return &mNeurons[mWidth * r]; }
@@ -43,7 +44,7 @@ public:
 	void fire(int col, int row, float weight, int delay);
 	void clear();
 private:
-	inline void tickSegment(int cs, int ce, Neuron * dst, Synapse * synapse);
+	inline void tickSegment(int cs, int ce, Neuron * dst, Synapse * synapse, bool shunt);
 	void * begin() { return &mNeurons[0]; }
 	void * end() { return &mNeurons.back() + 1; }
 protected:
@@ -151,12 +152,33 @@ void Net<Neuron>::load(const std::filesystem::path & path)
 }
 
 template <typename Neuron>
-inline void Net<Neuron>::tickSegment(int cs, int ce, Neuron * dst, Synapse * synapse)
+inline void Net<Neuron>::shuntTick()
+{
+	Neuron * iter = &mNeurons[0];
+	for (int num = (int)mNeurons.size(); num; --num)
+	{
+		iter->input /= iter->shunt;
+		iter->shunt = 1.0f;
+		++iter;
+	}
+}
+
+template <typename Neuron>
+inline void Net<Neuron>::tickSegment(int cs, int ce, Neuron * dst, Synapse * synapse, bool shunt)
 {
 	dst += cs;
 	for (int tc = cs; tc < ce; ++tc)
 	{
-		mSpikeProcessor->fire(&dst->input, synapse->weight, synapse->delay);
+		// This is a likely target for optimization in future. TODO.
+		// It _is_ a very predictable branch, however, so profile first.
+		if (shunt)
+		{
+			mSpikeProcessor->fire(&dst->shunt, synapse->weight, synapse->delay);
+		}
+		else
+		{
+			mSpikeProcessor->fire(&dst->input, synapse->weight, synapse->delay);
+		}
 		++dst;
 		++synapse;
 	}
@@ -168,6 +190,7 @@ void Net<Neuron>::tick(SynapseMatrix * synapses)
 	auto target = synapses->target();
 	if (!target)
 		return;
+	bool shunt = synapses->isShunt();
 	Net<Neuron> * targetNet = static_cast<Net<Neuron> *>(target.get());
 
 	for (int rr = 0; rr < mHeight; ++rr)
@@ -201,31 +224,31 @@ void Net<Neuron>::tick(SynapseMatrix * synapses)
 				for (int tr = lowRowBegin; tr < lowRowEnd; ++tr)
 				{
 					dst = targetNet->row(rr + tr) + cc;
-					tickSegment(lowColBegin, lowColEnd, dst, synapse);
+					tickSegment(lowColBegin, lowColEnd, dst, synapse, shunt);
 					synapse += lowStep;
-					tickSegment(normColBegin, normColEnd, dst, synapse);
+					tickSegment(normColBegin, normColEnd, dst, synapse, shunt);
 					synapse += normStep;
-					tickSegment(highColBegin, highColEnd, dst, synapse);
+					tickSegment(highColBegin, highColEnd, dst, synapse, shunt);
 					synapse += highStep;
 				}
 				for (int tr = normRowBegin; tr < normRowEnd; ++tr)
 				{
 					dst = targetNet->row(rr + tr) + cc;
-					tickSegment(lowColBegin, lowColEnd, dst, synapse);
+					tickSegment(lowColBegin, lowColEnd, dst, synapse, shunt);
 					synapse += lowStep;
-					tickSegment(normColBegin, normColEnd, dst, synapse);
+					tickSegment(normColBegin, normColEnd, dst, synapse, shunt);
 					synapse += normStep;
-					tickSegment(highColBegin, highColEnd, dst, synapse);
+					tickSegment(highColBegin, highColEnd, dst, synapse, shunt);
 					synapse += highStep;
 				}
 				for (int tr = highRowBegin; tr < highRowEnd; ++tr)
 				{
 					dst = targetNet->row(rr + tr) + cc;
-					tickSegment(lowColBegin, lowColEnd, dst, synapse);
+					tickSegment(lowColBegin, lowColEnd, dst, synapse, shunt);
 					synapse += lowStep;
-					tickSegment(normColBegin, normColEnd, dst, synapse);
+					tickSegment(normColBegin, normColEnd, dst, synapse, shunt);
 					synapse += normStep;
-					tickSegment(highColBegin, highColEnd, dst, synapse);
+					tickSegment(highColBegin, highColEnd, dst, synapse, shunt);
 					synapse += highStep;
 				}
 			}
