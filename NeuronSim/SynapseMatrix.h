@@ -13,6 +13,15 @@ class Layer;
 class SynapseMatrix
 {
 public:
+	enum Delay
+	{
+		DELAY_NONE = 0,
+		DELAY_LINEAR,
+		DELAY_GRID,
+
+		DELAY_COUNT
+	};
+public:
 	SynapseMatrix();
 	SynapseMatrix(int width, int height);
 	~SynapseMatrix();
@@ -28,6 +37,9 @@ public:
 	const std::string & targetName();
 	inline Synapse * synapse(int col, int row) { return &mSynapses[row * mWidth + col]; }
 	inline Synapse * begin() { return &mSynapses[0]; }
+	void setDelay(Delay delay);
+	Delay delay() { return mDelay; }
+	float weight() { return mWeight; }
 	void loadImage(uint32_t * pixels, int width, int height, float weight);
 	void load(const std::filesystem::path & path);
 	void save(const std::filesystem::path & path);
@@ -48,6 +60,8 @@ public:
 private:
 	int mWidth;
 	int mHeight;
+	float mWeight;
+	Delay mDelay;
 	std::vector<Synapse> mSynapses;
 	std::weak_ptr<Layer> mSource;
 	std::weak_ptr<Layer> mTarget;

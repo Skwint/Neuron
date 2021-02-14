@@ -1,5 +1,6 @@
 #include "SynapseMatrix.h"
 
+#include <algorithm>
 #include <fstream>
 
 #include "Constants.h"
@@ -10,6 +11,8 @@
 
 static const uint8_t TAG_WIDTH('w');
 static const uint8_t TAG_HEIGHT('h');
+static const uint8_t TAG_WEIGHT('W');
+static const uint8_t TAG_DELAY('D');
 static const uint8_t TAG_SOURCE('s');
 static const uint8_t TAG_TARGET('t');
 static const uint8_t TAG_DATA('d');
@@ -19,7 +22,9 @@ using namespace std;
 
 SynapseMatrix::SynapseMatrix() :
 	mWidth(1),
-	mHeight(1)
+	mHeight(1),
+	mWeight(1.0f),
+	mDelay(DELAY_NONE)
 {
 	mSynapses.resize(1);
 }
@@ -34,18 +39,70 @@ SynapseMatrix::~SynapseMatrix()
 
 }
 
+// The delays of the synapses will be recalculated to accomodate size changes.
 void SynapseMatrix::setSize(int width, int height)
 {
 	mWidth = width;
 	mHeight = height;
 	mSynapses.resize(mWidth * mHeight);
+	setDelay(mDelay);
+}
+
+void SynapseMatrix::setDelay(Delay delay)
+{
+	mDelay = delay;
+	switch (delay)
+	{
+	case DELAY_LINEAR:
+	{
+		int hb = -mHeight / 2;
+		int he = mHeight / 2 + (mHeight & 1);
+		int wb = -mWidth / 2;
+		int we = mWidth / 2 + (mWidth & 1);
+		Synapse * synapse = &mSynapses[0];
+		for (int h = hb; h < he; ++h)
+		{
+			for (int w = wb; w < we; ++w)
+			{
+				synapse->delay = max(0, int(sqrt(h * h + w * w)) - 1);
+				++synapse;
+			}
+		}
+		break;
+	}
+	case DELAY_GRID:
+	{
+		int hb = -mHeight / 2;
+		int he = mHeight / 2 + (mHeight & 1);
+		int wb = -mWidth / 2;
+		int we = mWidth / 2 + (mWidth & 1);
+		Synapse * synapse = &mSynapses[0];
+		for (int h = hb; h < he; ++h)
+		{
+			for (int w = wb; w < we; ++w)
+			{
+				synapse->delay = max(0, h + w - 1);
+				++synapse;
+			}
+		}
+		break;
+	}
+	case DELAY_NONE:
+	default:
+		for (auto synapse : mSynapses)
+		{
+			synapse.delay = 0;
+		}
+		break;
+	}
 }
 
 // load map will treat the lowest 8 bits of the width x height array as
 // the weight of a synapse connection at that location, scaled to [0,weight].
-// The delays of the synapses will be set to 0.
+// The delays of the synapses will be recalculated to accomodate size changes.
 void SynapseMatrix::loadImage(uint32_t * synapseMap, int width, int height, float weight)
 {
+	mWeight = weight;
 	setSize(width, height);
 	Synapse * synapse = &mSynapses[0];
 	uint32_t * data = synapseMap;
@@ -55,7 +112,6 @@ void SynapseMatrix::loadImage(uint32_t * synapseMap, int width, int height, floa
 		{
 			uint32_t gb = (*data & 0x000000FF);
 			synapse->weight = weight * (float(gb) / 0xFF);
-			synapse->delay = 0;
 			++data;
 			++synapse;
 		}
@@ -76,11 +132,23 @@ void SynapseMatrix::load(const std::filesystem::path & path)
 		switch (tag)
 		{
 		case TAG_WIDTH:
-			ifs.read(reinterpret_cast<char *>(&width), sizeof(width));
+			readPod(width, ifs);
 			break;
 		case TAG_HEIGHT:
-			ifs.read(reinterpret_cast<char *>(&height), sizeof(height));
+			readPod(height, ifs);
 			break;
+		case TAG_WEIGHT:
+			readPod(mWeight, ifs);
+			break;
+		case TAG_DELAY:
+		{
+			uint8_t delay;
+			readPod(delay, ifs);
+			if (delay >= DELAY_COUNT)
+				delay = DELAY_NONE;
+			setDelay(Delay(delay));
+			break;
+		}
 		case TAG_SOURCE:
 			readString(mSourceName, ifs);
 			break;
@@ -121,6 +189,10 @@ void SynapseMatrix::save(const std::filesystem::path & path)
 		writePod(mWidth, ofs);
 		writePod(TAG_HEIGHT, ofs);
 		writePod(mHeight, ofs);
+		writePod(TAG_WEIGHT, ofs);
+		writePod(mWeight, ofs);
+		writePod(TAG_DELAY, ofs);
+		writePod(uint8_t(mDelay), ofs);
 		writePod(TAG_SOURCE, ofs);
 		writeString(source->name(), ofs);
 		writePod(TAG_TARGET, ofs);

@@ -35,11 +35,15 @@ SynapseConfig::SynapseConfig(shared_ptr<Automaton> automaton, shared_ptr<Synapse
 	ui.cmbSource->addItem("");
 	ui.cmbTarget->addItem("");
 
+	ui.cmbDelays->setCurrentText(QString::number(mSynapses->delay()));
+	ui.spinWeight->setValue(mSynapses->weight());
+
 	connect(this, &QGroupBox::toggled, this, [this]() { ui.panel->setVisible(isChecked()); });
 	connect(ui.cmbSynapse, &QComboBox::currentTextChanged, this, &SynapseConfig::synapseChanged);
 	connect(ui.cmbSource, &QComboBox::currentTextChanged, this, &SynapseConfig::sourceChanged);
 	connect(ui.cmbTarget, &QComboBox::currentTextChanged, this, &SynapseConfig::targetChanged);
 	connect(ui.spinWeight, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &SynapseConfig::synapseChanged);
+	connect(ui.cmbDelays, &QComboBox::currentTextChanged, this, &SynapseConfig::delaysChanged);
 	connect(ui.btnDelete, &QPushButton::clicked, this, [this]() { mAutomaton->removeSynapse(mSynapses); });
 }
 
@@ -86,6 +90,29 @@ void SynapseConfig::synapseChanged()
 		ui.lblSynapse->setPixmap(QPixmap::fromImage(image));
 		uint32_t * pixels = reinterpret_cast<uint32_t *>(image.bits());
 		mSynapses->loadImage(pixels, image.width(), image.height(), weight);
+		ui.cmbDelays->setEnabled(true);
+		ui.spinWeight->setEnabled(true);
+	}
+	else
+	{
+		ui.cmbDelays->setEnabled(false);
+		ui.spinWeight->setEnabled(false);
+	}
+}
+
+void SynapseConfig::delaysChanged()
+{
+	auto name = ui.cmbDelays->currentText();
+	if (name == "None")
+		mSynapses->setDelay(SynapseMatrix::DELAY_NONE);
+	else if (name == "Linear")
+		mSynapses->setDelay(SynapseMatrix::DELAY_LINEAR);
+	else if (name == "Grid")
+		mSynapses->setDelay(SynapseMatrix::DELAY_GRID);
+	else
+	{
+		LOG("Unrecognized delay type in synapse [" << name.toStdString() << "]");
+		ui.cmbDelays->setCurrentIndex(0);
 	}
 }
 
