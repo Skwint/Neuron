@@ -71,3 +71,41 @@ const ConfigPresets & Izhikevich::getPresets()
 {
 	return Izhikevich::presets();
 }
+
+void Izhikevich::clear()
+{
+	Net<NeuronIzhikevich>::clear();
+	for (auto neuron = mNeurons.begin(); neuron != mNeurons.end(); ++neuron)
+	{
+		neuron->v = mC;
+		// Should we do something with neuron->u here too? I'm not sure what its rest state is.
+	}
+}
+
+void Izhikevich::postTick()
+{
+	NeuronIzhikevich * cell = &mNeurons[0];
+	for (int rr = 0; rr < mHeight; ++rr)
+	{
+		for (int cc = 0; cc < mWidth; ++cc)
+		{
+			float v = cell->v;
+			float u = cell->u;
+			cell->v += mV2 * v * v + mV1 * v + mV0 - u + cell->input;
+			cell->u += mA * (mB * v - u);
+			cell->input = 0.0f;
+			if (cell->v >= 30)
+			{
+				cell->v = mC;
+				cell->u = cell->u + mD;
+				cell->firing = true;
+			}
+			else
+			{
+				cell->firing = false;
+			}
+
+			++cell;
+		}
+	}
+}

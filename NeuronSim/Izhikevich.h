@@ -14,21 +14,22 @@ public:
 	virtual ~Izhikevich();
 
 	static std::string name();
-	static const ConfigSet & defaultConfig();
 	std::string typeName() { return name(); }
 	void setConfig(const ConfigSet & config);
 	ConfigSet getConfig();
 	static const ConfigPresets & presets();
 	const ConfigPresets & getPresets();
+	void clear();
+	void postTick();
 
 private:
-	float mV2;
-	float mV1;
-	float mV0;
-	float mA;
-	float mB;
-	float mC;
-	float mD;
+	float mV2; //< The V^2 term
+	float mV1; //< The V term
+	float mV0; //< The constant term
+	float mA;  //< Recovery time scale
+	float mB;  //< Recovery sensitivity
+	float mC;  //< Post-spike reset value
+	float mD;  //< Post-spike recovery reset
 };
 
 #endif

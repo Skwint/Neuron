@@ -3,6 +3,7 @@
 
 #include "Cell.h"
 
+#include <algorithm>
 #include <stdint.h>
 
 struct NeuronIzhikevich : public Cell
@@ -13,10 +14,18 @@ struct NeuronIzhikevich : public Cell
 	{
 	}
 
-	uint32_t color() { return 0xFF | (u > 0.0 ? 0xFF00 : 0) | (v > 0.0f ? 0xFF0000 : 0); }
+	// This function uses some rough guesses at likely values of u and v
+	// to try to do something useful with colouring.
+	uint32_t color()
+	{
+		return 0xFF000000 |
+			(firing?0xFF0000:0) |
+			(uint32_t(std::clamp(2.0f * (64.0f + u), 0.0f, 255.0f)) << 8) |
+			uint32_t(std::clamp(2.0f * (64.0f + v), 0.0f, 255.0f));
+	}
 
-	float u;
-	float v;
+	float u; //< membrane potential
+	float v; //< membrane recovery variable
 };
 
 #endif

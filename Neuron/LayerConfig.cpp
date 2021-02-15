@@ -71,9 +71,9 @@ void LayerConfig::repopulate()
 		{
 			auto editor = new QDoubleSpinBox(ui.panel);
 			editor->setSingleStep(1.0f);
-			editor->setValue(item.second.mFloat);
 			editor->setMinimum(-1000.0f);
 			editor->setMaximum(1000.0f);
+			editor->setValue(item.second.mFloat);
 			mConfigWidgets.push_back(ConfigWidget(item.first, editor));
 			ui.configLayout->setWidget(row, QFormLayout::FieldRole, editor);
 			connect(editor, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &LayerConfig::configItemChanged);

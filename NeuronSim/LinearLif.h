@@ -12,7 +12,6 @@ public:
 	virtual ~LinearLif();
 
 	static std::string name();
-	static const ConfigSet & defaultConfig();
 	void postTick();
 	std::string typeName() { return name(); }
 	void setConfig(const ConfigSet & config);
