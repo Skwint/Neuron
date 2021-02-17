@@ -20,8 +20,8 @@ struct NeuronIzhikevich : public Cell
 	{
 		return 0xFF000000 |
 			(firing?0xFF0000:0) |
-			(uint32_t(std::clamp(2.0f * (64.0f + u), 0.0f, 255.0f)) << 8) |
-			uint32_t(std::clamp(2.0f * (64.0f + v), 0.0f, 255.0f));
+			(uint32_t(std::clamp((128.0f + 4.0f * u), 0.0f, 255.0f)) << 8) |
+			uint32_t(std::clamp((128.0f + 8.0f * v), 0.0f, 255.0f));
 	}
 
 	float u; //< membrane potential

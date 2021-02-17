@@ -25,6 +25,7 @@ const uint8_t TAG_END('E');
 
 Automaton::Automaton() :
 	mType("Life"),
+	mMode(MODE_NORMAL),
 	mWidth(DEFAULT_NET_SIZE),
 	mHeight(DEFAULT_NET_SIZE)
 {
@@ -39,13 +40,23 @@ Automaton::~Automaton()
 
 void Automaton::tick()
 {
-	for (auto layer : mLayers)
+	if (mMode != MODE_DEPRESSED)
 	{
-		layer->spikeTick();
+		for (auto layer : mLayers)
+		{
+			layer->spikeTick();
+		}
+		for (auto layer : mLayers)
+		{
+			layer->shuntTick();
+		}
 	}
-	for (auto layer : mLayers)
+	else
 	{
-		layer->shuntTick();
+		for (auto layer : mLayers)
+		{
+			layer->clearSpikes();
+		}
 	}
 	for (auto layer : mLayers)
 	{

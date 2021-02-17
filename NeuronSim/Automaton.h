@@ -14,6 +14,11 @@ class SynapseMatrix;
 class Automaton
 {
 public:
+	enum OperatingMode
+	{
+		MODE_NORMAL,
+		MODE_DEPRESSED
+	};
 	class Listener
 	{
 	public:
@@ -43,6 +48,7 @@ public:
 	void reset();
 	void setNetworkType(const std::string & type);
 	const std::string & networkType() const { return mType; }
+	void setOperatingMode(OperatingMode mode) { mMode = mode; }
 	void setSize(int width, int height);
 	int width() { return mWidth; }
 	int height() { return mHeight; }
@@ -72,6 +78,7 @@ private:
 private:
 	std::vector<Listener *> mListeners;
 	std::string mType;
+	OperatingMode mMode;
 	int mWidth;
 	int mHeight;
 	std::unique_ptr<LayerFactory> mLayerFactory;

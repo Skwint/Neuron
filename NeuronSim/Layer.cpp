@@ -29,6 +29,11 @@ Layer::~Layer()
 
 void Layer::clear()
 {
+	clearSpikes();
+}
+
+void Layer::clearSpikes()
+{
 	mSpikeProcessor->clear();
 }
 

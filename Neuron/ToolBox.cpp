@@ -46,6 +46,7 @@ ToolBox::ToolBox(shared_ptr<Automaton> automaton, QWidget *parent)
 	connect(ui.spinNetWidth, QOverload<int>::of(&QSpinBox::valueChanged), this, &ToolBox::netSizeChanged);
 	connect(ui.spinNetHeight, QOverload<int>::of(&QSpinBox::valueChanged), this, &ToolBox::netSizeChanged);
 	connect(ui.cmbRendering, &QComboBox::currentTextChanged, this, &ToolBox::renderingChanged);
+	connect(ui.cmbOperatingMode, &QComboBox::currentTextChanged, this, &ToolBox::operatingModeChanged);
 	connect(ui.btnEditingClearLayer, &QPushButton::clicked, this, &ToolBox::editingClearLayer);
 	connect(ui.btnEditingClearAll , &QPushButton::clicked, this, &ToolBox::editingClearAll);
 	connect(ui.btnEditingSpike, &QPushButton::clicked, this, &ToolBox::editingSpike);
@@ -284,4 +285,10 @@ void ToolBox::loadSpikeMaps()
 	{
 		LOG("No spikes data directory - expected " << mSpikeDir.absolutePath().toStdString());
 	}
+}
+
+void ToolBox::operatingModeChanged()
+{
+	Automaton::OperatingMode mode = Automaton::OperatingMode(ui.cmbOperatingMode->currentIndex());
+	mAutomaton->setOperatingMode(mode);
 }

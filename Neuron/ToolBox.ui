@@ -504,6 +504,30 @@
               </item>
              </widget>
             </item>
+            <item row="3" column="0">
+             <widget class="QLabel" name="operatingModeLabel">
+              <property name="text">
+               <string>Operating Mode</string>
+              </property>
+             </widget>
+            </item>
+            <item row="3" column="1">
+             <widget class="QComboBox" name="cmbOperatingMode">
+              <property name="currentIndex">
+               <number>0</number>
+              </property>
+              <item>
+               <property name="text">
+                <string>Normal</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Depressed</string>
+               </property>
+              </item>
+             </widget>
+            </item>
            </layout>
           </item>
           <item>

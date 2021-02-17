@@ -77,8 +77,13 @@ void Izhikevich::clear()
 	Net<NeuronIzhikevich>::clear();
 	for (auto neuron = mNeurons.begin(); neuron != mNeurons.end(); ++neuron)
 	{
-		neuron->v = mC;
-		// Should we do something with neuron->u here too? I'm not sure what its rest state is.
+		// This is one of the two solutions for a stable state
+		// The alternative is +sqrtf(val)
+		// We expect the lower value to be the properly stable point, and the
+		// higher value to be an unstable excited state
+		float val = fabs(mV1 * mV1 + mB * mB - 2.0f * mB * mV1 - 4.0f * mV2 * mV0);
+		neuron->v = mB - mV1 - sqrtf(val);
+		neuron->u = mB * neuron->v;
 	}
 }
 

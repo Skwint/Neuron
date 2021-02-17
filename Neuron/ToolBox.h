@@ -52,6 +52,7 @@ private:
 	void netTypeChanged();
 	void netSizeChanged();
 	void renderingChanged();
+	void operatingModeChanged();
 	void editingClearLayer();
 	void editingClearAll();
 	void editingNoise(int density);

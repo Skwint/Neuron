@@ -73,6 +73,7 @@ void LayerConfig::repopulate()
 			editor->setSingleStep(1.0f);
 			editor->setMinimum(-1000.0f);
 			editor->setMaximum(1000.0f);
+			editor->setDecimals(4);
 			editor->setValue(item.second.mFloat);
 			mConfigWidgets.push_back(ConfigWidget(item.first, editor));
 			ui.configLayout->setWidget(row, QFormLayout::FieldRole, editor);

@@ -67,6 +67,25 @@ void SpikeProcessor::setSpike(SpikeShape shape, int duration)
 		}
 		break;
 	}
+	case SHAPE_EXPONENTIAL:
+	{
+		int flat = duration / 5;
+		for (int x = 0; x < flat; ++x)
+		{
+			mSpike[x] = 1.0f;
+		}
+		if (duration > flat)
+		{
+			float val = 1.0f;
+			float decay = pow(0.1f, 1.0f/(duration - flat));
+			for (int x = flat; x < duration; ++x)
+			{
+				mSpike[x] = val;
+				val *= decay;
+			}
+		}
+		break;
+	}
 	}
 }
 

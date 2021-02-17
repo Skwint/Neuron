@@ -123,6 +123,11 @@
             <string>Gaussian</string>
            </property>
           </item>
+          <item>
+           <property name="text">
+            <string>Exponential</string>
+           </property>
+          </item>
          </widget>
         </item>
         <item row="2" column="1">

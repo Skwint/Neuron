@@ -32,7 +32,8 @@ public:
 	{
 		SHAPE_SQUARE,
 		SHAPE_TRIANGLE,
-		SHAPE_GAUSS
+		SHAPE_GAUSS,
+		SHAPE_EXPONENTIAL
 	};
 	typedef std::vector<float> Spike;
 public:
