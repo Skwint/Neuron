@@ -5,13 +5,13 @@
 #include <vector>
 
 #include "ConfigSet.h"
-#include "SpikeProcessor.h"
+#include "SynapseMatrix.h"
 
 class Layer;
 class LayerFactory;
-class SynapseMatrix;
+class SpikeTrain;
 
-class Automaton
+class Automaton : public SynapseMatrix::Listener
 {
 public:
 	enum OperatingMode
@@ -68,6 +68,10 @@ public:
 	void save(const std::filesystem::path & path);
 	// Load a previously saved state from a given path
 	void load(const std::filesystem::path & path);
+	void recalculateSpikeTrains();
+
+private: // From SynapseMatrix::Listener
+	void synapseMatrixChanged(SynapseMatrix * matrix) override;
 
 private:
 	std::shared_ptr<Layer> createDetachedLayer();
@@ -84,6 +88,7 @@ private:
 	std::unique_ptr<LayerFactory> mLayerFactory;
 	std::vector<std::shared_ptr<Layer> > mLayers;
 	std::vector<std::shared_ptr<SynapseMatrix> > mSynapses;
+	std::vector<std::shared_ptr<SpikeTrain>> mSpikeTrains;
 };
 
 #endif

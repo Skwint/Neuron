@@ -60,15 +60,14 @@ const ConfigPresets & Life::presets()
 
 void Life::preTick()
 {
-	NeuronLife * cell = &mNeurons[0];
-	for (int rr = 0; rr < mHeight; ++rr)
+	auto * cell = &mNeurons[0];
+	for (int num = (int)mNeurons.size(); num; --num)
 	{
-		for (int cc = 0; cc < mWidth; ++cc)
-		{
-			assert(cell->input != neuronLifeCheck);
-			cell->firing = cell->input > mLow && cell->input < mHigh;
-			++cell;
-		}
+		assert(cell->input != neuronLifeCheck);
+		cell->input /= cell->shunt;
+		cell->shunt = 1.0f;
+		cell->firing = cell->input > mLow && cell->input < mHigh;
+		++cell;
 	}
 }
 

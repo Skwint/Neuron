@@ -5,6 +5,7 @@
 #include "NeuronSim/Cell.h"
 #include "NeuronSim/ConfigPresets.h"
 #include "NeuronSim/Net.h"
+#include "NeuronSim/SpikeTrain.h"
 
 using namespace std;
 
@@ -37,7 +38,7 @@ public:
 
 	static std::string name() { return "test"; }
 	static const ConfigPresets & presets();
-	void tick(SynapseMatrix * synapses);
+	void tick(SynapseMatrix * synapses, Spiker * spiker);
 	std::string typeName() { return name(); }
 	void setConfig(const ConfigSet & config) {}
 	ConfigSet getConfig() { ConfigSet config; return config; }
@@ -54,6 +55,7 @@ void TestNet::run()
 	int width = 64;
 	int height = 64;
 	auto net = make_shared<TestNetLayer>(width, height);
+	SpikeTrain spikeTrain(net, net, 0, false);
 	TEST_EQUAL(net->width(), width);
 	TEST_EQUAL(net->height(), height);
 	TEST_EQUAL(net->at(0, 0).test, TEST_INIT);
@@ -65,7 +67,7 @@ void TestNet::run()
 	TEST_EQUAL(net->height(), height);
 
 	const int size = 9;
-	SynapseMatrix synapses;
+	SynapseMatrix synapses(this);
 	synapses.setSize(size, size);
 	for (int rr = 0; rr < size; ++rr)
 	{
@@ -79,11 +81,9 @@ void TestNet::run()
 	synapses.setTarget(net);
 	synapses.setSource(net);
 
-	net->setSpike(SpikeProcessor::SHAPE_SQUARE, 1);
-
 	// Nothing should happen - our state is boring and we have no spikes
-	net->tick(&synapses);
-	net->spikeTick();
+	net->tick(&synapses, &spikeTrain);
+	spikeTrain.tick();
 	TEST_EQUAL(net->at(1, 2).test, TEST_INIT);
 	TEST_EQUAL(net->at(10, 12).test, TEST_INIT);
 	TEST_EQUAL(net->at(3, 1).input, 0.0f);
@@ -93,9 +93,9 @@ void TestNet::run()
 
 	// top left corner fire with wrap around:
 	net->at(0, 0).test = FIRE_ONCE;
-	net->tick(&synapses);
+	net->tick(&synapses, &spikeTrain);
+	spikeTrain.tick();
 	TEST_EQUAL(net->at(0, 0).test, REST);
-	net->spikeTick();
 	// wrapping up and left
 	for (int rr = 0; rr < 4; ++rr)
 	{
@@ -147,9 +147,9 @@ void TestNet::run()
 	int sizer = 7;
 	int sizec = 6;
 	net->at(width - sizec + size / 2, height - sizer + size / 2).test = FIRE_ONCE;
-	net->tick(&synapses);
+	net->tick(&synapses, &spikeTrain);
+	spikeTrain.tick();
 	TEST_EQUAL(net->at(width - sizec + size / 2, height - sizer + size / 2).test, REST);
-	net->spikeTick();
 	// not wrapping
 	for (int rr = 0; rr < sizer; ++rr)
 	{
@@ -212,7 +212,7 @@ const ConfigPresets & TestNetLayer::presets()
 	return presets;
 }
 
-void TestNetLayer::tick(SynapseMatrix * synapses)
+void TestNetLayer::tick(SynapseMatrix * synapses, Spiker * spiker)
 {
 	auto neuron = &at(0, 0);
 	for (int rr = 0; rr < mHeight; ++rr)
@@ -227,5 +227,5 @@ void TestNetLayer::tick(SynapseMatrix * synapses)
 			++neuron;
 		}
 	}
-	Net::tick(synapses);
+	Net::tick(synapses, spiker);
 }

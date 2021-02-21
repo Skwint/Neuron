@@ -9,7 +9,7 @@
 #include "Layer.h"
 #include "Log.h"
 #include "LayerFactory.h"
-#include "SpikeProcessor.h"
+#include "SpikeTrain.h"
 #include "StreamHelpers.h"
 #include "SynapseMatrix.h"
 
@@ -40,33 +40,39 @@ Automaton::~Automaton()
 
 void Automaton::tick()
 {
+	if (mSpikeTrains.empty())
+	{
+		recalculateSpikeTrains();
+	}
 	if (mMode != MODE_DEPRESSED)
 	{
-		for (auto layer : mLayers)
+		for (auto spikeTrain : mSpikeTrains)
 		{
-			layer->spikeTick();
-		}
-		for (auto layer : mLayers)
-		{
-			layer->shuntTick();
+			spikeTrain->tick();
 		}
 	}
 	else
 	{
-		for (auto layer : mLayers)
+		for (auto spikeTrain : mSpikeTrains)
 		{
-			layer->clearSpikes();
+			spikeTrain->clear();
 		}
 	}
+
 	for (auto layer : mLayers)
 	{
 		layer->preTick();
 	}
 	for (auto synapses : mSynapses)
 	{
-		auto source = synapses->source();
-		if (source)
-			source->tick(synapses.get());
+		for (auto spikeTrain : mSpikeTrains)
+		{
+			if (spikeTrain->source() == synapses->source() &&
+				spikeTrain->target() == synapses->target())
+			{
+				spikeTrain->source()->tick(synapses.get(), spikeTrain.get());
+			}
+		}
 	}
 	for (auto layer : mLayers)
 	{
@@ -77,6 +83,7 @@ void Automaton::tick()
 void Automaton::reset()
 {
 	mSynapses.clear();
+	mSpikeTrains.clear();
 	Lock lock;
 	for (auto layer : mLayers)
 	{
@@ -134,6 +141,11 @@ void Automaton::save(const std::filesystem::path & path)
 		layer->save(folder);
 	}
 
+	for (auto spikeTrain : mSpikeTrains)
+	{
+		spikeTrain->save(folder);
+	}
+
 	int counter = 0;
 	std::stringstream str;
 	for (auto synapse : mSynapses)
@@ -143,31 +155,12 @@ void Automaton::save(const std::filesystem::path & path)
 		str.str("");
 		++counter;
 	}
-
-	// Write the spikes. We don't really care where they originate from, we just
-	// need to write where they are going to, but that isn't stored information
-	// and we have to work it out as we go.
-	for (auto target : mLayers)
-	{
-		auto filename = folder / target->name();
-		filename.replace_extension(SPIKE_EXTENSION);
-		std::ofstream ofs(filename, std::ios::out | std::ios::binary);
-
-		for (auto source : mLayers)
-		{
-			source->writeSpikes(target, ofs);
-		}
-
-		if (!ofs || !ofs.good())
-		{
-			NEURONTHROW("Failed to save automaton");
-		}
-	}
 }
 
 void Automaton::load(const std::filesystem::path & path)
 {
 	LOG("Loading automaton from [" << path << "]");
+	mSpikeTrains.clear();
 	while (!mLayers.empty())
 	{
 		removeLayer(mLayers.back());
@@ -240,21 +233,73 @@ void Automaton::load(const std::filesystem::path & path)
 			attachSynapses(synapses);
 		}
 	}
-
-	// Read the spikes. We didn't save where they originate from, and don't care.
-	// After loading them here, the processor of each layer will contain the spikes
-	// targetting it.
-	for (auto layer : mLayers)
+	for (auto & spikefile : filesystem::directory_iterator(folder))
 	{
-		auto filename = folder / layer->name();
-		filename.replace_extension(SPIKE_EXTENSION);
-		std::ifstream ifs(filename, std::ios::in | std::ios::binary);
-
-		layer->readSpikes(ifs);
-
-		if (!ifs || !ifs.good())
+		const filesystem::path file = spikefile;
+		if (file.extension() == SPIKE_EXTENSION || file.extension() == SHUNT_EXTENSION)
 		{
-			NEURONTHROW("Failed to load automaton");
+			stringstream str(file.stem().string());
+			string source;
+			getline(str, source, '_');
+			auto sourceLayer = findLayer(source);
+			string target;
+			getline(str, target, '_');
+			auto targetLayer = findLayer(target);
+			if (sourceLayer && targetLayer)
+			{
+				auto spikeTrain = make_shared<SpikeTrain>(sourceLayer, targetLayer, 0, false);
+				spikeTrain->load(file);
+				mSpikeTrains.push_back(spikeTrain);
+			}
+			else
+			{
+				NEURONTHROW("Error loading [" << file << "] - name doesn't match known layers");
+			}
+		}
+	}
+}
+
+// If a synapse matrix changes we need to make sure our spike trains are able
+// to accomodate the delays it now uses
+void Automaton::synapseMatrixChanged(SynapseMatrix * matrix)
+{
+	mSpikeTrains.clear();
+}
+
+void Automaton::recalculateSpikeTrains()
+{
+	LOG("Regenerating spike trains");
+	mSpikeTrains.clear();
+	for (auto source : mLayers)
+	{
+		for (auto target : mLayers)
+		{
+			int maxDelaySpike = -1;
+			int maxDelayShunt = -1;
+			for (auto synapse : mSynapses)
+			{
+				if (synapse->source() == source && synapse->target() == target)
+				{
+					if (synapse->isShunt())
+					{
+						maxDelayShunt = max(maxDelayShunt, int(synapse->maximumDelay()));
+					}
+					else
+					{
+						maxDelaySpike = max(maxDelaySpike, int(synapse->maximumDelay()));
+					}
+				}
+			}
+			if (maxDelayShunt != -1)
+			{
+				maxDelayShunt += source->spikeDuration() - 1;
+				mSpikeTrains.push_back(make_shared<SpikeTrain>(source, target, maxDelayShunt, true));
+			}
+			if (maxDelaySpike != -1)
+			{
+				maxDelaySpike += source->spikeDuration() - 1;
+				mSpikeTrains.push_back(make_shared<SpikeTrain>(source, target, maxDelaySpike, false));
+			}
 		}
 	}
 }
@@ -264,6 +309,10 @@ void Automaton::clearLayers()
 	for (auto layer : mLayers)
 	{
 		layer->clear();
+	}
+	for (auto spikes : mSpikeTrains)
+	{
+		spikes->clear();
 	}
 }
 
@@ -355,21 +404,14 @@ void Automaton::removeLayer(std::shared_ptr<Layer> layer)
 
 std::shared_ptr<SynapseMatrix> Automaton::createDetachedSynapses()
 {
-	if (!mLayers.empty())
-	{
-		auto synapses = make_shared<SynapseMatrix>();
-		return synapses;
-	}
-	else
-	{
-		LOG("Attempt to create synapses when no layers exist - ignored");
-		return std::shared_ptr<SynapseMatrix>();
-	}
+	auto synapses = make_shared<SynapseMatrix>(this);
+	return synapses;
 }
 
 void Automaton::attachSynapses(std::shared_ptr<SynapseMatrix> synapses)
 {
 	mSynapses.push_back(synapses);
+	synapseMatrixChanged(synapses.get());
 	Lock lock;
 	for (auto listener : mListeners)
 	{
@@ -408,6 +450,7 @@ void Automaton::setSize(int width, int height)
 		{
 			layer->resize(mWidth, mHeight);
 		}
+		mSpikeTrains.clear();
 
 		Lock lock;
 		for (auto listener : mListeners)

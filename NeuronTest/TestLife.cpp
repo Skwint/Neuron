@@ -2,7 +2,6 @@
 
 #include "NeuronSim/Layer.h"
 #include "NeuronSim/Life.h"
-#include "NeuronSim/SpikeProcessor.h"
 #include "NeuronSim/SynapseMatrix.h"
 
 using namespace std;
@@ -43,20 +42,19 @@ void TestLife::testBasicLife()
 	synapse->setTarget(layer);
 	uint32_t syn[] =
 	{
-		0xFFFF, 0xFFFF, 0xFFFF,
-		0xFFFF, 0x8080, 0xFFFF,
-		0xFFFF, 0xFFFF, 0xFFFF,
+		0xFF, 0xFF, 0xFF,
+		0xFF, 0x80, 0xFF,
+		0xFF, 0xFF, 0xFF,
 	};
 	synapse->loadImage(syn, 3, 3, 1.0f);
-	layer->setSpike(SpikeProcessor::SHAPE_SQUARE, 1);
 
 	// Create a glider in the middle of the layer
 	float weight = 3.0f;
-	layer->fire(1, 1, weight, 0);
-	layer->fire(2, 1, weight, 0);
-	layer->fire(3, 1, weight, 0);
-	layer->fire(3, 2, weight, 0);
-	layer->fire(2, 3, weight, 0);
+	layer->fire(1, 1, weight);
+	layer->fire(2, 1, weight);
+	layer->fire(3, 1, weight);
+	layer->fire(3, 2, weight);
+	layer->fire(2, 3, weight);
 
 	const uint32_t live(0xFFFFFFFF);
 	const uint32_t dead(0xFF000000);
@@ -127,28 +125,28 @@ void TestLife::testInterleavedLife()
 	synapses2->setTarget(layer1);
 	uint32_t syn[] =
 	{
-		0xFFFF, 0xFFFF, 0xFFFF,
-		0xFFFF, 0x8080, 0xFFFF,
-		0xFFFF, 0xFFFF, 0xFFFF,
+		0xFF, 0xFF, 0xFF,
+		0xFF, 0x80, 0xFF,
+		0xFF, 0xFF, 0xFF,
 	};
 	synapses1->loadImage(syn, 3, 3, 1.0f);
 	synapses2->loadImage(syn, 3, 3, 1.0f);
 
-	layer1->setSpike(SpikeProcessor::SHAPE_SQUARE, 1);
-	layer2->setSpike(SpikeProcessor::SHAPE_SQUARE, 1);
+	layer1->setSpike(Spike::SHAPE_SQUARE, 1);
+	layer2->setSpike(Spike::SHAPE_SQUARE, 1);
 
 	// Create a glider in the middle of the first layer
 	float weight = 3.0f;
-	layer1->fire(1, 1, weight, 0);
-	layer1->fire(2, 1, weight, 0);
-	layer1->fire(3, 1, weight, 0);
-	layer1->fire(3, 2, weight, 0);
-	layer1->fire(2, 3, weight, 0);
+	layer1->fire(1, 1, weight);
+	layer1->fire(2, 1, weight);
+	layer1->fire(3, 1, weight);
+	layer1->fire(3, 2, weight);
+	layer1->fire(2, 3, weight);
 
 	// Create a windmill in the second layer
-	layer2->fire(2, 1, weight, 0);
-	layer2->fire(2, 2, weight, 0);
-	layer2->fire(2, 3, weight, 0);
+	layer2->fire(2, 1, weight);
+	layer2->fire(2, 2, weight);
+	layer2->fire(2, 3, weight);
 
 	const uint32_t live(0xFFFFFFFF);
 	const uint32_t dead(0xFF000000);
@@ -221,20 +219,19 @@ void TestLife::testSaveLoad()
 	synapse->setTarget(layer);
 	uint32_t syn[] =
 	{
-		0xFFFF, 0xFFFF, 0xFFFF,
-		0xFFFF, 0x8080, 0xFFFF,
-		0xFFFF, 0xFFFF, 0xFFFF,
+		0xFF, 0xFF, 0xFF,
+		0xFF, 0x80, 0xFF,
+		0xFF, 0xFF, 0xFF,
 	};
 	synapse->loadImage(syn, 3, 3, 1.0f);
-	layer->setSpike(SpikeProcessor::SHAPE_SQUARE, 1);
 
 	// Create a glider in the middle of the layer
 	float weight = 3.0f;
-	layer->fire(1, 1, weight, 0);
-	layer->fire(2, 1, weight, 0);
-	layer->fire(3, 1, weight, 0);
-	layer->fire(3, 2, weight, 0);
-	layer->fire(2, 3, weight, 0);
+	layer->fire(1, 1, weight);
+	layer->fire(2, 1, weight);
+	layer->fire(3, 1, weight);
+	layer->fire(3, 2, weight);
+	layer->fire(2, 3, weight);
 
 	const uint32_t live(0xFFFFFFFF);
 	const uint32_t dead(0xFF000000);

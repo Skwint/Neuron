@@ -7,7 +7,8 @@
 #include "NeuronSim/Automaton.h"
 #include "NeuronSim/LayerFactory.h"
 #include "NeuronSim/SynapseMatrix.h"
-#include "NeuronSim/SpikeProcessor.h"
+
+class Spike;
 
 class ToolBox : public QDockWidget, public Automaton::Listener
 {
@@ -36,7 +37,7 @@ public:
 	void displayFrameTime(qint64 frameTime);
 	Rendering rendering() { return mRendering; }
 	int delay();
-	const SpikeProcessor::Spike & spike();
+	const Spike & spike();
 	void load();
 	void save();
 

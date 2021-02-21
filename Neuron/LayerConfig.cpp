@@ -19,7 +19,6 @@ LayerConfig::LayerConfig(std::shared_ptr<Automaton> automaton, std::shared_ptr<L
 {
 	ui.setupUi(this);
 
-	ui.spinSpikeDuration->setMaximum(MAX_SPIKE_LENGTH);
 	loadPresets();
 	repopulate();
 	setTitle(QString::fromStdString(mLayerName));
@@ -189,7 +188,7 @@ void LayerConfig::spikeChanged()
 	auto layer = mAutomaton->findLayer(mLayerName);
 	if (layer)
 	{
-		SpikeProcessor::SpikeShape shape = SpikeProcessor::SpikeShape(ui.cmbSpikeShape->currentIndex());
+		Spike::Shape shape = Spike::Shape(ui.cmbSpikeShape->currentIndex());
 		int spikeDuration = ui.spinSpikeDuration->value();
 		layer->setSpike(shape, spikeDuration);
 	}

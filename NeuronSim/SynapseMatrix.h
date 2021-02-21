@@ -13,6 +13,11 @@ class Layer;
 class SynapseMatrix
 {
 public:
+	class Listener
+	{
+	public:
+		virtual void synapseMatrixChanged(SynapseMatrix * matrix) = 0;
+	};
 	enum Delay
 	{
 		DELAY_NONE = 0,
@@ -22,8 +27,8 @@ public:
 		DELAY_COUNT
 	};
 public:
-	SynapseMatrix();
-	SynapseMatrix(int width, int height);
+	SynapseMatrix(Listener * listener);
+	SynapseMatrix(Listener * listener, int width, int height);
 	~SynapseMatrix();
 
 	void setSize(int width, int height);
@@ -45,6 +50,7 @@ public:
 	void save(const std::filesystem::path & path);
 	bool isShunt() { return mShunt; }
 	void setShunt(bool shunt) { mShunt = shunt; }
+	uint32_t maximumDelay();
 
 	inline int lowWrapColBegin(int col, int width) { return std::max(0, col + width - mWidth / 2) - col; }
 	inline int lowWrapColEnd(int col, int width) { return std::min(width, col + width + mWidth / 2 + 1) - col; }
@@ -60,6 +66,7 @@ public:
 	inline int highWrapRowEnd(int row, int height) { return std::min(height, row - height + mHeight / 2 + 1) - row; }
 
 private:
+	Listener * mListener;
 	int mWidth;
 	int mHeight;
 	float mWeight;

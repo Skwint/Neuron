@@ -144,7 +144,7 @@ void ToolBox::editingNoise(int density)
 			{
 				if (rnd() < density)
 				{
-					layer->fire(col, row, weight, 0);
+					layer->fire(col, row, weight);
 				}
 			}
 		}
@@ -176,7 +176,6 @@ void ToolBox::editingSpike()
 			{
 				float weightMultiplier = ui.spinEditingWeight->value();
 				float weight;
-				int delay;
 				int rowOffset = (layer->height() - height) / 2;
 				int colOffset = (layer->width() - width) / 2;
 				for (int rr = 0; rr < height; ++rr)
@@ -184,11 +183,10 @@ void ToolBox::editingSpike()
 					for (int cc = 0; cc < width; ++cc)
 					{
 						uint32_t pixel = *pixels;
-						if (pixel & 0xFFFF)
+						if (pixel & 0xFF)
 						{
-							weight = weightMultiplier * (float(pixel & 0xFFFF) / 32768.0f - 1.0f);
-							delay = (pixel & 0x00FF0000) >> 16;
-							layer->fire(cc + colOffset, rr + rowOffset,weight, delay);
+							weight = weightMultiplier * (float(pixel & 0xFF) / 255.0f);
+							layer->fire(cc + colOffset, rr + rowOffset, weight);
 						}
 						++pixels;
 					}

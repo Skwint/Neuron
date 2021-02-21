@@ -21,7 +21,8 @@ static const uint8_t TAG_END('E');
 
 using namespace std;
 
-SynapseMatrix::SynapseMatrix() :
+SynapseMatrix::SynapseMatrix(Listener * listener) :
+	mListener(listener),
 	mWidth(1),
 	mHeight(1),
 	mWeight(1.0f),
@@ -31,7 +32,8 @@ SynapseMatrix::SynapseMatrix() :
 	mSynapses.resize(1);
 }
 
-SynapseMatrix::SynapseMatrix(int width, int height)
+SynapseMatrix::SynapseMatrix(Listener * listener, int width, int height) :
+	mListener(listener)
 {
 	setSize(width, height);
 }
@@ -48,6 +50,7 @@ void SynapseMatrix::setSize(int width, int height)
 	mHeight = height;
 	mSynapses.resize(mWidth * mHeight);
 	setDelay(mDelay);
+	mListener->synapseMatrixChanged(this);
 }
 
 void SynapseMatrix::setDelay(Delay delay)
@@ -97,6 +100,7 @@ void SynapseMatrix::setDelay(Delay delay)
 		}
 		break;
 	}
+	mListener->synapseMatrixChanged(this);
 }
 
 // load map will treat the lowest 8 bits of the width x height array as
@@ -118,6 +122,7 @@ void SynapseMatrix::loadImage(uint32_t * synapseMap, int width, int height, floa
 			++synapse;
 		}
 	}
+	mListener->synapseMatrixChanged(this);
 }
 
 void SynapseMatrix::load(const std::filesystem::path & path)
@@ -232,4 +237,14 @@ const std::string & SynapseMatrix::targetName()
 	if (targetLayer)
 		return targetLayer->name();
 	return mTargetName;
+}
+
+uint32_t SynapseMatrix::maximumDelay()
+{
+	uint32_t delay = 0;
+	for (auto synapse : mSynapses)
+	{
+		delay = max(delay, synapse.delay);
+	}
+	return delay;
 }

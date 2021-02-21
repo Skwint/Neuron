@@ -7,7 +7,8 @@
 
 #include "ConfigSet.h"
 #include "SynapseMatrix.h"
-#include "SpikeProcessor.h"
+#include "Spike.h"
+#include "Spiker.h"
 
 class SpikeProcessor;
 class ConfigPresets;
@@ -26,31 +27,28 @@ public:
 
 	virtual void save(const std::filesystem::path & path) = 0;
 	virtual void load(const std::filesystem::path & path) = 0;
-	void writeSpikes(std::shared_ptr<Layer> target, std::ofstream & ofs);
-	void readSpikes(std::ifstream & ifs);
-	void spikeTick();
-	virtual void shuntTick() = 0;
+	virtual void receiveSpikes(float * spikes) = 0;
+	virtual void receiveShunts(float * shunts) = 0;
 	virtual void preTick() {}
-	virtual void tick(SynapseMatrix * synapses) = 0;
+	virtual void tick(SynapseMatrix * synapses, Spiker * spiker) = 0;
 	virtual void postTick() {}
 	virtual std::string typeName() = 0;
 	virtual void paint(uint32_t * image) = 0;
 	virtual void setConfig(const ConfigSet & config) = 0;
 	virtual ConfigSet getConfig() = 0;
 	virtual const ConfigPresets & getPresets() = 0;
-	virtual void fire(int col, int row, float weight, int delay) = 0;
 	virtual void clear();
+	virtual void fire(int col, int row, float weight) = 0;
 
 	const std::string & name() const { return mName; }
 	void setName(const std::string & name) { mName = name; }
 	virtual void resize(int width, int height);
 	int width() const { return mWidth; }
 	int height() const { return mHeight; }
-	void setSpike(SpikeProcessor::SpikeShape shape, int duration) { mSpikeProcessor->setSpike(shape, duration); }
-	SpikeProcessor::SpikeShape spikeShape() { return mSpikeProcessor->spikeShape(); }
-	int spikeDuration() { return mSpikeProcessor->spikeDuration(); }
+	void setSpike(Spike::Shape shape, int duration) { mSpike.setSpike(shape, duration); }
+	Spike::Shape spikeShape() { return mSpike.shape();}
+	int spikeDuration() { return mSpike.duration(); }
 	void selectPreset(const std::string & name);
-	void clearSpikes();
 
 protected:
 	// Return pointer to the first Neuron
@@ -64,7 +62,7 @@ protected:
 	std::string mName;
 	int mWidth;
 	int mHeight;
-	std::unique_ptr<SpikeProcessor> mSpikeProcessor;
+	Spike mSpike;
 };
 
 #endif

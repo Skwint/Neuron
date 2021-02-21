@@ -2,7 +2,10 @@
 #define TEST_NET_H
 
 #include "Test.h"
-class TestNet : public Test
+
+#include "NeuronSim/SynapseMatrix.h"
+
+class TestNet : public Test, public SynapseMatrix::Listener
 {
 public:
 	TestNet();
@@ -10,6 +13,9 @@ public:
 
 	std::string name() { return "Net"; }
 	void run();
+
+private:
+	void synapseMatrixChanged(SynapseMatrix * matrix) override {}
 };
 
 #endif

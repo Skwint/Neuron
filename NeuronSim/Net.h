@@ -34,17 +34,19 @@ public:
 
 	void save(const std::filesystem::path & path);
 	void load(const std::filesystem::path & path);
-	void shuntTick();
-	void tick(SynapseMatrix * synapses);
+	void receiveSpikes(float * spikes) override;
+	void receiveShunts(float * shunts) override;
+	void preTick() override;
+	void tick(SynapseMatrix * synapses, Spiker * spiker) override;
 	void resize(int width, int height);
 	inline Neuron * row(int r) { return &mNeurons[mWidth * r]; }
 	inline Neuron * first() { return &mNeurons[0]; }
 	inline const Neuron * first() const { return &mNeurons[0]; }
 	void paint(uint32_t * image);
-	void fire(int col, int row, float weight, int delay);
 	void clear();
+	void fire(int col, int row, float weight) override;
 private:
-	inline void tickSegment(int cs, int ce, Neuron * dst, Synapse * synapse, bool shunt);
+	inline void tickSegment(Spiker * spiker, int cs, int ce, int dst, Synapse * synapse);
 	void * begin() { return &mNeurons[0]; }
 	void * end() { return &mNeurons.back() + 1; }
 protected:
@@ -75,6 +77,7 @@ void Net<Neuron>::save(const std::filesystem::path & path)
 {
 	auto filename = path / mName;
 	filename.replace_extension(LAYER_EXTENSION);
+	LOG("Saving layer to [" << filename << "]");
 	std::ofstream ofs(filename, std::ios::out | std::ios::binary);
 	if (ofs)
 	{
@@ -83,9 +86,9 @@ void Net<Neuron>::save(const std::filesystem::path & path)
 		writePod(TAG_HEIGHT, ofs);
 		writePod(mHeight, ofs);
 		writePod(TAG_SPIKE_SHAPE, ofs);
-		writePod(uint8_t(mSpikeProcessor->spikeShape()), ofs);
+		writePod(uint8_t(mSpike.shape()), ofs);
 		writePod(TAG_SPIKE_DURATION, ofs);
-		writePod(mSpikeProcessor->spikeDuration(), ofs);
+		writePod(mSpike.duration(), ofs);
 		writePod(TAG_DATA, ofs);
 		ofs.write(reinterpret_cast<char *>(&mNeurons[0]), mWidth * mHeight * sizeof(Neuron));
 		writePod(TAG_END, ofs);
@@ -101,6 +104,7 @@ void Net<Neuron>::save(const std::filesystem::path & path)
 template <typename Neuron>
 void Net<Neuron>::load(const std::filesystem::path & path)
 {
+	LOG("Loading layer from [" << path << "]");
 	std::ifstream ifs(path, std::ios::in | std::ios::binary);
 	mName = path.stem().string();
 	int width = 0;
@@ -142,7 +146,7 @@ void Net<Neuron>::load(const std::filesystem::path & path)
 			break;
 		}
 	}
-	setSpike(SpikeProcessor::SpikeShape(shape), duration);
+	setSpike(Spike::Shape(shape), duration);
 
 	auto filename = path;
 	filename.replace_extension(CONFIG_EXTENSION);
@@ -152,7 +156,33 @@ void Net<Neuron>::load(const std::filesystem::path & path)
 }
 
 template <typename Neuron>
-inline void Net<Neuron>::shuntTick()
+void Net<Neuron>::receiveSpikes(float * spikes)
+{
+	Neuron * iter = &mNeurons[0];
+	float * spike = spikes;
+	for (int num = (int)mNeurons.size(); num; --num)
+	{
+		iter->input += *spike;
+		++spike;
+		++iter;
+	}
+}
+
+template <typename Neuron>
+void Net<Neuron>::receiveShunts(float * shunts)
+{
+	Neuron * iter = &mNeurons[0];
+	float * shunt = shunts;
+	for (int num = (int)mNeurons.size(); num; --num)
+	{
+		iter->shunt += *shunt;
+		++shunt;
+		++iter;
+	}
+}
+
+template <typename Neuron>
+void Net<Neuron>::preTick()
 {
 	Neuron * iter = &mNeurons[0];
 	for (int num = (int)mNeurons.size(); num; --num)
@@ -164,34 +194,23 @@ inline void Net<Neuron>::shuntTick()
 }
 
 template <typename Neuron>
-inline void Net<Neuron>::tickSegment(int cs, int ce, Neuron * dst, Synapse * synapse, bool shunt)
+inline void Net<Neuron>::tickSegment(Spiker * spiker, int cs, int ce, int dst, Synapse * synapse)
 {
 	dst += cs;
 	for (int tc = cs; tc < ce; ++tc)
 	{
 		// This is a likely target for optimization in future. TODO.
 		// It _is_ a very predictable branch, however, so profile first.
-		if (shunt)
-		{
-			mSpikeProcessor->fire(&dst->shunt, synapse->weight, synapse->delay);
-		}
-		else
-		{
-			mSpikeProcessor->fire(&dst->input, synapse->weight, synapse->delay);
-		}
+		spiker->fire(mSpike, dst, synapse->weight, synapse->delay);
 		++dst;
 		++synapse;
 	}
 }
 
 template <typename Neuron>
-void Net<Neuron>::tick(SynapseMatrix * synapses)
+void Net<Neuron>::tick(SynapseMatrix * synapses, Spiker * spiker)
 {
-	auto target = synapses->target();
-	if (!target)
-		return;
 	bool shunt = synapses->isShunt();
-	Net<Neuron> * targetNet = static_cast<Net<Neuron> *>(target.get());
 
 	for (int rr = 0; rr < mHeight; ++rr)
 	{
@@ -203,7 +222,7 @@ void Net<Neuron>::tick(SynapseMatrix * synapses)
 		int highRowEnd = synapses->highWrapRowEnd(rr, mHeight);
 
 		Neuron * cell = row(rr);
-		Neuron * dst;
+		int dst;
 		for (int cc = 0; cc < mWidth; ++cc)
 		{
 			if (cell->firing)
@@ -223,32 +242,32 @@ void Net<Neuron>::tick(SynapseMatrix * synapses)
 				Synapse * synapse = synapses->begin();
 				for (int tr = lowRowBegin; tr < lowRowEnd; ++tr)
 				{
-					dst = targetNet->row(rr + tr) + cc;
-					tickSegment(lowColBegin, lowColEnd, dst, synapse, shunt);
+					dst = mWidth * (rr + tr) + cc;
+					tickSegment(spiker, lowColBegin, lowColEnd, dst, synapse);
 					synapse += lowStep;
-					tickSegment(normColBegin, normColEnd, dst, synapse, shunt);
+					tickSegment(spiker, normColBegin, normColEnd, dst, synapse);
 					synapse += normStep;
-					tickSegment(highColBegin, highColEnd, dst, synapse, shunt);
+					tickSegment(spiker, highColBegin, highColEnd, dst, synapse);
 					synapse += highStep;
 				}
 				for (int tr = normRowBegin; tr < normRowEnd; ++tr)
 				{
-					dst = targetNet->row(rr + tr) + cc;
-					tickSegment(lowColBegin, lowColEnd, dst, synapse, shunt);
+					dst = mWidth * (rr + tr) + cc;
+					tickSegment(spiker, lowColBegin, lowColEnd, dst, synapse);
 					synapse += lowStep;
-					tickSegment(normColBegin, normColEnd, dst, synapse, shunt);
+					tickSegment(spiker, normColBegin, normColEnd, dst, synapse);
 					synapse += normStep;
-					tickSegment(highColBegin, highColEnd, dst, synapse, shunt);
+					tickSegment(spiker, highColBegin, highColEnd, dst, synapse);
 					synapse += highStep;
 				}
 				for (int tr = highRowBegin; tr < highRowEnd; ++tr)
 				{
-					dst = targetNet->row(rr + tr) + cc;
-					tickSegment(lowColBegin, lowColEnd, dst, synapse, shunt);
+					dst = mWidth * (rr + tr) + cc;
+					tickSegment(spiker, lowColBegin, lowColEnd, dst, synapse);
 					synapse += lowStep;
-					tickSegment(normColBegin, normColEnd, dst, synapse, shunt);
+					tickSegment(spiker, normColBegin, normColEnd, dst, synapse);
 					synapse += normStep;
-					tickSegment(highColBegin, highColEnd, dst, synapse, shunt);
+					tickSegment(spiker, highColBegin, highColEnd, dst, synapse);
 					synapse += highStep;
 				}
 			}
@@ -282,13 +301,6 @@ void Net<Neuron>::paint(uint32_t * image)
 }
 
 template <typename Neuron>
-inline void Net<Neuron>::fire(int cc, int rr, float weight, int delay)
-{
-	Neuron * neuron = row(rr) + cc;
-	mSpikeProcessor->fire(&neuron->input, weight, delay);
-}
-
-template <typename Neuron>
 inline void Net<Neuron>::clear()
 {
 	Layer::clear();
@@ -296,6 +308,12 @@ inline void Net<Neuron>::clear()
 	{
 		new (&*neuron) Neuron;
 	}
+}
+
+template <typename Neuron>
+void Net<Neuron>::fire(int col, int row, float weight)
+{
+	mNeurons[row * mWidth + col].input += weight;
 }
 
 template <typename Neuron>
