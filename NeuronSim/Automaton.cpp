@@ -345,6 +345,10 @@ void Automaton::setNetworkType(const std::string & type)
 std::shared_ptr<Layer> Automaton::createDetachedLayer()
 {
 	auto layer = mLayerFactory->create(mType, mWidth, mHeight);
+	while (findLayer(layer->name()))
+	{
+		layer->regenerateName();
+	}
 	return layer;
 }
 

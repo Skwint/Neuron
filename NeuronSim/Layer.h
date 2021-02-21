@@ -49,6 +49,7 @@ public:
 	Spike::Shape spikeShape() { return mSpike.shape();}
 	int spikeDuration() { return mSpike.duration(); }
 	void selectPreset(const std::string & name);
+	void regenerateName();
 
 protected:
 	// Return pointer to the first Neuron

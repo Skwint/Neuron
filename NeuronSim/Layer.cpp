@@ -12,16 +12,21 @@ Layer::Layer(int width, int height) :
 	mWidth(width),
 	mHeight(height)
 {
-	stringstream str;
-	str << "Layer " << nextName;
-	mName = str.str();
-	// Let's just assume we never make 2^32 layers in one run.
-	++nextName;
+	regenerateName();
 }
 
 Layer::~Layer()
 {
 
+}
+
+void Layer::regenerateName()
+{
+	stringstream str;
+	str << "Layer " << nextName;
+	mName = str.str();
+	// Let's just assume we never make 2^32 layers in one run.
+	++nextName;
 }
 
 void Layer::clear()
