@@ -3,6 +3,7 @@
 #include <cassert>
 #include <filesystem>
 #include <fstream>
+#include <thread>
 
 #include "Constants.h"
 #include "Exception.h"
@@ -40,16 +41,23 @@ Automaton::~Automaton()
 
 void Automaton::tick()
 {
+	vector<thread> threads;
+
 	if (mSpikeTrains.empty())
 	{
 		recalculateSpikeTrains();
 	}
 	if (mMode != MODE_DEPRESSED)
 	{
-		for (auto spikeTrain : mSpikeTrains)
+		for (auto layer : mLayers)
 		{
-			spikeTrain->tick();
+			threads.push_back(thread(&Automaton::tickTargetLayer, this, layer.get()));
 		}
+		for (auto & tt : threads)
+		{
+			tt.join();
+		}
+		threads.clear();
 	}
 	else
 	{
@@ -61,23 +69,56 @@ void Automaton::tick()
 
 	for (auto layer : mLayers)
 	{
-		layer->preTick();
+		threads.push_back(thread(&Automaton::tickSourceLayer, this, layer.get()));
 	}
+	for (auto & tt : threads)
+	{
+		tt.join();
+	}
+	threads.clear();
+}
+
+// This function executes within a thread and is responsible for writing data
+// associated with one layer and one layer only. It must not read or write data
+// associated with any other layer.
+// During this function, the data in a spike train is consider to be belonging
+// to the layer it is targetted to.
+void Automaton::tickTargetLayer(Layer * target)
+{
+	for (auto & spikeTrain : mSpikeTrains)
+	{
+		if (spikeTrain->source().get() == target)
+		{
+			spikeTrain->tick();
+		}
+	}
+}
+
+// This function executes within a thread and is responsible for writing data
+// associated with one layer and one layer only. It must not read or write data
+// associated with any other layer.
+// During this function, the data in a spike train is consider to be belonging
+// to the layer it is sourced from.
+void Automaton::tickSourceLayer(Layer * source)
+{
+	source->preTick();
+
 	for (auto synapses : mSynapses)
 	{
-		for (auto spikeTrain : mSpikeTrains)
+		if (synapses->source().get() == source)
 		{
-			if (spikeTrain->source() == synapses->source() &&
-				spikeTrain->target() == synapses->target())
+			for (auto spikeTrain : mSpikeTrains)
 			{
-				spikeTrain->source()->tick(synapses.get(), spikeTrain.get());
+				if (spikeTrain->source() == synapses->source() &&
+					spikeTrain->target() == synapses->target())
+				{
+					spikeTrain->source()->tick(synapses.get(), spikeTrain.get());
+				}
 			}
 		}
 	}
-	for (auto layer : mLayers)
-	{
-		layer->postTick();
-	}
+
+	source->postTick();
 }
 
 void Automaton::reset()

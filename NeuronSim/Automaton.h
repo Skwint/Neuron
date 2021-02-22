@@ -78,6 +78,8 @@ private:
 	void attachLayer(std::shared_ptr<Layer> layer);
 	std::shared_ptr<SynapseMatrix> createDetachedSynapses();
 	void attachSynapses(std::shared_ptr<SynapseMatrix> synapses);
+	void tickTargetLayer(Layer * target);
+	void tickSourceLayer(Layer * source);
 
 private:
 	std::vector<Listener *> mListeners;
