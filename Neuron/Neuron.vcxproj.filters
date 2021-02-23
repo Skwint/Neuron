@@ -52,6 +52,9 @@
     <ClCompile Include="App.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ResponseGraph.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="Neuron.h">
@@ -78,6 +81,9 @@
     <QtMoc Include="App.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <QtMoc Include="ResponseGraph.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <QtUic Include="Neuron.ui">
@@ -99,6 +105,9 @@
       <Filter>Form Files</Filter>
     </QtUic>
     <QtUic Include="SynapseConfig.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include="ResponseGraph.ui">
       <Filter>Form Files</Filter>
     </QtUic>
   </ItemGroup>

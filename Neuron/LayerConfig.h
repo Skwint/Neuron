@@ -6,6 +6,8 @@
 #include "NeuronSim/Automaton.h"
 #include "NeuronSim/ConfigPresets.h"
 
+class ResponseGraph;
+
 class LayerConfig : public QGroupBox
 {
 	Q_OBJECT
@@ -32,6 +34,7 @@ private:
 	void loadPresets();
 	void configItemChanged();
 	void spikeChanged();
+	void showGraph();
 
 private:
 	Ui::LayerConfig ui;
@@ -39,5 +42,6 @@ private:
 	std::string mLayerName;
 	ConfigSet mConfig;
 	std::vector<ConfigWidget> mConfigWidgets;
+	std::unique_ptr<ResponseGraph> mGraph;
 	bool mLoadingPreset;
 };

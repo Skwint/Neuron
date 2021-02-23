@@ -4,7 +4,6 @@
 #include "ui_LayerDock.h"
 
 #include "NeuronSim/ConfigSet.h"
-#include "NeuronSim/LayerFactory.h"
 #include "LayerConfig.h"
 
 class Automaton;

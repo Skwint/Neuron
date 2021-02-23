@@ -69,6 +69,7 @@ public:
 	// Load a previously saved state from a given path
 	void load(const std::filesystem::path & path);
 	void recalculateSpikeTrains();
+	LayerFactory * layerFactory() { return mLayerFactory.get(); }
 
 private: // From SynapseMatrix::Listener
 	void synapseMatrixChanged(SynapseMatrix * matrix) override;

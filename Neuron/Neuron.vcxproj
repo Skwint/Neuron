@@ -51,11 +51,11 @@
   </ImportGroup>
   <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <QtInstall>msvc2017_64_5.11.2</QtInstall>
-    <QtModules>core;gui;opengl;openglextensions;widgets</QtModules>
+    <QtModules>core;gui;opengl;openglextensions;widgets;charts</QtModules>
   </PropertyGroup>
   <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <QtInstall>msvc2017_64_5.11.2</QtInstall>
-    <QtModules>core;gui;opengl;openglextensions;widgets</QtModules>
+    <QtModules>core;gui;opengl;openglextensions;widgets;charts</QtModules>
   </PropertyGroup>
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.props')">
     <Import Project="$(QtMsBuild)\qt.props" />
@@ -102,6 +102,7 @@
     <ClCompile Include="LayerDock.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Neuron.cpp" />
+    <ClCompile Include="ResponseGraph.cpp" />
     <ClCompile Include="SynapseConfig.cpp" />
     <ClCompile Include="SynapseDock.cpp" />
     <ClCompile Include="ToolBox.cpp" />
@@ -114,6 +115,7 @@
     <QtUic Include="LayerConfig.ui" />
     <QtUic Include="LayerDock.ui" />
     <QtUic Include="Neuron.ui" />
+    <QtUic Include="ResponseGraph.ui" />
     <QtUic Include="SynapseConfig.ui" />
     <QtUic Include="SynapseDock.ui" />
     <QtUic Include="ToolBox.ui" />
@@ -139,6 +141,7 @@
     <QtMoc Include="SynapseDock.h" />
     <QtMoc Include="SynapseConfig.h" />
     <ClInclude Include="resource.h" />
+    <QtMoc Include="ResponseGraph.h" />
     <ClInclude Include="Vec3f.h" />
   </ItemGroup>
   <ItemGroup>

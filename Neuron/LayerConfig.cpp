@@ -8,6 +8,7 @@
 #include "NeuronSim/Constants.h"
 #include "NeuronSim/Layer.h"
 #include "NeuronSim/Log.h"
+#include "ResponseGraph.h"
 
 using namespace std;
 
@@ -22,12 +23,15 @@ LayerConfig::LayerConfig(std::shared_ptr<Automaton> automaton, std::shared_ptr<L
 	loadPresets();
 	repopulate();
 	setTitle(QString::fromStdString(mLayerName));
+	mGraph = make_unique<ResponseGraph>(mAutomaton, layer, this);
+	mGraph->hide();
 
 	connect(this, &QGroupBox::toggled, this, [this]() { ui.panel->setVisible(isChecked()); });
 	connect(ui.cmbPreset, &QComboBox::currentTextChanged, this, &LayerConfig::presetSelected);
 	connect(ui.btnDelete, &QPushButton::clicked, this, [this]() { mAutomaton->removeLayer(mLayerName); });
 	connect(ui.cmbSpikeShape, &QComboBox::currentTextChanged, this, &LayerConfig::spikeChanged);
 	connect(ui.spinSpikeDuration, QOverload<int>::of(&QSpinBox::valueChanged), this, &LayerConfig::spikeChanged);
+	connect(ui.btnGraph, &QPushButton::clicked, this, &LayerConfig::showGraph);
 }
 
 LayerConfig::~LayerConfig()
@@ -192,4 +196,11 @@ void LayerConfig::spikeChanged()
 		int spikeDuration = ui.spinSpikeDuration->value();
 		layer->setSpike(shape, spikeDuration);
 	}
+}
+
+// Shows or updates a graph showing the impulse response of the currently configured neuron
+void LayerConfig::showGraph()
+{
+	mGraph->show();
+	mGraph->plot();
 }
