@@ -133,6 +133,7 @@
     <ClCompile Include="ConfigPresets.cpp" />
     <ClCompile Include="ConfigSet.cpp" />
     <ClCompile Include="Izhikevich.cpp" />
+    <ClCompile Include="Kumar.cpp" />
     <ClCompile Include="Layer.cpp" />
     <ClCompile Include="LayerFactory.cpp" />
     <ClCompile Include="Life.cpp" />
@@ -148,10 +149,12 @@
     <ClInclude Include="ConfigItem.h" />
     <ClInclude Include="ConfigPresets.h" />
     <ClInclude Include="ConfigSet.h" />
+    <ClInclude Include="Kumar.h" />
     <ClInclude Include="Layer.h" />
     <ClInclude Include="LayerFactory.h" />
     <ClInclude Include="LinearLif.h" />
     <ClInclude Include="Cell.h" />
+    <ClInclude Include="NeuronKumar.h" />
     <ClInclude Include="NeuronLif.h" />
     <ClInclude Include="NeuronLife.h" />
     <ClInclude Include="Constants.h" />

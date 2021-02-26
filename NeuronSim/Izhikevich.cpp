@@ -21,6 +21,7 @@ Izhikevich::Izhikevich(int width, int height) :
 	mC(-65.0f),
 	mD(2.0f)
 {
+	clear();
 }
 
 Izhikevich::~Izhikevich()
@@ -81,7 +82,7 @@ void Izhikevich::clear()
 		// The alternative is +sqrtf(val)
 		// We expect the lower value to be the properly stable point, and the
 		// higher value to be an unstable excited state
-		float val = fabs(mV1 * mV1 + mB * mB - 2.0f * mB * mV1 - 4.0f * mV2 * mV0);
+		float val = fabs((mV1 + mB) * (mV1 + mB) - 4.0f * mV2 * mV0);
 		neuron->v = mB - mV1 - sqrtf(val);
 		neuron->u = mB * neuron->v;
 	}
