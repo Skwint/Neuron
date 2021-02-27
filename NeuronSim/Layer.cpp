@@ -29,10 +29,6 @@ void Layer::regenerateName()
 	++nextName;
 }
 
-void Layer::clear()
-{
-}
-
 void Layer::resize(int width, int height)
 {
 	clear();

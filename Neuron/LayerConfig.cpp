@@ -3,6 +3,7 @@
 #include <qcolordialog.h>
 #include <qspinbox.h>
 #include <qmessagebox.h>
+#include <qcombobox.h>
 
 #include "NeuronSim/Automaton.h"
 #include "NeuronSim/Constants.h"
@@ -93,6 +94,19 @@ void LayerConfig::repopulate()
 			connect(editor, QOverload<int>::of(&QSpinBox::valueChanged), this, &LayerConfig::configItemChanged);
 			break;
 		}
+		case ConfigItem::ENUM:
+		{
+			auto editor = new QComboBox(ui.panel);
+			for (int index = 0; index < item.second.mEnumNames.size(); ++index)
+			{
+				editor->insertItem(index, QString::fromStdString(item.second.mEnumNames[index]));
+			}
+			editor->setCurrentIndex(item.second.mInt);
+			mConfigWidgets.push_back(ConfigWidget(item.first, editor));
+			ui.configLayout->setWidget(row, QFormLayout::FieldRole, editor);
+			connect(editor, &QComboBox::currentTextChanged, this, &LayerConfig::configItemChanged);
+			break;
+		}
 		default:
 			QMessageBox::warning(0, "Malformed configuration data", QString::number(item.second.mType));
 			LOG("Unexpected config type [" << item.second.mType << "] in " << mConfig.name());
@@ -129,14 +143,21 @@ void LayerConfig::configItemChanged()
 			{
 				QDoubleSpinBox * spin = dynamic_cast<QDoubleSpinBox *>(widget.widget);
 				if (spin)
-					mConfig[widget.name] = float(spin->value());
+					config.mFloat = float(spin->value());
 				break;
 			}
 			case ConfigItem::INT:
 			{
 				QSpinBox * spin = dynamic_cast<QSpinBox *>(widget.widget);
 				if (spin)
-					mConfig[widget.name] = spin->value();
+					config.mInt = spin->value();
+				break;
+			}
+			case ConfigItem::ENUM:
+			{
+				QComboBox * box = dynamic_cast<QComboBox *>(widget.widget);
+				if (box)
+					config.mInt = box->currentIndex();
 				break;
 			}
 			default:
@@ -179,8 +200,16 @@ void LayerConfig::presetSelected()
 						spinner->setValue(config[widget.name].mInt);
 					break;
 				}
+				case ConfigItem::ENUM:
+				{
+					QComboBox * box = dynamic_cast<QComboBox *>(widget.widget);
+					if (box)
+						box->setCurrentIndex(config[widget.name].mInt);
+					break;
+				}
 				}
 			}
+			mConfig = config;
 		}
 		mLoadingPreset = false;
 		layer->setConfig(mConfig);

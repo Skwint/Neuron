@@ -5,6 +5,7 @@
 #include "LinearLif.h"
 #include "Izhikevich.h"
 #include "Kumar.h"
+#include "TrueNorth.h"
 
 #define MAKE_ALLOCATOR(x) static LayerFactory::Allocator<x> x##Allocator; mAllocators[x::name()] = &x##Allocator;
 
@@ -14,6 +15,7 @@ LayerFactory::LayerFactory()
 	MAKE_ALLOCATOR(LinearLif);
 	MAKE_ALLOCATOR(Izhikevich);
 	MAKE_ALLOCATOR(Kumar);
+	MAKE_ALLOCATOR(TrueNorth);
 }
 
 LayerFactory::~LayerFactory()

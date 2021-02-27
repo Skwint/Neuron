@@ -303,7 +303,6 @@ void Net<Neuron>::paint(uint32_t * image)
 template <typename Neuron>
 inline void Net<Neuron>::clear()
 {
-	Layer::clear();
 	for (auto neuron = mNeurons.begin(); neuron != mNeurons.end(); ++neuron)
 	{
 		new (&*neuron) Neuron;
