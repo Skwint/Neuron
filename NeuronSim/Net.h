@@ -199,8 +199,6 @@ inline void Net<Neuron>::tickSegment(Spiker * spiker, int cs, int ce, int dst, S
 	dst += cs;
 	for (int tc = cs; tc < ce; ++tc)
 	{
-		// This is a likely target for optimization in future. TODO.
-		// It _is_ a very predictable branch, however, so profile first.
 		spiker->fire(mSpike, dst, synapse->weight, synapse->delay);
 		++dst;
 		++synapse;
@@ -212,6 +210,7 @@ void Net<Neuron>::tick(SynapseMatrix * synapses, Spiker * spiker)
 {
 	bool shunt = synapses->isShunt();
 
+	Neuron * cell = &mNeurons[0];
 	for (int rr = 0; rr < mHeight; ++rr)
 	{
 		int lowRowBegin = synapses->lowWrapRowBegin(rr, mHeight);
@@ -221,7 +220,6 @@ void Net<Neuron>::tick(SynapseMatrix * synapses, Spiker * spiker)
 		int highRowBegin = synapses->highWrapRowBegin(rr, mHeight);
 		int highRowEnd = synapses->highWrapRowEnd(rr, mHeight);
 
-		Neuron * cell = row(rr);
 		int dst;
 		for (int cc = 0; cc < mWidth; ++cc)
 		{

@@ -81,13 +81,13 @@ void Automaton::tick()
 // This function executes within a thread and is responsible for writing data
 // associated with one layer and one layer only. It must not read or write data
 // associated with any other layer.
-// During this function, the data in a spike train is consider to be belonging
+// During this function, the data in a spike train is considered to be belonging
 // to the layer it is targetted to.
 void Automaton::tickTargetLayer(Layer * target)
 {
 	for (auto & spikeTrain : mSpikeTrains)
 	{
-		if (spikeTrain->source().get() == target)
+		if (spikeTrain->target().get() == target)
 		{
 			spikeTrain->tick();
 		}

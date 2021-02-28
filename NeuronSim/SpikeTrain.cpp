@@ -73,6 +73,11 @@ float * SpikeTrain::begin(int delay)
 	return &mFrames[delay][0];
 }
 
+// Fire a spike to a specified cell.
+// @param spike the shape of the spike.
+// @param index the offset into the array of cells to the destination.
+// @param weight the weight multiplier to apply to the spike.
+// @param delay the time before the destination should start receiving the spike.
 void SpikeTrain::fire(const Spike & spike, int index, float weight, int delay)
 {
 	int begin[2];
