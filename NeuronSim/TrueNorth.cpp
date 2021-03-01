@@ -80,15 +80,6 @@ const ConfigPresets & TrueNorth::getPresets()
 	return TrueNorth::presets();
 }
 
-void TrueNorth::clear()
-{
-	Net<NeuronTrueNorth>::clear();
-	for (auto neuron = mNeurons.begin(); neuron != mNeurons.end(); ++neuron)
-	{
-		neuron->v = mResetVoltage;
-	}
-}
-
 // sgn function courtesy of
 // https://stackoverflow.com/questions/1903954/is-there-a-standard-sign-function-signum-sgn-in-c-c
 // returns -1 for negative, +1 for positive and 0 for 0
@@ -147,6 +138,20 @@ void TrueNorth::preTick()
 				}
 			}
 		}
+		++cell;
+	}
+}
+
+void TrueNorth::paint(uint32_t * image)
+{
+	auto * cell = &mNeurons[0];
+	uint32_t * pixel = image;
+	for (int count = mHeight * mWidth; count != 0; --count)
+	{
+		uint32_t green = clamp(uint32_t(255.0f * (cell->v / mPositiveThreshold)), 0u, 0xFFu);
+		uint32_t red = clamp(uint32_t(255.0f * (-cell->v / mNegativeThreshold)), 0u, 0xFFu);
+		*pixel = 0xFF000000 | (green << 8) | red;
+		++pixel;
 		++cell;
 	}
 }

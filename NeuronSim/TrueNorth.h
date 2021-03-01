@@ -21,8 +21,8 @@ public:
 	ConfigSet getConfig() override;
 	static const ConfigPresets & presets();
 	const ConfigPresets & getPresets() override;
-	void clear() override;
 	void preTick() override;
+	void paint(uint32_t * image) override;
 
 private:
 	int32_t mLeakReversal;     //< 0, 1
