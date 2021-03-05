@@ -13,6 +13,7 @@ public:
 	Kumar(int width, int height);
 	virtual ~Kumar();
 
+	Kumar * clone() override;
 	static std::string name();
 	std::string typeName() { return name(); }
 	void setConfig(const ConfigSet & config);

@@ -24,6 +24,11 @@ Kumar::~Kumar()
 {
 }
 
+Kumar * Kumar::clone()
+{
+	return new Kumar(*this);
+}
+
 std::string Kumar::name()
 {
 	return "Kumar";

@@ -15,6 +15,14 @@ Layer::Layer(int width, int height) :
 	regenerateName();
 }
 
+Layer::Layer(const Layer & other) :
+	mName(other.mName),
+	mWidth(other.mWidth),
+	mHeight(other.mHeight),
+	mSpike(other.mSpike)
+{
+}
+
 Layer::~Layer()
 {
 

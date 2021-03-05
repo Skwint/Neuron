@@ -24,6 +24,11 @@ Life::~Life()
 
 }
 
+Life * Life::clone()
+{
+	return new Life(*this);
+}
+
 string Life::name()
 {
 	return "Life";

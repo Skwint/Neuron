@@ -25,6 +25,16 @@ SpikeTrain::SpikeTrain()
 
 }
 
+SpikeTrain::SpikeTrain(const SpikeTrain & other) :
+	mSource(other.mSource),
+	mTarget(other.mTarget),
+	mFrames(other.mFrames),
+	mShunting(other.mShunting),
+	mCurrentFrame(other.mCurrentFrame)
+{
+
+}
+
 SpikeTrain::SpikeTrain(shared_ptr<Layer> source, shared_ptr<Layer> target, int delay, bool shunting) :
 	mSource(source),
 	mTarget(target),
@@ -66,11 +76,12 @@ void SpikeTrain::clear()
 	}
 }
 
-float * SpikeTrain::begin(int delay)
+float SpikeTrain::currentSpikeDensity()
 {
-	assert(delay > 0);
-	assert(delay < mFrames.size());
-	return &mFrames[delay][0];
+	auto & frame = mFrames[mCurrentFrame];
+	int total = 0;
+	for_each(frame.begin(), frame.end(), [&total](auto val) { total += fabs(val) > 0.01f; });
+	return float(total) / float(mFrames.size());
 }
 
 // Fire a spike to a specified cell.

@@ -15,6 +15,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NeuronTest", "..\NeuronTest
 		{9508CDDD-442D-4B73-8E4D-E9EFC73B4EA1} = {9508CDDD-442D-4B73-8E4D-E9EFC73B4EA1}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Genetics", "..\Genetics\Genetics.vcxproj", "{DB8F2648-B4B8-4828-A19D-75F4DBE7D6DC}"
+	ProjectSection(ProjectDependencies) = postProject
+		{9508CDDD-442D-4B73-8E4D-E9EFC73B4EA1} = {9508CDDD-442D-4B73-8E4D-E9EFC73B4EA1}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -45,6 +50,14 @@ Global
 		{065DA7C2-CFFC-4410-A9DE-4AFCB52BFA1A}.Release|x64.Build.0 = Release|x64
 		{065DA7C2-CFFC-4410-A9DE-4AFCB52BFA1A}.Release|x86.ActiveCfg = Release|Win32
 		{065DA7C2-CFFC-4410-A9DE-4AFCB52BFA1A}.Release|x86.Build.0 = Release|Win32
+		{DB8F2648-B4B8-4828-A19D-75F4DBE7D6DC}.Debug|x64.ActiveCfg = Debug|x64
+		{DB8F2648-B4B8-4828-A19D-75F4DBE7D6DC}.Debug|x64.Build.0 = Debug|x64
+		{DB8F2648-B4B8-4828-A19D-75F4DBE7D6DC}.Debug|x86.ActiveCfg = Debug|Win32
+		{DB8F2648-B4B8-4828-A19D-75F4DBE7D6DC}.Debug|x86.Build.0 = Debug|Win32
+		{DB8F2648-B4B8-4828-A19D-75F4DBE7D6DC}.Release|x64.ActiveCfg = Release|x64
+		{DB8F2648-B4B8-4828-A19D-75F4DBE7D6DC}.Release|x64.Build.0 = Release|x64
+		{DB8F2648-B4B8-4828-A19D-75F4DBE7D6DC}.Release|x86.ActiveCfg = Release|Win32
+		{DB8F2648-B4B8-4828-A19D-75F4DBE7D6DC}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

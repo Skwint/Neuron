@@ -30,6 +30,7 @@ class Net : public Layer
 {
 public:
 	Net(int width, int height);
+	Net(const Net & other);
 	virtual ~Net();
 
 	void save(const std::filesystem::path & path);
@@ -61,6 +62,13 @@ Net<Neuron>::Net(int width, int height) :
 	// We have to call this explicitly - the v-table wasn't set up yet when the layer constructor
 	// was called so it can't call it for us.
 	resize(width, height);
+}
+
+template <typename Neuron>
+Net<Neuron>::Net(const Net & other) :
+	Layer(other)
+{
+	mNeurons = other.mNeurons;
 }
 
 template <typename Neuron>

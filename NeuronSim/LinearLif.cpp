@@ -26,6 +26,11 @@ LinearLif::~LinearLif()
 {
 }
 
+LinearLif * LinearLif::clone()
+{
+	return new LinearLif(*this);
+}
+
 std::string LinearLif::name()
 {
 	return "LIF (linear)";

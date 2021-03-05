@@ -43,6 +43,7 @@ public:
 	};
 public:
 	Automaton();
+	Automaton(const Automaton & other);
 	~Automaton();
 
 	void reset();
@@ -60,6 +61,7 @@ public:
 	std::vector<std::string> typeNames();
 	std::shared_ptr<SynapseMatrix> createSynapse();
 	void removeSynapse(std::shared_ptr<SynapseMatrix> synapses);
+	const std::vector<std::shared_ptr<SynapseMatrix>> synapses() { return mSynapses; }
 	void addListener(Listener * listener);
 	void removeListener(Listener * listener);
 	void tick();
@@ -70,6 +72,7 @@ public:
 	void load(const std::filesystem::path & path);
 	void recalculateSpikeTrains();
 	LayerFactory * layerFactory() { return mLayerFactory.get(); }
+	float currentSpikeDensity();
 
 private: // From SynapseMatrix::Listener
 	void synapseMatrixChanged(SynapseMatrix * matrix) override;

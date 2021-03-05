@@ -34,6 +34,31 @@ Automaton::Automaton() :
 	mLayerFactory = std::make_unique<LayerFactory>();
 }
 
+Automaton::Automaton(const Automaton & other) :
+	mType(other.mType),
+	mMode(other.mMode),
+	mWidth(other.mWidth),
+	mHeight(other.mHeight)
+{
+	LOG("Copying automaton");
+	mLayerFactory = std::make_unique<LayerFactory>();
+
+	for (auto layer : other.mLayers)
+	{
+		mLayers.push_back(std::shared_ptr<Layer>(layer->clone()));
+	}
+
+	for (auto spikeTrain : other.mSpikeTrains)
+	{
+		mSpikeTrains.push_back(make_shared<SpikeTrain>(*spikeTrain));
+	}
+	for (auto synapse : other.mSynapses)
+	{
+		mSynapses.push_back(make_shared<SynapseMatrix>(*synapse));
+		mSynapses.back()->setListener(this);
+	}
+}
+
 Automaton::~Automaton()
 {
 	LOG("Destroying automaton");
@@ -520,6 +545,16 @@ shared_ptr<Layer> Automaton::findLayer(const std::string & name)
 	}
 	LOG("Request for non existent layer [" << name << "]");
 	return shared_ptr<Layer>();
+}
+
+float Automaton::currentSpikeDensity()
+{
+	float density = 0.0f;
+	for (auto train : mSpikeTrains)
+	{
+		density += train->currentSpikeDensity();
+	}
+	return density / float(mSpikeTrains.size());
 }
 
 inline Automaton::Lock::Lock()

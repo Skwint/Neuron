@@ -36,6 +36,7 @@ public:
 	TestNetLayer(int width, int height) : Net<NeuronTest>(width, height) {}
 	~TestNetLayer() {}
 
+	TestNetLayer * clone() override;
 	static std::string name() { return "test"; }
 	static const ConfigPresets & presets();
 	void tick(SynapseMatrix * synapses, Spiker * spiker);
@@ -228,4 +229,9 @@ void TestNetLayer::tick(SynapseMatrix * synapses, Spiker * spiker)
 		}
 	}
 	Net::tick(synapses, spiker);
+}
+
+TestNetLayer * TestNetLayer::clone()
+{
+	return new TestNetLayer(*this);
 }

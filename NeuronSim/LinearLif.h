@@ -11,6 +11,7 @@ public:
 	LinearLif(int width, int height);
 	virtual ~LinearLif();
 
+	LinearLif * clone() override;
 	static std::string name();
 	void postTick();
 	std::string typeName() { return name(); }

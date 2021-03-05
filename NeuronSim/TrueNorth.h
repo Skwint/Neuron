@@ -15,6 +15,7 @@ public:
 	TrueNorth(int width, int height);
 	virtual ~TrueNorth();
 
+	TrueNorth * clone() override;
 	static std::string name();
 	std::string typeName() { return name(); }
 	void setConfig(const ConfigSet & config) override;

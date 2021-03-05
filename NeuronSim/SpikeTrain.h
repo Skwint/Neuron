@@ -31,6 +31,7 @@ private:
 	typedef std::vector<float> Frame;
 public:
 	SpikeTrain();
+	SpikeTrain(const SpikeTrain & other);
 	SpikeTrain(std::shared_ptr<Layer> source, std::shared_ptr<Layer> target, int maxDelay, bool shunting);
 	virtual ~SpikeTrain();
 
@@ -40,7 +41,7 @@ public:
 	void tick();
 	void clear();
 	bool shunting() { return mShunting; }
-	float * begin(int delay);
+	float currentSpikeDensity();
 	void save(const std::filesystem::path & path);
 	void load(const std::filesystem::path & path);
 

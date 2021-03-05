@@ -31,6 +31,7 @@ public:
 	SynapseMatrix(Listener * listener, int width, int height);
 	~SynapseMatrix();
 
+	void setListener(Listener * listener);
 	void setSize(int width, int height);
 	inline int height() { return mHeight; }
 	inline int width() { return mWidth; }

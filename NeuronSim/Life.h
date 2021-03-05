@@ -13,6 +13,7 @@ public:
 	Life(int width, int height);
 	~Life();
 
+	Life * clone() override;
 	static std::string name();
 	static const ConfigPresets & presets();
 	void preTick();

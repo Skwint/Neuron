@@ -11,8 +11,10 @@ class Izhikevich : public Net<NeuronIzhikevich>
 {
 public:
 	Izhikevich(int width, int height);
+	Izhikevich(const Izhikevich & other);
 	virtual ~Izhikevich();
 
+	Izhikevich * clone() override;
 	static std::string name();
 	std::string typeName() { return name(); }
 	void setConfig(const ConfigSet & config);
