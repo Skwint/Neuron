@@ -3,19 +3,17 @@
 #include "ConfigPresets.h"
 #include "ConfigSet.h"
 
-static const std::string CFG_V2("v2");
-static const std::string CFG_V1("v1");
-static const std::string CFG_V0("v0");
 static const std::string CFG_A("a");
 static const std::string CFG_B("b");
 static const std::string CFG_C("c");
 static const std::string CFG_D("d");
 
+static const float V2(0.04f);
+static const float V1(5.0f);
+static const float V0(140.0f);
+
 Izhikevich::Izhikevich(int width, int height) :
 	Net<NeuronIzhikevich>(width, height),
-	mV2(0.04f),
-	mV1(5.0f),
-	mV0(140.0f),
 	mA(0.02f),
 	mB(0.2f),
 	mC(-65.0f),
@@ -26,9 +24,6 @@ Izhikevich::Izhikevich(int width, int height) :
 
 Izhikevich::Izhikevich(const Izhikevich & other) :
 	Net<NeuronIzhikevich>(other),
-	mV2(other.mV2),
-	mV1(other.mV1),
-	mV0(other.mV0),
 	mA(other.mA),
 	mB(other.mB),
 	mC(other.mC),
@@ -52,9 +47,6 @@ std::string Izhikevich::name()
 
 void Izhikevich::setConfig(const ConfigSet & config)
 {
-	mV2 = config.items().at(CFG_V2).mFloat;
-	mV1 = config.items().at(CFG_V1).mFloat;
-	mV0 = config.items().at(CFG_V0).mFloat;
 	mA = config.items().at(CFG_A).mFloat;
 	mB = config.items().at(CFG_B).mFloat;
 	mC = config.items().at(CFG_C).mFloat;
@@ -74,9 +66,6 @@ const ConfigPresets & Izhikevich::presets()
 ConfigSet Izhikevich::getConfig()
 {
 	ConfigSet config;
-	config[CFG_V2] = mV2;
-	config[CFG_V1] = mV1;
-	config[CFG_V0] = mV0;
 	config[CFG_A] = mA;
 	config[CFG_B] = mB;
 	config[CFG_C] = mC;
@@ -117,7 +106,7 @@ void Izhikevich::postTick()
 		{
 			float v = cell->v;
 			float u = cell->u;
-			cell->v += mV2 * v * v + mV1 * v + mV0 - u + cell->input;
+			cell->v += V2 * v * v + V1 * v + V0 - u + cell->input;
 			cell->u += mA * (mB * v - u);
 			cell->input = 0.0f;
 			if (cell->v >= 30)

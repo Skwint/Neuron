@@ -25,9 +25,6 @@ public:
 	void postTick();
 
 private:
-	float mV2; //< The V^2 term
-	float mV1; //< The V term
-	float mV0; //< The constant term
 	float mA;  //< Recovery time scale
 	float mB;  //< Recovery sensitivity
 	float mC;  //< Post-spike reset value

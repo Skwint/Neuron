@@ -15,14 +15,14 @@ static const int totalRandomActions = 1000;
 static const int WIDTH = 128;
 static const int HEIGHT = 128;
 static const string NETWORK_TYPE = "Izhikevich";
-static const int NUM_LAYERS = 4;
+static const int NUM_LAYERS = 8;
 static const int SYNAPSE_WIDTH = 3;
 static const int SYNAPSE_HEIGHT = 3;
 static const float MAX_SYNAPSE_WEIGHT = 1.0f;
 static const float NOISE_WEIGHT = 20.0f;
 static const float NOISE_DENSITY = 0.3f;
 static const float NOISE_TIME = 3;
-static const float TARGET_SPIKE_DENSITY = 0.1f;
+static const float TARGET_SPIKE_DENSITY = 0.05f;
 static const float LARGE_CHANGE_CHANCE = 0.05f;
 #ifdef NDEBUG
 static const int NUM_ITERATIONS = 50;
@@ -36,11 +36,11 @@ static const int MAX_CHANGES(5);
 
 enum Action
 {
-	ACTION_CHANGE_SYNAPSE_IMAGE = 0,
-	ACTION_CHANGE_SYNAPSE_WEIGHT,
+	ACTION_CHANGE_SYNAPSE_WEIGHT = 0,
 	ACTION_CHANGE_CONFIG,
 	ACTION_CHANGE_SPIKE_LENGTH,
 	ACTION_FLIP_WEIGHT,
+	ACTION_ATROPHY,
 
 	ACTION_COUNT
 };
@@ -244,15 +244,6 @@ void Control::changeAutomaton()
 		}
 		switch (action)
 		{
-		case ACTION_CHANGE_SYNAPSE_IMAGE:
-		{
-			int synapse_index = mRandom() % mAutomaton->synapses().size();
-			int position_index = mRandom() % SYNAPSE_WIDTH * SYNAPSE_HEIGHT;
-			uint32_t val = mCurrent.synapses[synapse_index].pixels[position_index];
-			mCurrent.synapses[synapse_index].pixels[position_index] = clamp(val + offset, 0u, 0xFFu);
-			mAutomaton->synapses()[synapse_index]->loadImage(&mCurrent.synapses[synapse_index].pixels[0], SYNAPSE_WIDTH, SYNAPSE_HEIGHT, mCurrent.synapses[synapse_index].weight);
-			break;
-		}
 		case ACTION_CHANGE_SYNAPSE_WEIGHT:
 		{
 			int synapse_index = mRandom() % mAutomaton->synapses().size();
@@ -273,7 +264,7 @@ void Control::changeAutomaton()
 					++item;
 					--item_index;
 				}
-				if (item->second.mType == ConfigItem::FLOAT && item->first[2] != 'V')
+				if (item->second.mType == ConfigItem::FLOAT)
 				{
 					item->second.mFloat *= multi;
 					ok = true;
@@ -294,6 +285,12 @@ void Control::changeAutomaton()
 			int synapse_index = mRandom() % mAutomaton->synapses().size();
 			mCurrent.synapses[synapse_index].weight *= -1.0f;
 			mAutomaton->synapses()[synapse_index]->loadImage(&mCurrent.synapses[synapse_index].pixels[0], SYNAPSE_WIDTH, SYNAPSE_HEIGHT, mCurrent.synapses[synapse_index].weight);
+			break;
+		}
+		case ACTION_ATROPHY:
+		{
+			int synapse_index = mRandom() % mAutomaton->synapses().size();
+			mAutomaton->removeSynapse(mAutomaton->synapses()[synapse_index]);
 			break;
 		}
 		default:
