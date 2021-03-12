@@ -8,10 +8,9 @@
 struct Cell
 {
 	Cell() : input(0.0f), shunt(1.0f), firing(false) {}
-	float input;
-	float shunt;
-	bool firing;
-
+	float input;  //< Incoming spikes are summed into the input field
+	float shunt;  //< Incoming shunts are summed into the shunt field
+	bool firing;  //< If this is true, the tick function will fire spikes
 };
 
 #endif
