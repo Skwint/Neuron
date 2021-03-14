@@ -24,11 +24,6 @@ Life::~Life()
 
 }
 
-Life * Life::clone()
-{
-	return new Life(*this);
-}
-
 string Life::name()
 {
 	return "Life";
@@ -72,22 +67,7 @@ void Life::preTick()
 		cell->input /= cell->shunt;
 		cell->shunt = 1.0f;
 		cell->firing = cell->input > mLow && cell->input < mHigh;
+		cell->input = 0.0f;
 		++cell;
 	}
 }
-
-void Life::postTick()
-{
-	NeuronLife * cell = &mNeurons[0];
-	for (int rr = 0; rr < mHeight; ++rr)
-	{
-		for (int cc = 0; cc < mWidth; ++cc)
-		{
-			// Life is an extremely leaky integrator - it leaks 100%
-			// on every time step.
-			cell->input = 0.0f;
-			++cell;
-		}
-	}
-}
-

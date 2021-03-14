@@ -46,7 +46,8 @@ public:
 	void setDelay(Delay delay);
 	Delay delay() { return mDelay; }
 	float weight() { return mWeight; }
-	void loadImage(uint32_t * pixels, int width, int height, float weight);
+	void loadImage(uint32_t * pixels, int width, int height, float weight, const std::string & name = std::string());
+	const std::string & imageName() { return mImageName; }
 	void load(const std::filesystem::path & path);
 	void save(const std::filesystem::path & path);
 	bool isShunt() { return mShunt; }
@@ -73,6 +74,7 @@ private:
 	float mWeight;
 	Delay mDelay;
 	bool mShunt;
+	std::string mImageName;
 	std::vector<Synapse> mSynapses;
 	std::weak_ptr<Layer> mSource;
 	std::weak_ptr<Layer> mTarget;

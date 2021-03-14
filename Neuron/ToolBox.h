@@ -61,10 +61,10 @@ private:
 	void loadSpikeMaps();
 
 private:// from Automaton::Listener
-	void automatonTypeChanged();
-	void automatonSizeChanged(int width, int height);
-	void automatonLayerCreated(std::shared_ptr<Layer> layer);
-	void automatonLayerRemoved(std::shared_ptr<Layer> layer);
+	void automatonTypeChanged() override;
+	void automatonSizeChanged(int width, int height) override;
+	void automatonLayerCreated(std::shared_ptr<Layer> layer) override;
+	void automatonLayerRemoved(std::shared_ptr<Layer> layer) override;
 
 private:
 	Ui::ToolBox ui;

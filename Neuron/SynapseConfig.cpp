@@ -27,6 +27,12 @@ SynapseConfig::SynapseConfig(shared_ptr<Automaton> automaton, shared_ptr<Synapse
 		filters << "*.png";
 		mSynapseDir.setNameFilters(filters);
 		ui.cmbSynapse->addItems(mSynapseDir.entryList());
+		int pos = ui.cmbSynapse->findText(QString::fromStdString(synapses->imageName()));
+		if (pos >= 0)
+		{
+			ui.cmbSynapse->setCurrentIndex(pos);
+			synapseChanged(false);
+		}
 	}
 	else
 	{
@@ -39,7 +45,7 @@ SynapseConfig::SynapseConfig(shared_ptr<Automaton> automaton, shared_ptr<Synapse
 	ui.spinWeight->setValue(mSynapses->weight());
 
 	connect(this, &QGroupBox::toggled, this, [this]() { ui.panel->setVisible(isChecked()); });
-	connect(ui.cmbSynapse, &QComboBox::currentTextChanged, this, &SynapseConfig::synapseChanged);
+	connect(ui.cmbSynapse, &QComboBox::currentTextChanged, this, [this]() { synapseChanged(true); });
 	connect(ui.cmbSource, &QComboBox::currentTextChanged, this, &SynapseConfig::sourceChanged);
 	connect(ui.cmbTarget, &QComboBox::currentTextChanged, this, &SynapseConfig::targetChanged);
 	connect(ui.cmbType, &QComboBox::currentTextChanged, this, &SynapseConfig::typeChanged);
@@ -81,7 +87,7 @@ void SynapseConfig::removeLayer(const string & name)
 	}
 }
 
-void SynapseConfig::synapseChanged()
+void SynapseConfig::synapseChanged(bool update)
 {
 	if (!ui.cmbSynapse->currentText().isEmpty())
 	{
@@ -89,8 +95,11 @@ void SynapseConfig::synapseChanged()
 		float weight = ui.spinWeight->value();
 		QImage image(mSynapseDir.absolutePath() + "/" + ui.cmbSynapse->currentText());
 		ui.lblSynapse->setPixmap(QPixmap::fromImage(image));
-		uint32_t * pixels = reinterpret_cast<uint32_t *>(image.bits());
-		mSynapses->loadImage(pixels, image.width(), image.height(), weight);
+		if (update)
+		{
+			uint32_t * pixels = reinterpret_cast<uint32_t *>(image.bits());
+			mSynapses->loadImage(pixels, image.width(), image.height(), weight, ui.cmbSynapse->currentText().toStdString());
+		}
 		ui.cmbDelays->setEnabled(true);
 		ui.spinWeight->setEnabled(true);
 	}

@@ -105,7 +105,7 @@ void View::setAutomaton(std::shared_ptr<Automaton> automaton)
 	}
 	mAutomaton = automaton;
 	mAutomaton->addListener(this);
-	automatonSizechanged(mAutomaton->width(), mAutomaton->height());
+	automatonSizeChanged(mAutomaton->width(), mAutomaton->height());
 }
 
 void View::updateTextures()
@@ -598,7 +598,7 @@ void View::setStyle(const QString & style)
 	setProjection();
 }
 
-void View::automatonSizechanged(int width, int height)
+void View::automatonSizeChanged(int width, int height)
 {
 	int size = width * height;
 	if (mImageData.size() < size)

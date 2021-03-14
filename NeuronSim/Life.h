@@ -13,11 +13,9 @@ public:
 	Life(int width, int height);
 	~Life();
 
-	Life * clone() override;
 	static std::string name();
 	static const ConfigPresets & presets();
 	void preTick();
-	void postTick();
 	std::string typeName() { return name(); }
 	void setConfig(const ConfigSet & config);
 	ConfigSet getConfig();

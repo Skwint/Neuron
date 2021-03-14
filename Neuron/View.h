@@ -79,9 +79,9 @@ private: // from QOpenGLWidget
 	void initializeGL() override;
 
 private: // from Automaton::Listener
-	void automatonSizechanged(int width, int height);
-	void automatonLayerCreated(std::shared_ptr<Layer> layer);
-	void automatonLayerRemoved(std::shared_ptr<Layer> layer);
+	void automatonSizeChanged(int width, int height) override;
+	void automatonLayerCreated(std::shared_ptr<Layer> layer) override;
+	void automatonLayerRemoved(std::shared_ptr<Layer> layer) override;
 
 private:
 	void createMesh();

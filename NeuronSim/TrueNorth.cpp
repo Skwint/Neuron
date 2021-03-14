@@ -34,11 +34,6 @@ TrueNorth::~TrueNorth()
 {
 }
 
-TrueNorth * TrueNorth::clone()
-{
-	return new TrueNorth(*this);
-}
-
 string TrueNorth::name()
 {
 	return "TrueNorth";

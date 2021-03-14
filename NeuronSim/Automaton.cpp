@@ -34,31 +34,6 @@ Automaton::Automaton() :
 	mLayerFactory = std::make_unique<LayerFactory>();
 }
 
-Automaton::Automaton(const Automaton & other) :
-	mType(other.mType),
-	mMode(other.mMode),
-	mWidth(other.mWidth),
-	mHeight(other.mHeight)
-{
-	LOG("Copying automaton");
-	mLayerFactory = std::make_unique<LayerFactory>();
-
-	for (auto layer : other.mLayers)
-	{
-		mLayers.push_back(std::shared_ptr<Layer>(layer->clone()));
-	}
-
-	for (auto spikeTrain : other.mSpikeTrains)
-	{
-		mSpikeTrains.push_back(make_shared<SpikeTrain>(*spikeTrain));
-	}
-	for (auto synapse : other.mSynapses)
-	{
-		mSynapses.push_back(make_shared<SynapseMatrix>(*synapse));
-		mSynapses.back()->setListener(this);
-	}
-}
-
 Automaton::~Automaton()
 {
 	LOG("Destroying automaton");
@@ -525,7 +500,7 @@ void Automaton::setSize(int width, int height)
 		Lock lock;
 		for (auto listener : mListeners)
 		{
-			listener->automatonSizechanged(width, height);
+			listener->automatonSizeChanged(width, height);
 		}
 	}
 }

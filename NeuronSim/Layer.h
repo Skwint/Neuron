@@ -26,7 +26,6 @@ public:
 	Layer(const Layer & other);
 	virtual ~Layer();
 
-	virtual Layer * clone() = 0;
 	virtual void save(const std::filesystem::path & path) = 0;
 	virtual void load(const std::filesystem::path & path) = 0;
 	virtual void receiveSpikes(float * spikes) = 0;

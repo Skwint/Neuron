@@ -17,6 +17,7 @@ static const uint8_t TAG_SOURCE('s');
 static const uint8_t TAG_TARGET('t');
 static const uint8_t TAG_SHUNT('S');
 static const uint8_t TAG_DATA('d');
+static const uint8_t TAG_NAME('n');
 static const uint8_t TAG_END('E');
 
 using namespace std;
@@ -111,8 +112,9 @@ void SynapseMatrix::setDelay(Delay delay)
 // load map will treat the lowest 8 bits of the width x height array as
 // the weight of a synapse connection at that location, scaled to [0,weight].
 // The delays of the synapses will be recalculated to accomodate size changes.
-void SynapseMatrix::loadImage(uint32_t * synapseMap, int width, int height, float weight)
+void SynapseMatrix::loadImage(uint32_t * synapseMap, int width, int height, float weight, const string & name)
 {
+	mImageName = name;
 	mWeight = weight;
 	setSize(width, height);
 	Synapse * synapse = &mSynapses[0];
@@ -167,6 +169,9 @@ void SynapseMatrix::load(const std::filesystem::path & path)
 		case TAG_TARGET:
 			readString(mTargetName, ifs);
 			break;
+		case TAG_NAME:
+			readString(mImageName, ifs);
+			break;
 		case TAG_SHUNT:
 		{
 			uint8_t shunt;
@@ -218,6 +223,8 @@ void SynapseMatrix::save(const std::filesystem::path & path)
 		writeString(source->name(), ofs);
 		writePod(TAG_TARGET, ofs);
 		writeString(target->name(), ofs);
+		writePod(TAG_NAME, ofs);
+		writeString(mImageName, ofs);
 		writePod(TAG_DATA, ofs);
 		ofs.write(reinterpret_cast<char *>(&mSynapses[0]), mWidth * mHeight * sizeof(Synapse));
 		writePod(TAG_END, ofs);

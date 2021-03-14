@@ -17,7 +17,7 @@ public:
 
 	void addLayer(const std::string & name);
 	void removeLayer(const std::string & name);
-	void synapseChanged();
+	void synapseChanged(bool update);
 	void sourceChanged();
 	void targetChanged();
 	void typeChanged();

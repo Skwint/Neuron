@@ -33,7 +33,7 @@ public:
 		// Callback for the type of the automaton changing
 		virtual void automatonTypeChanged() {};
 		// Callback for the size of the automaton changing
-		virtual void automatonSizechanged(int width, int height) {};
+		virtual void automatonSizeChanged(int width, int height) {};
 		// Callback for a new layer being added to the automaton
 		virtual void automatonLayerCreated(std::shared_ptr<Layer> layer) {};
 		// Callback for a layer being removed from the automaton
@@ -60,8 +60,6 @@ private:
 public:
 	// Default constructor
 	Automaton();
-	// Copy constructor
-	Automaton(const Automaton & other);
 	// Destructor
 	~Automaton();
 

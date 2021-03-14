@@ -35,11 +35,6 @@ Izhikevich::~Izhikevich()
 {
 }
 
-Izhikevich * Izhikevich::clone()
-{
-	return new Izhikevich(*this);
-}
-
 std::string Izhikevich::name()
 {
 	return "Izhikevich";
@@ -93,12 +88,14 @@ void Izhikevich::clear()
 		//neuron->v = mB - mV1 - sqrtf(val);
 
 		neuron->v = mC;
-		neuron->u = mB * neuron->v;
+		neuron->u = mB * mC;
 	}
 }
 
-void Izhikevich::postTick()
+void Izhikevich::preTick()
 {
+	Net<NeuronIzhikevich>::preTick();
+
 	NeuronIzhikevich * cell = &mNeurons[0];
 	for (int rr = 0; rr < mHeight; ++rr)
 	{
