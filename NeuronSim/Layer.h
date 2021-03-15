@@ -13,11 +13,13 @@
 class SpikeProcessor;
 class ConfigPresets;
 
-// In each frame of animation the functions are called in the following order:
+// All new neuron types are implemented by specialising this class. However,
+// an intermediate specialisation (Net) exists and it is expected that all
+// neuron types will be implemented as specialisations of that.
+// In each frame of animation these functions are called in the following order:
 // - tick()       - once per frame
 // - fireSpikes() - once per synapse sourced from this layer
 // - paint()      - zero or one times per frame
-// Under most circumstaces tick() does not need to be overridden.
 class Layer
 {
 public:
@@ -29,7 +31,7 @@ public:
 	virtual void load(const std::filesystem::path & path) = 0;
 	virtual void receiveSpikes(float * spikes) = 0;
 	virtual void receiveShunts(float * shunts) = 0;
-	virtual void tick() {}
+	virtual void tick() = 0;
 	virtual void fireSpikes(SynapseMatrix * synapses, Spiker * spiker) = 0;
 	virtual std::string typeName() = 0;
 	virtual void paint(uint32_t * image) = 0;

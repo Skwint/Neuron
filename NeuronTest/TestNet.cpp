@@ -38,7 +38,7 @@ public:
 
 	static std::string name() { return "test"; }
 	static const ConfigPresets & presets();
-	void tick(SynapseMatrix * synapses, Spiker * spiker);
+	void tick();
 	std::string typeName() { return name(); }
 	void setConfig(const ConfigSet & config) {}
 	ConfigSet getConfig() { ConfigSet config; return config; }
@@ -82,7 +82,8 @@ void TestNet::run()
 	synapses.setSource(net);
 
 	// Nothing should happen - our state is boring and we have no spikes
-	net->tick(&synapses, &spikeTrain);
+	net->tick();
+	net->fireSpikes(&synapses, &spikeTrain);
 	spikeTrain.tick();
 	TEST_EQUAL(net->at(1, 2).test, TEST_INIT);
 	TEST_EQUAL(net->at(10, 12).test, TEST_INIT);
@@ -93,7 +94,8 @@ void TestNet::run()
 
 	// top left corner fire with wrap around:
 	net->at(0, 0).test = FIRE_ONCE;
-	net->tick(&synapses, &spikeTrain);
+	net->tick();
+	net->fireSpikes(&synapses, &spikeTrain);
 	spikeTrain.tick();
 	TEST_EQUAL(net->at(0, 0).test, REST);
 	// wrapping up and left
@@ -147,7 +149,8 @@ void TestNet::run()
 	int sizer = 7;
 	int sizec = 6;
 	net->at(width - sizec + size / 2, height - sizer + size / 2).test = FIRE_ONCE;
-	net->tick(&synapses, &spikeTrain);
+	net->tick();
+	net->fireSpikes(&synapses, &spikeTrain);
 	spikeTrain.tick();
 	TEST_EQUAL(net->at(width - sizec + size / 2, height - sizer + size / 2).test, REST);
 	// not wrapping
@@ -212,7 +215,7 @@ const ConfigPresets & TestNetLayer::presets()
 	return presets;
 }
 
-void TestNetLayer::tick(SynapseMatrix * synapses, Spiker * spiker)
+void TestNetLayer::tick()
 {
 	auto neuron = &at(0, 0);
 	for (int rr = 0; rr < mHeight; ++rr)
@@ -227,5 +230,4 @@ void TestNetLayer::tick(SynapseMatrix * synapses, Spiker * spiker)
 			++neuron;
 		}
 	}
-	Net::fireSpikes(synapses, spiker);
 }
