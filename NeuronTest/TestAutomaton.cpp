@@ -134,7 +134,7 @@ void TestAutomaton::automatonTypeChanged()
 	mTypeChanged = true;
 }
 
-void TestAutomaton::automatonSizechanged(int width, int height)
+void TestAutomaton::automatonSizeChanged(int width, int height)
 {
 	mWidthChanged = width;
 	mHeightChanged = height;

@@ -67,7 +67,7 @@ void ResponseGraph::plot()
 		}
 		for (int spike = 0; spike < duration && mDataPoint < TOTAL_TIME; ++spike)
 		{
-			layer->fire(0, 0, weight);
+			layer->inject(0, 0, weight);
 			layer->tick();
 			layer->fireSpikes(&mSynapse, this);
 			++mDataPoint;

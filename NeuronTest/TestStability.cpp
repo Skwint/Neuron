@@ -103,7 +103,7 @@ void TestStability::automatonTypeChanged()
 {
 }
 
-void TestStability::automatonSizechanged(int width, int height)
+void TestStability::automatonSizeChanged(int width, int height)
 {
 	mWidth = width;
 	mHeight = height;

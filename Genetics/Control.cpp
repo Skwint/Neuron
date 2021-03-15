@@ -168,7 +168,7 @@ void Control::applyNoise()
 			{
 				if (mZeroToOne(mRandom) < NOISE_DENSITY)
 				{
-					layer->fire(col, row, NOISE_WEIGHT);
+					layer->inject(col, row, NOISE_WEIGHT);
 				}
 			}
 		}

@@ -39,7 +39,7 @@ public:
 	virtual ConfigSet getConfig() = 0;
 	virtual const ConfigPresets & getPresets() = 0;
 	virtual void clear() = 0;
-	virtual void fire(int col, int row, float weight) = 0;
+	virtual void inject(int col, int row, float weight) = 0;
 
 	const std::string & name() const { return mName; }
 	void setName(const std::string & name) { mName = name; }
@@ -55,10 +55,10 @@ public:
 protected:
 	// Return pointer to the first Neuron
 	// Used internally for backtracking synapses during save operation
-	virtual void * begin() = 0;
+//	virtual void * begin() = 0;
 	// Return pointer past the end of the last Neuron
 	// Used internally for backtracking synapses during save operation
-	virtual void * end() = 0;
+//	virtual void * end() = 0;
 
 protected:
 	std::string mName;

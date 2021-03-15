@@ -144,7 +144,7 @@ void ToolBox::editingNoise(int density)
 			{
 				if (rnd() < density)
 				{
-					layer->fire(col, row, weight);
+					layer->inject(col, row, weight);
 				}
 			}
 		}
@@ -186,7 +186,7 @@ void ToolBox::editingSpike()
 						if (pixel & 0xFF)
 						{
 							weight = weightMultiplier * (float(pixel & 0xFF) / 255.0f);
-							layer->fire(cc + colOffset, rr + rowOffset, weight);
+							layer->inject(cc + colOffset, rr + rowOffset, weight);
 						}
 						++pixels;
 					}

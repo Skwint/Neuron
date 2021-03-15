@@ -26,12 +26,12 @@ private:
 	void checkNothingChanged();
 
 private: // from Automaton::Listener
-	void automatonTypeChanged();
-	void automatonSizechanged(int width, int height);
-	void automatonLayerCreated(std::shared_ptr<Layer> layer);
-	void automatonLayerRemoved(std::shared_ptr<Layer> layer);
-	void automatonSynapsesCreated(std::shared_ptr<SynapseMatrix> synapses);
-	void automatonSynapsesRemoved(std::shared_ptr<SynapseMatrix> synapses);
+	void automatonTypeChanged() override;
+	void automatonSizeChanged(int width, int height) override;
+	void automatonLayerCreated(std::shared_ptr<Layer> layer) override;
+	void automatonLayerRemoved(std::shared_ptr<Layer> layer) override;
+	void automatonSynapsesCreated(std::shared_ptr<SynapseMatrix> synapses) override;
+	void automatonSynapsesRemoved(std::shared_ptr<SynapseMatrix> synapses) override;
 
 private:
 	std::unique_ptr<Automaton> mAutomaton;

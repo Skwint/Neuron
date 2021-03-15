@@ -50,11 +50,11 @@ void TestLife::testBasicLife()
 
 	// Create a glider in the middle of the layer
 	float weight = 3.0f;
-	layer->fire(1, 1, weight);
-	layer->fire(2, 1, weight);
-	layer->fire(3, 1, weight);
-	layer->fire(3, 2, weight);
-	layer->fire(2, 3, weight);
+	layer->inject(1, 1, weight);
+	layer->inject(2, 1, weight);
+	layer->inject(3, 1, weight);
+	layer->inject(3, 2, weight);
+	layer->inject(2, 3, weight);
 
 	const uint32_t live(0xFFFFFFFF);
 	const uint32_t dead(0xFF000000);
@@ -137,16 +137,16 @@ void TestLife::testInterleavedLife()
 
 	// Create a glider in the middle of the first layer
 	float weight = 3.0f;
-	layer1->fire(1, 1, weight);
-	layer1->fire(2, 1, weight);
-	layer1->fire(3, 1, weight);
-	layer1->fire(3, 2, weight);
-	layer1->fire(2, 3, weight);
+	layer1->inject(1, 1, weight);
+	layer1->inject(2, 1, weight);
+	layer1->inject(3, 1, weight);
+	layer1->inject(3, 2, weight);
+	layer1->inject(2, 3, weight);
 
 	// Create a windmill in the second layer
-	layer2->fire(2, 1, weight);
-	layer2->fire(2, 2, weight);
-	layer2->fire(2, 3, weight);
+	layer2->inject(2, 1, weight);
+	layer2->inject(2, 2, weight);
+	layer2->inject(2, 3, weight);
 
 	const uint32_t live(0xFFFFFFFF);
 	const uint32_t dead(0xFF000000);
@@ -227,11 +227,11 @@ void TestLife::testSaveLoad()
 
 	// Create a glider in the middle of the layer
 	float weight = 3.0f;
-	layer->fire(1, 1, weight);
-	layer->fire(2, 1, weight);
-	layer->fire(3, 1, weight);
-	layer->fire(3, 2, weight);
-	layer->fire(2, 3, weight);
+	layer->inject(1, 1, weight);
+	layer->inject(2, 1, weight);
+	layer->inject(3, 1, weight);
+	layer->inject(3, 2, weight);
+	layer->inject(2, 3, weight);
 
 	const uint32_t live(0xFFFFFFFF);
 	const uint32_t dead(0xFF000000);

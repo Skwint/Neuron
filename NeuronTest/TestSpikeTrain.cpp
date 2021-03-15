@@ -27,7 +27,7 @@ void TestSpikeTrain::run()
 // in the expected manner and time.
 void TestSpikeTrain::testSpike()
 {
-	mLayer->first()->input = 0.0f;
+	mLayer->begin()->input = 0.0f;
 	float expected[] = { 0.0f, 0.5f / 1.5f, 2.0f / 1.5f, 2.5f / 1.5f, 2.5f / 1.5f };
 
 	SpikeTrain proc(mLayer, mLayer, 4, false);
@@ -37,7 +37,7 @@ void TestSpikeTrain::testSpike()
 
 	for (auto expect : expected)
 	{
-		TEST_APPROX_EQUAL(mLayer->first()->input, expect);
+		TEST_APPROX_EQUAL(mLayer->begin()->input, expect);
 		proc.tick();
 	}
 }
@@ -45,7 +45,7 @@ void TestSpikeTrain::testSpike()
 // Checks that spikes are removed when the processor is cleared
 void TestSpikeTrain::testClear()
 {
-	mLayer->first()->input = 0.0f;
+	mLayer->begin()->input = 0.0f;
 	float expected[] = { 0.0f, 0.0f, 0.0f };
 
 	SpikeTrain proc(mLayer, mLayer, 4, false);
@@ -56,7 +56,7 @@ void TestSpikeTrain::testClear()
 
 	for (auto expect : expected)
 	{
-		TEST_APPROX_EQUAL(mLayer->first()->input, expect);
+		TEST_APPROX_EQUAL(mLayer->begin()->input, expect);
 		proc.tick();
 	}
 }
@@ -66,7 +66,7 @@ void TestSpikeTrain::testClear()
 // Verify that old spikes do not "resurrect".
 void TestSpikeTrain::testCircularBuffer()
 {
-	mLayer->first()->input = 0.0f;
+	mLayer->begin()->input = 0.0f;
 	float expect[] = { 0.0f, 0.25f, 1.0f, 1.75f, 2.0f, 2.0f };
 
 	const int frameSize(10);
@@ -85,11 +85,11 @@ void TestSpikeTrain::testCircularBuffer()
 	}
 
 	// Fire a spike that wraps around the buffer
-	mLayer->first()->input = 0.0f;
+	mLayer->begin()->input = 0.0f;
 	proc.fire(spike, 0, 1.0f, 0);
 	for (int tt = 0; tt < sizeof(expect) / sizeof(float); ++tt)
 	{
-		TEST_APPROX_EQUAL(mLayer->first()->input, expect[tt]);
+		TEST_APPROX_EQUAL(mLayer->begin()->input, expect[tt]);
 		proc.tick();
 	}
 }
