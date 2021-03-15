@@ -37,7 +37,7 @@ public:
 	void load(const std::filesystem::path & path);
 	void receiveSpikes(float * spikes) override;
 	void receiveShunts(float * shunts) override;
-	void tick(SynapseMatrix * synapses, Spiker * spiker) override;
+	void fireSpikes(SynapseMatrix * synapses, Spiker * spiker) override;
 	void resize(int width, int height);
 	inline Neuron * row(int r) { return &mNeurons[mWidth * r]; }
 	inline Neuron * first() { return &mNeurons[0]; }
@@ -48,7 +48,7 @@ public:
 protected:
 	void processDendrites();
 private:
-	inline void tickSegment(Spiker * spiker, int cs, int ce, int dst, Synapse * synapse);
+	inline Synapse * fireSynapseSegment(Spiker * spiker, int cs, int ce, int dst, Synapse * synapse);
 	void * begin() { return &mNeurons[0]; }
 	void * end() { return &mNeurons.back() + 1; }
 protected:
@@ -203,7 +203,7 @@ void Net<Neuron>::processDendrites()
 }
 
 template <typename Neuron>
-inline void Net<Neuron>::tickSegment(Spiker * spiker, int cs, int ce, int dst, Synapse * synapse)
+inline Synapse * Net<Neuron>::fireSynapseSegment(Spiker * spiker, int cs, int ce, int dst, Synapse * synapse)
 {
 	dst += cs;
 	for (int tc = cs; tc < ce; ++tc)
@@ -212,10 +212,11 @@ inline void Net<Neuron>::tickSegment(Spiker * spiker, int cs, int ce, int dst, S
 		++dst;
 		++synapse;
 	}
+	return synapse;
 }
 
 template <typename Neuron>
-void Net<Neuron>::tick(SynapseMatrix * synapses, Spiker * spiker)
+void Net<Neuron>::fireSpikes(SynapseMatrix * synapses, Spiker * spiker)
 {
 	bool shunt = synapses->isShunt();
 
@@ -240,42 +241,27 @@ void Net<Neuron>::tick(SynapseMatrix * synapses, Spiker * spiker)
 				int normColEnd = synapses->normColEnd(cc, mWidth);
 				int highColBegin = synapses->highWrapColBegin(cc, mWidth);
 				int highColEnd = synapses->highWrapColEnd(cc, mWidth);
-				// TODO - these steps are a waste of time we are incrementing the synapse
-				// in the tickSegment function and then forgetting and recalculating where
-				// it ends up - we should probably inline that function manually.
-				int lowStep = std::max(0, lowColEnd - lowColBegin);
-				int normStep = std::max(0, normColEnd - normColBegin);
-				int highStep = std::max(0, highColEnd - highColBegin);
 				Synapse * synapse = synapses->begin();
 				for (int tr = lowRowBegin; tr < lowRowEnd; ++tr)
 				{
 					dst = mWidth * (rr + tr) + cc;
-					tickSegment(spiker, lowColBegin, lowColEnd, dst, synapse);
-					synapse += lowStep;
-					tickSegment(spiker, normColBegin, normColEnd, dst, synapse);
-					synapse += normStep;
-					tickSegment(spiker, highColBegin, highColEnd, dst, synapse);
-					synapse += highStep;
+					synapse = fireSynapseSegment(spiker, lowColBegin, lowColEnd, dst, synapse);
+					synapse = fireSynapseSegment(spiker, normColBegin, normColEnd, dst, synapse);
+					synapse = fireSynapseSegment(spiker, highColBegin, highColEnd, dst, synapse);
 				}
 				for (int tr = normRowBegin; tr < normRowEnd; ++tr)
 				{
 					dst = mWidth * (rr + tr) + cc;
-					tickSegment(spiker, lowColBegin, lowColEnd, dst, synapse);
-					synapse += lowStep;
-					tickSegment(spiker, normColBegin, normColEnd, dst, synapse);
-					synapse += normStep;
-					tickSegment(spiker, highColBegin, highColEnd, dst, synapse);
-					synapse += highStep;
+					synapse = fireSynapseSegment(spiker, lowColBegin, lowColEnd, dst, synapse);
+					synapse = fireSynapseSegment(spiker, normColBegin, normColEnd, dst, synapse);
+					synapse = fireSynapseSegment(spiker, highColBegin, highColEnd, dst, synapse);
 				}
 				for (int tr = highRowBegin; tr < highRowEnd; ++tr)
 				{
 					dst = mWidth * (rr + tr) + cc;
-					tickSegment(spiker, lowColBegin, lowColEnd, dst, synapse);
-					synapse += lowStep;
-					tickSegment(spiker, normColBegin, normColEnd, dst, synapse);
-					synapse += normStep;
-					tickSegment(spiker, highColBegin, highColEnd, dst, synapse);
-					synapse += highStep;
+					synapse = fireSynapseSegment(spiker, lowColBegin, lowColEnd, dst, synapse);
+					synapse = fireSynapseSegment(spiker, normColBegin, normColEnd, dst, synapse);
+					fireSynapseSegment(spiker, highColBegin, highColEnd, dst, synapse);
 				}
 			}
 			++cell;

@@ -227,5 +227,5 @@ void TestNetLayer::tick(SynapseMatrix * synapses, Spiker * spiker)
 			++neuron;
 		}
 	}
-	Net::tick(synapses, spiker);
+	Net::fireSpikes(synapses, spiker);
 }

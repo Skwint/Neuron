@@ -30,7 +30,7 @@ public:
 	virtual void receiveSpikes(float * spikes) = 0;
 	virtual void receiveShunts(float * shunts) = 0;
 	virtual void preTick() {}
-	virtual void tick(SynapseMatrix * synapses, Spiker * spiker) = 0;
+	virtual void fireSpikes(SynapseMatrix * synapses, Spiker * spiker) = 0;
 	virtual std::string typeName() = 0;
 	virtual void paint(uint32_t * image) = 0;
 	virtual void setConfig(const ConfigSet & config) = 0;

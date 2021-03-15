@@ -112,7 +112,7 @@ void Automaton::tickSourceLayer(Layer * source)
 				if (spikeTrain->source() == synapses->source() &&
 					spikeTrain->target() == synapses->target())
 				{
-					spikeTrain->source()->tick(synapses.get(), spikeTrain.get());
+					spikeTrain->source()->fireSpikes(synapses.get(), spikeTrain.get());
 				}
 			}
 		}
