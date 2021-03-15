@@ -39,7 +39,6 @@ void Layer::regenerateName()
 
 void Layer::resize(int width, int height)
 {
-	clear();
 	mWidth = width;
 	mHeight = height;
 }

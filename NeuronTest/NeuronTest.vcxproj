@@ -142,6 +142,7 @@
     <ClCompile Include="Tester.cpp" />
     <ClCompile Include="TestLife.cpp" />
     <ClCompile Include="TestMat33f.cpp" />
+    <ClCompile Include="TestPerformance.cpp" />
     <ClCompile Include="TestSpikeTrain.cpp" />
     <ClCompile Include="TestStability.cpp" />
     <ClCompile Include="TestVec3f.cpp" />
@@ -154,6 +155,7 @@
     <ClInclude Include="Tester.h" />
     <ClInclude Include="TestLife.h" />
     <ClInclude Include="TestMat33f.h" />
+    <ClInclude Include="TestPerformance.h" />
     <ClInclude Include="TestSpikeTrain.h" />
     <ClInclude Include="TestStability.h" />
     <ClInclude Include="TestVec3f.h" />

@@ -52,7 +52,7 @@ public:
 	void load(const std::filesystem::path & path);
 	void save(const std::filesystem::path & path);
 	bool isShunt() { return mShunt; }
-	void setShunt(bool shunt) { mShunt = shunt; }
+	void setShunt(bool shunt);
 	uint32_t maximumDelay();
 
 	inline int lowWrapColBegin(int col, int width) { return std::max(0, col + width - mWidth / 2) - col; }

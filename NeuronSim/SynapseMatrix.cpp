@@ -268,3 +268,12 @@ uint32_t SynapseMatrix::maximumDelay()
 	}
 	return delay;
 }
+
+void SynapseMatrix::setShunt(bool shunt)
+{
+	if (mShunt != shunt)
+	{
+		mShunt = shunt;
+		mListener->synapseMatrixChanged(this);
+	}
+}

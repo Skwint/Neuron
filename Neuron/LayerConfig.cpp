@@ -136,7 +136,7 @@ void LayerConfig::configItemChanged()
 		for (int item = 0; item < mConfigWidgets.size(); ++item)
 		{
 			auto & widget = mConfigWidgets[item];
-			auto config = mConfig[widget.name];
+			auto & config = mConfig[widget.name];
 			switch (config.mType)
 			{
 			case ConfigItem::FLOAT:

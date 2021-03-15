@@ -322,6 +322,8 @@ void Net<Neuron>::fireSpikes(SynapseMatrix * synapses, Spiker * spiker)
 template <typename Neuron>
 void Net<Neuron>::resize(int width, int height)
 {
+	if (!mNeurons.empty())
+		clear();
 	Layer::resize(width, height);
 	int size = mWidth * mHeight;
 	mNeurons.resize(size);

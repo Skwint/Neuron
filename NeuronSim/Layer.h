@@ -53,14 +53,6 @@ public:
 	void regenerateName();
 
 protected:
-	// Return pointer to the first Neuron
-	// Used internally for backtracking synapses during save operation
-//	virtual void * begin() = 0;
-	// Return pointer past the end of the last Neuron
-	// Used internally for backtracking synapses during save operation
-//	virtual void * end() = 0;
-
-protected:
 	std::string mName;
 	int mWidth;
 	int mHeight;

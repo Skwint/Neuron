@@ -166,11 +166,9 @@ void TestNet::run()
 	// wrapping down
 	for (int rr = sizer; rr < size; ++rr)
 	{
-		TEST_LOG("rr " << rr);
 		int netr = rr - sizer;
 		for (int cc = 0; cc < 5; ++cc)
 		{
-			TEST_LOG("cc " << cc);
 			int netc = width - sizec + cc;
 			TEST_EQUAL(net->at(netc, netr).input, hashColRow(cc, rr));
 		}
