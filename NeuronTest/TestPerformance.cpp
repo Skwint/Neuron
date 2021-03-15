@@ -26,11 +26,17 @@ void TestPerformance::run()
 {
 	Test::run();
 
+	performance("Data/Saves/performance.neuron");
+	performance("Data/Saves/performance2.neuron");
+}
+
+void TestPerformance::performance(const std::filesystem::path file)
+{
 	// Load the performance automaton
 	// Currently this is 8 layers, 6 excitatory, 1 inhibitory and 1 shunting,
 	// connected by 18 3x3 synapse matrices.
 	// This can always be changed by replacing the files
-	mAutomaton->load("Data/Saves/performance.neuron");
+	mAutomaton->load(file);
 
 	// Run 10 frames to get going
 	for (int startup = 0; startup < 10; ++startup)
@@ -66,7 +72,9 @@ void TestPerformance::run()
 	auto clockEnd = clock();
 	auto cpuTime = 1000.0 * (clockEnd - clockStart) / CLOCKS_PER_SEC;
 
+	TEST_LOG("Automaton: " << file);
 	TEST_LOG(numTicks << " performance ticks");
+	TEST_LOG(numLayers << " layers");
 	TEST_LOG(numNeurons << " neurons");
 	TEST_LOG(numSynapses << " synapses");
 	TEST_LOG("  CPU time           : " << cpuTime << " ms");

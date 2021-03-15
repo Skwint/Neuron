@@ -16,6 +16,7 @@ using namespace std;
 
 Tester::Tester()
 {
+	/*
 	mTests.push_back([] { return make_shared<TestVec3f>(); });
 	mTests.push_back([] { return make_shared<TestMat33f>(); });
 	mTests.push_back([] { return make_shared<TestConfigs>(); });
@@ -24,6 +25,7 @@ Tester::Tester()
 	mTests.push_back([] { return make_shared<TestAutomaton>(); });
 	mTests.push_back([] { return make_shared<TestLife>(); });
 	mTests.push_back([] { return make_shared<TestStability>(); });
+	*/
 	mTests.push_back([] { return make_shared<TestPerformance>(); });
 }
 

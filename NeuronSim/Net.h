@@ -201,38 +201,31 @@ void Net<Neuron>::load(const std::filesystem::path & path)
 template <typename Neuron>
 void Net<Neuron>::receiveSpikes(float * spikes)
 {
-	Neuron * iter = begin();
-	float * spike = spikes;
-	for (int num = (int)mNeurons.size(); num; num--)
+	for (Neuron * cell = begin(); cell != end(); cell++)
 	{
-		iter->input += *spike;
-		++spike;
-		++iter;
+		cell->input += *spikes++;
 	}
 }
 
 template <typename Neuron>
 void Net<Neuron>::receiveShunts(float * shunts)
 {
-	Neuron * iter = begin();
-	float * shunt = shunts;
-	for (int num = (int)mNeurons.size(); num; num--)
+	for (Neuron * cell = begin(); cell != end(); cell++)
 	{
-		iter->shunt += *shunt;
-		++shunt;
-		++iter;
+		cell->shunt += *shunts++;
 	}
 }
 
+// The models I have seen for shunting inhibition do not model it in any
+// sophisticated manner. This is essentially a 100% leaky integrator, and
+// I do not know if that is good or not, or what happens if we change it.
 template <typename Neuron>
 void Net<Neuron>::processDendrites()
 {
-	Neuron * iter = begin();
-	for (int num = (int)mNeurons.size(); num; --num)
+	for (Neuron * iter = begin(); iter != end(); iter++)
 	{
 		iter->input /= iter->shunt;
 		iter->shunt = 1.0f;
-		++iter;
 	}
 }
 
@@ -240,11 +233,10 @@ template <typename Neuron>
 inline Synapse * Net<Neuron>::fireSynapseSegment(Spiker * spiker, int cs, int ce, int dst, Synapse * synapse)
 {
 	dst += cs;
-	for (int tc = cs; tc < ce; ++tc)
+	for (int tc = cs; tc < ce; tc++)
 	{
-		spiker->fire(mSpike, dst, synapse->weight, synapse->delay);
-		++dst;
-		++synapse;
+		spiker->fire(mSpike, dst++, synapse->weight, synapse->delay);
+		synapse++;
 	}
 	return synapse;
 }
@@ -264,7 +256,7 @@ template <typename Neuron>
 void Net<Neuron>::fireSpikes(SynapseMatrix * synapses, Spiker * spiker)
 {
 	Neuron * cell = begin();
-	for (int rr = 0; rr < mHeight; ++rr)
+	for (int rr = 0; rr < mHeight; rr++)
 	{
 		// For each row we have 3 sets of rows available to the synapsess:
 		// those wrapping upwards, wrapping downwards, and not wrapping.
@@ -276,7 +268,7 @@ void Net<Neuron>::fireSpikes(SynapseMatrix * synapses, Spiker * spiker)
 		int highRowEnd = synapses->highWrapRowEnd(rr, mHeight);
 
 		int dst;
-		for (int cc = 0; cc < mWidth; ++cc)
+		for (int cc = 0; cc < mWidth; cc++)
 		{
 			if (cell->firing)
 			{
@@ -292,21 +284,21 @@ void Net<Neuron>::fireSpikes(SynapseMatrix * synapses, Spiker * spiker)
 				// The following loops have been manually unrolled. This is the innermost loop
 				// of the entire system and some sacrifices towards optimization are justified.
 				Synapse * synapse = synapses->begin();
-				for (int tr = lowRowBegin; tr < lowRowEnd; ++tr)
+				for (int tr = lowRowBegin; tr < lowRowEnd; tr++)
 				{
 					dst = mWidth * (rr + tr) + cc;
 					synapse = fireSynapseSegment(spiker, lowColBegin, lowColEnd, dst, synapse);
 					synapse = fireSynapseSegment(spiker, normColBegin, normColEnd, dst, synapse);
 					synapse = fireSynapseSegment(spiker, highColBegin, highColEnd, dst, synapse);
 				}
-				for (int tr = normRowBegin; tr < normRowEnd; ++tr)
+				for (int tr = normRowBegin; tr < normRowEnd; tr++)
 				{
 					dst = mWidth * (rr + tr) + cc;
 					synapse = fireSynapseSegment(spiker, lowColBegin, lowColEnd, dst, synapse);
 					synapse = fireSynapseSegment(spiker, normColBegin, normColEnd, dst, synapse);
 					synapse = fireSynapseSegment(spiker, highColBegin, highColEnd, dst, synapse);
 				}
-				for (int tr = highRowBegin; tr < highRowEnd; ++tr)
+				for (int tr = highRowBegin; tr < highRowEnd; tr++)
 				{
 					dst = mWidth * (rr + tr) + cc;
 					synapse = fireSynapseSegment(spiker, lowColBegin, lowColEnd, dst, synapse);
@@ -314,7 +306,7 @@ void Net<Neuron>::fireSpikes(SynapseMatrix * synapses, Spiker * spiker)
 					synapse = fireSynapseSegment(spiker, highColBegin, highColEnd, dst, synapse);
 				}
 			}
-			++cell;
+			cell++;
 		}
 	}
 }
@@ -333,7 +325,7 @@ template <typename Neuron>
 void Net<Neuron>::paint(uint32_t * image)
 {
 	uint32_t * pixel = image;
-	for (Neuron * neuron = begin(); neuron != end(); ++neuron)
+	for (Neuron * neuron = begin(); neuron != end(); neuron++)
 	{
 		*pixel = neuron->color();
 		++pixel;
@@ -343,7 +335,7 @@ void Net<Neuron>::paint(uint32_t * image)
 template <typename Neuron>
 inline void Net<Neuron>::clear()
 {
-	for (auto neuron = begin(); neuron != end(); ++neuron)
+	for (auto neuron = begin(); neuron != end(); neuron++)
 	{
 		new (&*neuron) Neuron;
 	}
@@ -359,9 +351,9 @@ template <typename Neuron>
 std::ostream & operator<<(std::ostream & os, const Net<Neuron> & net)
 {
 	const Neuron * neuron = net.begin();
-	for (int rr = 0; rr < net.height(); ++rr)
+	for (int rr = 0; rr < net.height(); rr++)
 	{
-		for (int cc = 0; cc < net.width(); ++cc)
+		for (int cc = 0; cc < net.width(); cc++)
 		{
 			os << neuron->input << (neuron->firing?"*":" ") << "   ";
 			++neuron;

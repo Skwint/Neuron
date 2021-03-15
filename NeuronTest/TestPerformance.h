@@ -22,6 +22,9 @@ public:
 	void run();
 
 private:
+	void performance(const std::filesystem::path file);
+
+private:
 	std::unique_ptr<Automaton> mAutomaton;
 };
 
