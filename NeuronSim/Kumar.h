@@ -20,7 +20,7 @@ public:
 	static const ConfigPresets & presets();
 	const ConfigPresets & getPresets();
 	void clear();
-	void postTick();
+	void preTick();
 
 private:
 	float mV;  //< The V term

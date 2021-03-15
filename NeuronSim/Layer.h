@@ -16,7 +16,6 @@ class ConfigPresets;
 // In each frame of animation the functions are called in the following order:
 // - preTick()    - once per frame
 // - tick()       - once per synapse sourced from this layer
-// - postTick()   - once per frame
 // - paint()      - zero or one times per frame
 // Under most circumstaces tick() does not need to be overridden.
 class Layer
@@ -32,7 +31,6 @@ public:
 	virtual void receiveShunts(float * shunts) = 0;
 	virtual void preTick() {}
 	virtual void tick(SynapseMatrix * synapses, Spiker * spiker) = 0;
-	virtual void postTick() {}
 	virtual std::string typeName() = 0;
 	virtual void paint(uint32_t * image) = 0;
 	virtual void setConfig(const ConfigSet & config) = 0;

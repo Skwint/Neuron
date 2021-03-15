@@ -43,6 +43,7 @@ SynapseConfig::SynapseConfig(shared_ptr<Automaton> automaton, shared_ptr<Synapse
 
 	ui.cmbDelays->setCurrentText(QString::number(mSynapses->delay()));
 	ui.spinWeight->setValue(mSynapses->weight());
+	ui.cmbType->setCurrentIndex(mSynapses->isShunt() ? 1 : 0);
 
 	connect(this, &QGroupBox::toggled, this, [this]() { ui.panel->setVisible(isChecked()); });
 	connect(ui.cmbSynapse, &QComboBox::currentTextChanged, this, [this]() { synapseChanged(true); });
@@ -119,6 +120,8 @@ void SynapseConfig::delaysChanged()
 		mSynapses->setDelay(SynapseMatrix::DELAY_LINEAR);
 	else if (name == "Grid")
 		mSynapses->setDelay(SynapseMatrix::DELAY_GRID);
+	else if (name == "One")
+		mSynapses->setDelay(SynapseMatrix::DELAY_ONE);
 	else
 	{
 		LOG("Unrecognized delay type in synapse [" << name.toStdString() << "]");

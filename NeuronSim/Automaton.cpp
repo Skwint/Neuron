@@ -117,8 +117,6 @@ void Automaton::tickSourceLayer(Layer * source)
 			}
 		}
 	}
-
-	source->postTick();
 }
 
 void Automaton::reset()

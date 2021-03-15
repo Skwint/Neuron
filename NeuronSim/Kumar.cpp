@@ -70,14 +70,12 @@ void Kumar::clear()
 	Net<NeuronKumar>::clear();
 	for (auto neuron = mNeurons.begin(); neuron != mNeurons.end(); ++neuron)
 	{
-		// TODO - solve this properly and use the right values
-		// I'm not sure I _can_ solve this properly, but I should _try_
 		neuron->v = mC;
 		neuron->u = mB * neuron->v;
 	}
 }
 
-void Kumar::postTick()
+void Kumar::preTick()
 {
 	NeuronKumar * cell = &mNeurons[0];
 	for (int rr = 0; rr < mHeight; ++rr)

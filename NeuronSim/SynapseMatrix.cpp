@@ -98,9 +98,17 @@ void SynapseMatrix::setDelay(Delay delay)
 		}
 		break;
 	}
+	case DELAY_ONE:
+	{
+		for (auto & synapse : mSynapses)
+		{
+			synapse.delay = 1;
+		}
+		break;
+	}
 	case DELAY_NONE:
 	default:
-		for (auto synapse : mSynapses)
+		for (auto & synapse : mSynapses)
 		{
 			synapse.delay = 0;
 		}

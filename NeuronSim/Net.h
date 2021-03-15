@@ -37,7 +37,6 @@ public:
 	void load(const std::filesystem::path & path);
 	void receiveSpikes(float * spikes) override;
 	void receiveShunts(float * shunts) override;
-	void preTick() override;
 	void tick(SynapseMatrix * synapses, Spiker * spiker) override;
 	void resize(int width, int height);
 	inline Neuron * row(int r) { return &mNeurons[mWidth * r]; }
@@ -46,6 +45,8 @@ public:
 	void paint(uint32_t * image);
 	void clear();
 	void fire(int col, int row, float weight) override;
+protected:
+	void processDendrites();
 private:
 	inline void tickSegment(Spiker * spiker, int cs, int ce, int dst, Synapse * synapse);
 	void * begin() { return &mNeurons[0]; }
@@ -190,7 +191,7 @@ void Net<Neuron>::receiveShunts(float * shunts)
 }
 
 template <typename Neuron>
-void Net<Neuron>::preTick()
+void Net<Neuron>::processDendrites()
 {
 	Neuron * iter = &mNeurons[0];
 	for (int num = (int)mNeurons.size(); num; --num)

@@ -65,8 +65,10 @@ const ConfigPresets & LinearLif::presets()
 	return presets;
 }
 
-void LinearLif::postTick()
+void LinearLif::preTick()
 {
+	processDendrites();
+
 	NeuronLif * cell = &mNeurons[0];
 	for (int rr = 0; rr < mHeight; ++rr)
 	{

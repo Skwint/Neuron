@@ -94,7 +94,7 @@ void Izhikevich::clear()
 
 void Izhikevich::preTick()
 {
-	Net<NeuronIzhikevich>::preTick();
+	processDendrites();
 
 	NeuronIzhikevich * cell = &mNeurons[0];
 	for (int rr = 0; rr < mHeight; ++rr)

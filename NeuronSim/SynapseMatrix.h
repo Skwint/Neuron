@@ -23,6 +23,7 @@ public:
 		DELAY_NONE = 0,
 		DELAY_LINEAR,
 		DELAY_GRID,
+		DELAY_ONE,
 
 		DELAY_COUNT
 	};
