@@ -58,7 +58,7 @@ const ConfigPresets & Life::presets()
 	return presets;
 }
 
-void Life::preTick()
+void Life::tick()
 {
 	auto * cell = &mNeurons[0];
 	for (int num = (int)mNeurons.size(); num; --num)

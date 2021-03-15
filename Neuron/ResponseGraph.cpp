@@ -61,20 +61,20 @@ void ResponseGraph::plot()
 		mDataPoint = 0;
 		while (mDataPoint < RELAX_TIME)
 		{
-			layer->preTick();
+			layer->tick();
 			layer->fireSpikes(&mSynapse, this);
 			++mDataPoint;
 		}
 		for (int spike = 0; spike < duration && mDataPoint < TOTAL_TIME; ++spike)
 		{
 			layer->fire(0, 0, weight);
-			layer->preTick();
+			layer->tick();
 			layer->fireSpikes(&mSynapse, this);
 			++mDataPoint;
 		}
 		while (mDataPoint < TOTAL_TIME)
 		{
-			layer->preTick();
+			layer->tick();
 			layer->fireSpikes(&mSynapse, this);
 			++mDataPoint;
 		}

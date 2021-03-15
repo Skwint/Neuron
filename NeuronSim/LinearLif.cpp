@@ -65,7 +65,7 @@ const ConfigPresets & LinearLif::presets()
 	return presets;
 }
 
-void LinearLif::preTick()
+void LinearLif::tick()
 {
 	processDendrites();
 

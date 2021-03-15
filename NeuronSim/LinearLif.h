@@ -12,7 +12,7 @@ public:
 	virtual ~LinearLif();
 
 	static std::string name();
-	void preTick();
+	void tick();
 	std::string typeName() { return name(); }
 	void setConfig(const ConfigSet & config);
 	ConfigSet getConfig();

@@ -38,7 +38,7 @@ public:
 	// queiscent and stable (v = mC, u = mC * mB)
 	void clear();
 	// Perform the logical processing specific to Izhikevich neurons
-	void preTick();
+	void tick();
 
 private:
 	float mA;  //< Recovery time scale

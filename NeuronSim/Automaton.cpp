@@ -101,7 +101,7 @@ void Automaton::tickTargetLayer(Layer * target)
 // to the layer it is sourced from.
 void Automaton::tickSourceLayer(Layer * source)
 {
-	source->preTick();
+	source->tick();
 
 	for (auto synapses : mSynapses)
 	{

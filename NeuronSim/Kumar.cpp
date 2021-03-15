@@ -75,7 +75,7 @@ void Kumar::clear()
 	}
 }
 
-void Kumar::preTick()
+void Kumar::tick()
 {
 	NeuronKumar * cell = &mNeurons[0];
 	for (int rr = 0; rr < mHeight; ++rr)

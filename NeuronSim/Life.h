@@ -15,7 +15,7 @@ public:
 
 	static std::string name();
 	static const ConfigPresets & presets();
-	void preTick();
+	void tick();
 	std::string typeName() { return name(); }
 	void setConfig(const ConfigSet & config);
 	ConfigSet getConfig();

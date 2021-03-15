@@ -92,7 +92,7 @@ void Izhikevich::clear()
 	}
 }
 
-void Izhikevich::preTick()
+void Izhikevich::tick()
 {
 	processDendrites();
 

@@ -89,7 +89,7 @@ inline int sgn(T val)
 	return (T(0) < val) - (val < T(0));
 }
 
-void TrueNorth::preTick()
+void TrueNorth::tick()
 {
 	auto * cell = &mNeurons[0];
 	for (int num = mWidth * mHeight; num != 0; --num)

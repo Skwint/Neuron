@@ -21,7 +21,7 @@ public:
 	ConfigSet getConfig() override;
 	static const ConfigPresets & presets();
 	const ConfigPresets & getPresets() override;
-	void preTick() override;
+	void tick() override;
 	void paint(uint32_t * image) override;
 
 private:
