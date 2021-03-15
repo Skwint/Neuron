@@ -7,6 +7,7 @@
 #include "TestLife.h"
 #include "TestMat33f.h"
 #include "TestNet.h"
+#include "TestPerformance.h"
 #include "TestSpikeTrain.h"
 #include "TestStability.h"
 #include "TestVec3f.h"
@@ -23,6 +24,7 @@ Tester::Tester()
 	mTests.push_back([] { return make_shared<TestAutomaton>(); });
 	mTests.push_back([] { return make_shared<TestLife>(); });
 	mTests.push_back([] { return make_shared<TestStability>(); });
+	mTests.push_back([] { return make_shared<TestPerformance>(); });
 }
 
 Tester::~Tester()
