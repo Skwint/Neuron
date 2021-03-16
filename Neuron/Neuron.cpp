@@ -56,11 +56,11 @@ Neuron::~Neuron()
 
 // We do not need to override this. However, when debugging it is often convenient
 // to automatically initialize things on startup and this is the place to do it.
+// It is also convenient when procedurally generation a large synapse structure is
+// easier than using the GUI.
 void Neuron::showEvent(QShowEvent *event)
 {
 	QMainWindow::showEvent(event);
-
-	// mAutomaton->load("Data/Saves/linear_lif_two_layer.neuron");
 }
 
 // TODO : this doesn't work when we are paused because we draw based on inputs but

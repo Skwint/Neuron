@@ -35,6 +35,7 @@ private:
 	void configItemChanged();
 	void spikeChanged();
 	void showGraph();
+	void chooseColor();
 
 private:
 	Ui::LayerConfig ui;

@@ -19,6 +19,7 @@ const uint8_t TAG_HEIGHT('h');
 const uint8_t TAG_DATA('d');
 const uint8_t TAG_SPIKE_SHAPE('s');
 const uint8_t TAG_SPIKE_DURATION('D');
+const uint8_t TAG_COLOR('c');
 const uint8_t TAG_END('E');
 
 // Net is a templated implementation of Layer which handles the common
@@ -132,6 +133,8 @@ void Net<Neuron>::save(const std::filesystem::path & path)
 		writePod(uint8_t(mSpike.shape()), ofs);
 		writePod(TAG_SPIKE_DURATION, ofs);
 		writePod(mSpike.duration(), ofs);
+		writePod(TAG_COLOR, ofs);
+		writePod(mColor, ofs);
 		writePod(TAG_DATA, ofs);
 		ofs.write(reinterpret_cast<char *>(&mNeurons[0]), mWidth * mHeight * sizeof(Neuron));
 		writePod(TAG_END, ofs);
@@ -181,6 +184,8 @@ void Net<Neuron>::load(const std::filesystem::path & path)
 		case TAG_SPIKE_DURATION:
 			readPod(duration, ifs);
 			break;
+		case TAG_COLOR:
+			readPod(mColor, ifs);
 		case TAG_END:
 			end = true;
 			break;

@@ -266,7 +266,7 @@ void View::paintTexture()
 		for (auto & texture : mTextures)
 		{
 			texture.second->bind();
-			mProgram->setUniformValue(mAttrColor, QColor(0xFFFFFFFF));
+			mProgram->setUniformValue(mAttrColor, QColor(texture.first->color()));
 			mProgram->setUniformValue(mAttrPos, 0.0f, y, 0.0f, 0.0f);
 
 			data->mVao.bind();
@@ -285,7 +285,7 @@ void View::paintTexture()
 		for (auto & texture : mTextures)
 		{
 			texture.second->bind();
-			mProgram->setUniformValue(mAttrColor, QColor(0xFFFFFFFF));
+			mProgram->setUniformValue(mAttrColor, QColor(texture.first->color()));
 			mProgram->setUniformValue(mAttrPos, 0.0f, 0.0f, 0.0f, 0.0f);
 
 			data->mVao.bind();

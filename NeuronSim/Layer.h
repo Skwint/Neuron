@@ -51,12 +51,15 @@ public:
 	int spikeDuration() { return mSpike.duration(); }
 	void selectPreset(const std::string & name);
 	void regenerateName();
+	uint32_t color() const { return mColor; }
+	void setColor(uint32_t color) { mColor = color; }
 
 protected:
 	std::string mName;
 	int mWidth;
 	int mHeight;
 	Spike mSpike;
+	uint32_t mColor;
 };
 
 #endif

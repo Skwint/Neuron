@@ -33,6 +33,7 @@ LayerConfig::LayerConfig(std::shared_ptr<Automaton> automaton, std::shared_ptr<L
 	connect(ui.cmbSpikeShape, &QComboBox::currentTextChanged, this, &LayerConfig::spikeChanged);
 	connect(ui.spinSpikeDuration, QOverload<int>::of(&QSpinBox::valueChanged), this, &LayerConfig::spikeChanged);
 	connect(ui.btnGraph, &QPushButton::clicked, this, &LayerConfig::showGraph);
+	connect(ui.btnColor, &QPushButton::clicked, this, &LayerConfig::chooseColor);
 }
 
 LayerConfig::~LayerConfig()
@@ -121,6 +122,17 @@ void LayerConfig::repopulate()
 	{
 		ui.cmbSpikeShape->setCurrentIndex(int(layer->spikeShape()));
 		ui.spinSpikeDuration->setValue(layer->spikeDuration());
+
+		QColor color = layer->color();
+		QString style = "color: rgb(";
+		style += QString::number(color.red()) + ",";
+		style += QString::number(color.green()) + ",";
+		style += QString::number(color.blue()) + ");";
+		ui.btnColor->setStyleSheet(style);
+	}
+	else
+	{
+		ui.btnColor->setStyleSheet("color: black");
 	}
 
 	ui.cmbPreset->setCurrentIndex(0);
@@ -224,6 +236,22 @@ void LayerConfig::spikeChanged()
 		Spike::Shape shape = Spike::Shape(ui.cmbSpikeShape->currentIndex());
 		int spikeDuration = ui.spinSpikeDuration->value();
 		layer->setSpike(shape, spikeDuration);
+	}
+}
+
+// Selects a colour for a layer via a colour dialog
+void LayerConfig::chooseColor()
+{
+	auto layer = mAutomaton->findLayer(mLayerName);
+	if (layer)
+	{
+		auto color = QColorDialog::getColor(QColor(layer->color()), this, "Select Colour");
+		layer->setColor(color.rgba());
+		QString style = "color: rgb(";
+		style += QString::number(color.red()) + ",";
+		style += QString::number(color.green()) + ",";
+		style += QString::number(color.blue()) + ");";
+		ui.btnColor->setStyleSheet(style);
 	}
 }
 
