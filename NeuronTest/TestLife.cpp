@@ -71,7 +71,7 @@ void TestLife::testBasicLife()
 		dead, dead, live, dead, dead,
 		dead, dead, dead, dead, dead
 	};
-	layer->paint(&image[0]);
+	layer->paintState(&image[0]);
 
 	TEST(image == gliderStart);
 
@@ -85,7 +85,7 @@ void TestLife::testBasicLife()
 		dead, dead, dead, dead, dead,
 		dead, dead, dead, dead, dead
 	};
-	layer->paint(&image[0]);
+	layer->paintState(&image[0]);
 
 	TEST(image == gliderNext);
 
@@ -96,7 +96,7 @@ void TestLife::testBasicLife()
 	{
 		mAutomaton->tick();
 	}
-	layer->paint(&image[0]);
+	layer->paintState(&image[0]);
 	TEST(image == gliderStart);
 
 }
@@ -171,9 +171,9 @@ void TestLife::testInterleavedLife()
 		dead, dead, live, dead, dead,
 		dead, dead, dead, dead, dead
 	};
-	layer1->paint(&image[0]);
+	layer1->paintState(&image[0]);
 	TEST(image == gliderStart);
-	layer2->paint(&image[0]);
+	layer2->paintState(&image[0]);
 	TEST(image == windmillStart);
 
 	// Run for one step to reach the next state
@@ -194,14 +194,14 @@ void TestLife::testInterleavedLife()
 		dead, dead, dead, dead, dead,
 		dead, dead, dead, dead, dead
 	};
-	layer1->paint(&image[0]);
+	layer1->paintState(&image[0]);
 	TEST(image == windmillNext);
-	layer2->paint(&image[0]);
+	layer2->paintState(&image[0]);
 	TEST(image == gliderNext);
 
 	// One more step for good measure, and just check the windmill
 	mAutomaton->tick();
-	layer2->paint(&image[0]);
+	layer2->paintState(&image[0]);
 	TEST(image == windmillStart);
 }
 
@@ -248,7 +248,7 @@ void TestLife::testSaveLoad()
 		dead, dead, live, dead, dead,
 		dead, dead, dead, dead, dead
 	};
-	layer->paint(&image[0]);
+	layer->paintState(&image[0]);
 	TEST(image == gliderStart);
 
 	// Save state to file
@@ -269,7 +269,7 @@ void TestLife::testSaveLoad()
 		dead, dead, dead, dead, dead,
 		dead, dead, dead, dead, dead
 	};
-	layer->paint(&image[0]);
+	layer->paintState(&image[0]);
 	TEST(image == gliderNext);
 
 	// Destroy a layer which was loaded (regression test for a crash)

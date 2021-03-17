@@ -22,7 +22,7 @@ public:
 	static const ConfigPresets & presets();
 	const ConfigPresets & getPresets() override;
 	void tick() override;
-	void paint(uint32_t * image) override;
+	void paintState(uint32_t * image) override;
 
 private:
 	int32_t mLeakReversal;     //< 0, 1

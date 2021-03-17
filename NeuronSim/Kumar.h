@@ -19,6 +19,7 @@ public:
 	ConfigSet getConfig();
 	static const ConfigPresets & presets();
 	const ConfigPresets & getPresets();
+	void paintState(uint32_t * image) override;
 	void clear();
 	void tick();
 

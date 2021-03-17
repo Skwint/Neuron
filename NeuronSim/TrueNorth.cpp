@@ -142,17 +142,13 @@ void TrueNorth::tick()
 	}
 }
 
-void TrueNorth::paint(uint32_t * image)
+void TrueNorth::paintState(uint32_t * image)
 {
-	auto * cell = &mNeurons[0];
-	uint32_t * pixel = image;
-	for (int count = mHeight * mWidth; count != 0; --count)
+	float range = mPositiveThreshold - mNegativeThreshold;
+	for (auto cell = begin(); cell != end(); cell++)
 	{
-		uint32_t green = clamp(uint32_t(255.0f * (cell->v / mPositiveThreshold)), 0u, 0xFFu);
-		uint32_t red = clamp(uint32_t(255.0f * (-cell->v / mNegativeThreshold)), 0u, 0xFFu);
-		*pixel = 0xFF000000 | (green << 8) | red;
-		++pixel;
-		++cell;
+		uint32_t col = uint32_t(255.0f * (cell->v - mNegativeThreshold) / mPositiveThreshold);
+		*image++ = 0xFF000000 | col | (col << 8) | (col << 16);
 	}
 }
 

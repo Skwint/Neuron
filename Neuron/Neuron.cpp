@@ -41,6 +41,7 @@ Neuron::Neuron(QWidget *parent)
 	connect(mToolBox->zoomIn(), &QToolButton::clicked, this, &Neuron::zoomIn);
 	connect(mToolBox->zoomOut(), &QToolButton::clicked, this, &Neuron::zoomOut);
 	connect(mToolBox->style(), &QComboBox::currentTextChanged, [this]() { ui.view->setStyle(mToolBox->style()->currentText()); });
+	connect(mToolBox->paint(), &QComboBox::currentTextChanged, [this]() { ui.view->setPaint(View::Paint(mToolBox->paint()->currentIndex())); });
 
 	connect(mToolBox->speed(), &QComboBox::currentTextChanged, this, &Neuron::simSpeed);
 	connect(mToolBox->pause(), &QPushButton::clicked, this, &Neuron::simPause);

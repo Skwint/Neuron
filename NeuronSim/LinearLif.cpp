@@ -91,29 +91,12 @@ void LinearLif::tick()
 
 // We overload the Net implementation because we really want
 // to colour proportionally to the threshold.
-void LinearLif::paint(uint32_t * image)
+void LinearLif::paintState(uint32_t * image)
 {
-	NeuronLif * neuron = &mNeurons[0];
-	uint32_t * pixel = image;
-	for (int rr = 0; rr < mHeight; ++rr)
+	float range = mThreshold - mLowerLimit;
+	for (auto neuron = begin(); neuron != end(); neuron++)
 	{
-		for (int cc = 0; cc < mWidth; ++cc)
-		{
-			float lum = 255.0f * neuron->potential / mThreshold;
-			uint32_t val = min(uint32_t(0xFF), uint32_t(fabs(lum)));
-			if (lum > 0)
-			{
-				// negative potential in red, positive in green:
-				val = val << 8;
-			}
-			if (neuron->firing)
-			{
-				// firing in blue
-				val |= 0xFF0000;
-			}
-			*pixel = 0xFF000000 | val;
-			++pixel;
-			++neuron;
-		}
+		uint32_t lum = uint32_t(255.0f * (neuron->potential - mLowerLimit) / range);
+		*image++ = 0xFF000000 | lum | (lum << 8) | (lum << 16);
 	}
 }

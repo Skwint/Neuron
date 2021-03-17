@@ -3,10 +3,12 @@
 #include "ConfigPresets.h"
 #include "ConfigSet.h"
 
-static const std::string CFG_A("a");
-static const std::string CFG_B("b");
-static const std::string CFG_C("c");
-static const std::string CFG_D("d");
+using namespace std;
+
+static const string CFG_A("a");
+static const string CFG_B("b");
+static const string CFG_C("c");
+static const string CFG_D("d");
 
 static const float V2(0.04f);
 static const float V1(5.0f);
@@ -35,7 +37,7 @@ Izhikevich::~Izhikevich()
 {
 }
 
-std::string Izhikevich::name()
+string Izhikevich::name()
 {
 	return "Izhikevich";
 }
@@ -121,3 +123,13 @@ void Izhikevich::tick()
 		}
 	}
 }
+
+void Izhikevich::paintState(uint32_t * image)
+{
+	for (auto cell = begin(); cell != end(); ++cell)
+	{
+		uint32_t col = uint32_t(clamp((128.0f + 4.0f * cell->u), 0.0f, 255.0f));
+		*image++ = 0xFF000000 | col | (col << 8) | (col << 16);
+	}
+}
+

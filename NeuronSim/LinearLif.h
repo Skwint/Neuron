@@ -18,7 +18,7 @@ public:
 	ConfigSet getConfig();
 	static const ConfigPresets & presets();
 	const ConfigPresets & getPresets();
-	void paint(uint32_t * image);
+	void paintState(uint32_t * image);
 
 private:
 	float mLeak;

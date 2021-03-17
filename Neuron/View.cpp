@@ -24,6 +24,7 @@ View::View( QWidget *parent)
 	mZoom(1.0f),
 	mAspect(1.0f),
 	mStyle(STYLE_TILED),
+	mPaint(PAINT_STATE),
 	mTranslateX(0.0f),
 	mTranslateY(0.0f),
 	mMouseDown(false)
@@ -116,7 +117,14 @@ void View::updateTextures()
 		assert(texture.second->width() == texture.first->width());
 		assert(texture.second->height() == texture.first->height());
 		texture.second->bind();
-		texture.first->paint(&mImageData[0]);
+		if (mPaint == PAINT_STATE)
+		{
+			texture.first->paintState(&mImageData[0]);
+		}
+		else
+		{
+			texture.first->paintSpikes(&mImageData[0]);
+		}
 		texture.second->setData(QOpenGLTexture::RGBA, QOpenGLTexture::UInt8, &mImageData[0]);
 		CHECK_GL_ERROR;
 	}

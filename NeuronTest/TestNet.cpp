@@ -26,7 +26,6 @@ static const int REST(2);
 struct NeuronTest : public Cell
 {
 	NeuronTest() : test(TEST_INIT) {}
-	uint32_t color() { return test; }
 	int test;
 };
 
@@ -43,6 +42,7 @@ public:
 	void setConfig(const ConfigSet & config) {}
 	ConfigSet getConfig() { ConfigSet config; return config; }
 	const ConfigPresets & getPresets();
+	void paintState(uint32_t * image);
 
 	NeuronTest & operator[](int index) { return mNeurons[index]; }
 	NeuronTest & at(int col, int row) { return mNeurons[row * mWidth + col]; }
@@ -229,5 +229,13 @@ void TestNetLayer::tick()
 			}
 			++neuron;
 		}
+	}
+}
+
+void TestNetLayer::paintState(uint32_t * image)
+{
+	for (auto & neuron : mNeurons)
+	{
+		*image++ = neuron.test;
 	}
 }

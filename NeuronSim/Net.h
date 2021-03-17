@@ -66,10 +66,9 @@ public:
 	// contiguous block of memory in row major order.
 	inline const Neuron * begin() const { return &mNeurons[0]; }
 	// Take a pointer to the start of an array of pixels and populate them
-	// with the state of the neurons. The pixels should be in ABGR order.
-	// Each specialization of Net will interpret its state in its own colour
-	// scheme.
-	void paint(uint32_t * image) override;
+	// with the spiking information about each neuron. The pixels should be
+	// in ABGR order.
+	void paintSpikes(uint32_t * image) override;
 	// Reset all neurons in this net to their initial value
 	void clear() override;
 	// Inject a spike into a chosen neuron, with the given weight.
@@ -327,13 +326,12 @@ void Net<Neuron>::resize(int width, int height)
 }
 
 template <typename Neuron>
-void Net<Neuron>::paint(uint32_t * image)
+void Net<Neuron>::paintSpikes(uint32_t * image)
 {
 	uint32_t * pixel = image;
 	for (Neuron * neuron = begin(); neuron != end(); neuron++)
 	{
-		*pixel = neuron->color();
-		++pixel;
+		*pixel++ = neuron->firing * 0xFFFFFFFF;
 	}
 }
 

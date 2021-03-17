@@ -20,6 +20,7 @@ public:
 	void setConfig(const ConfigSet & config);
 	ConfigSet getConfig();
 	const ConfigPresets & getPresets();
+	void paintState(uint32_t * image) { paintSpikes(image); }
 
 private:
 	float mLow;

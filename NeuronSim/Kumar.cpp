@@ -3,11 +3,13 @@
 #include "ConfigPresets.h"
 #include "ConfigSet.h"
 
-static const std::string CFG_V("v");
-static const std::string CFG_A("a");
-static const std::string CFG_B("b");
-static const std::string CFG_C("c");
-static const std::string CFG_D("d");
+using namespace std;
+
+static const string CFG_V("v");
+static const string CFG_A("a");
+static const string CFG_B("b");
+static const string CFG_C("c");
+static const string CFG_D("d");
 
 Kumar::Kumar(int width, int height) :
 	Net<NeuronKumar>(width, height),
@@ -24,7 +26,7 @@ Kumar::~Kumar()
 {
 }
 
-std::string Kumar::name()
+string Kumar::name()
 {
 	return "Kumar";
 }
@@ -100,5 +102,17 @@ void Kumar::tick()
 
 			++cell;
 		}
+	}
+}
+
+void Kumar::paintState(uint32_t * image)
+{
+	auto * cell = &mNeurons[0];
+	uint32_t * pixel = image;
+	for (int count = mHeight * mWidth; count != 0; count--)
+	{
+		uint32_t col = uint32_t(clamp((128.0f + 8.0f * cell->v), 0.0f, 255.0f));
+		*pixel++ = 0xFF000000 | col | (col << 8) | (col << 16);
+		++cell;
 	}
 }

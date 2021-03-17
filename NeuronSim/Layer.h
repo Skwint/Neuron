@@ -17,9 +17,10 @@ class ConfigPresets;
 // an intermediate specialisation (Net) exists and it is expected that all
 // neuron types will be implemented as specialisations of that.
 // In each frame of animation these functions are called in the following order:
-// - tick()       - once per frame
-// - fireSpikes() - once per synapse sourced from this layer
-// - paint()      - zero or one times per frame
+// - tick()        - once per frame
+// - fireSpikes()  - once per synapse sourced from this layer
+// - paintState()  - zero or one times per frame
+// - paintSpikes() - zero or one times per frame
 class Layer
 {
 public:
@@ -34,7 +35,8 @@ public:
 	virtual void tick() = 0;
 	virtual void fireSpikes(SynapseMatrix * synapses, Spiker * spiker) = 0;
 	virtual std::string typeName() = 0;
-	virtual void paint(uint32_t * image) = 0;
+	virtual void paintState(uint32_t * image) = 0;
+	virtual void paintSpikes(uint32_t * image) = 0;
 	virtual void setConfig(const ConfigSet & config) = 0;
 	virtual ConfigSet getConfig() = 0;
 	virtual const ConfigPresets & getPresets() = 0;

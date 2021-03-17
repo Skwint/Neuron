@@ -26,6 +26,14 @@ class View : public QOpenGLWidget, protected QOpenGLFunctions, public Automaton:
 {
 	Q_OBJECT
 
+public:
+	enum Paint
+	{
+		PAINT_STATE = 0,
+		PAINT_SPIKING = 1,
+
+		PAINT_COUNT
+	};
 private:
 	struct Vertex
 	{
@@ -67,6 +75,7 @@ public:
 	void setOrtho();
 	void setPerspective();
 	void setStyle(const QString & style);
+	void setPaint(Paint paint) { mPaint = paint; }
 
 private:
 	void mousePressEvent(QMouseEvent * ev) override;
@@ -112,6 +121,7 @@ private:
 	float mPixelSize;
 	float mAspect;
 	Style mStyle;
+	Paint mPaint;
 	StyleData mStyleData[STYLE_COUNT];
 	std::vector<uint32_t> mImageData;
 	QPoint mMousePos;

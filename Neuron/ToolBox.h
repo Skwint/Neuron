@@ -32,6 +32,7 @@ public:
 	auto pause() { return ui.btnSimPause; }
 	auto step() { return ui.btnSimStep; }
 	auto style() { return ui.cmbViewStyle; }
+	auto paint() { return ui.cmbPaint; }
 
 	void displayZoom(int zoom);
 	void displayFrameTime(qint64 frameTime);

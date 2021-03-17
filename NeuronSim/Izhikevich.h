@@ -34,6 +34,11 @@ public:
 	static const ConfigPresets & presets();
 	// Get the available preset configurations for this layer type
 	const ConfigPresets & getPresets();
+	// Take a pointer to the start of an array of pixels and populate them
+	// with the state of the neurons. The pixels should be in ABGR order.
+	// Each specialization of Net will interpret its state in its own colour
+	// scheme.
+	void paintState(uint32_t * image) override;
 	// Reset all cells in this layer to a state which is hopefully
 	// queiscent and stable (v = mC, u = mC * mB)
 	void clear();

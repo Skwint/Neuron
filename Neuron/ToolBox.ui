@@ -360,6 +360,27 @@
               </item>
              </widget>
             </item>
+            <item row="1" column="0">
+             <widget class="QLabel" name="renderSourceLabel">
+              <property name="text">
+               <string>Render Source</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1">
+             <widget class="QComboBox" name="cmbPaint">
+              <item>
+               <property name="text">
+                <string>Neuron State</string>
+               </property>
+              </item>
+              <item>
+               <property name="text">
+                <string>Spiking</string>
+               </property>
+              </item>
+             </widget>
+            </item>
            </layout>
           </item>
          </layout>

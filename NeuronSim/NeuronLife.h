@@ -31,8 +31,6 @@ struct NeuronLife : public Cell
 		// The automated stability test excercises this mechanism.
 		input = neuronLifeCheck;
 	}
-
-	inline uint32_t color() { return firing? 0xFFFFFFFF: 0xFF000000; }
 };
 
 #endif
