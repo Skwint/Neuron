@@ -271,10 +271,11 @@ void View::paintTexture()
 		static const float bottom = -0.5f;
 		float y = top;
 		float deltay = (bottom - top) / (mTextures.size() - 1);
-		for (auto & texture : mTextures)
+		for (auto & layer : mAutomaton->layers())
 		{
-			texture.second->bind();
-			mProgram->setUniformValue(mAttrColor, QColor(texture.first->color()));
+			auto texture = mTextures[layer];
+			texture->bind();
+			mProgram->setUniformValue(mAttrColor, QColor(layer->color()));
 			mProgram->setUniformValue(mAttrPos, 0.0f, y, 0.0f, 0.0f);
 
 			data->mVao.bind();

@@ -393,7 +393,8 @@ std::shared_ptr<Layer> Automaton::createDetachedLayer()
 
 void Automaton::attachLayer(std::shared_ptr<Layer> layer)
 {
-	mLayers.push_back(layer);
+	auto pos = upper_bound(mLayers.begin(), mLayers.end(), layer, [](auto one, auto two) { return one->name() < two->name(); });
+	mLayers.insert(pos, layer);
 
 	Lock lock;
 	for (auto listener : mListeners)
