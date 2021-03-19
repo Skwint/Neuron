@@ -53,6 +53,17 @@ SpikeTrain::~SpikeTrain()
 {
 }
 
+// There is a possibility of an optimization in here. We are storing an array
+// of all possible spikes which is often very sparse, and processing the
+// entire thing every frame. We could save both time and memory in most cases
+// by storing individual spike objects in a list. The current system takes
+// approximately 33% of our CPU time just adding zeroes to neuron potentials,
+// so it would make a large difference (I have tried it - it works well).
+// Unfortunately, in the case when a system becomes highly excited, the
+// number of active spikes can become unmanageable and we slow to a crawl and
+// then run out of memory. There isn't a sensible fall back for OOM conditions
+// here, other than throwing spikes away and hoping for the best, so I have
+// abandoned that approach.
 void SpikeTrain::tick()
 {
 	auto & frame = mFrames[mCurrentFrame];

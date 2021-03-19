@@ -44,11 +44,6 @@ SynapseMatrix::~SynapseMatrix()
 
 }
 
-void SynapseMatrix::setListener(Listener * listener)
-{
-	mListener = listener;
-}
-
 // The delays of the synapses will be recalculated to accomodate size changes.
 void SynapseMatrix::setSize(int width, int height)
 {

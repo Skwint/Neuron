@@ -9,19 +9,21 @@
 // Debugging tool - see comment in destructor
 static const float neuronLifeCheck(-12345.0f);
 
-// The neuron type used by the Life automaton type.
-// This is the simplest possible neuron, and in Life
-// the shunt will always be 1.0
+// The neuron type used by the Life automaton type. This is the simplest possible neuron,
+// and in Life the shunt will always be 1.0. There is no data specific to the life cells.
+// They use the input potential directly.
 struct NeuronLife : public Cell
 {
+	// Constructor
 	NeuronLife()
 	{
 	}
+	// Destructor
 	~NeuronLife()
 	{
 		// This was added because an off by one error during development managed to
-		// evade detection by std::vector and caused a crash that took most of a day
-		// to track down.
+		// evade detection by std::vector and caused a crash that was difficult to
+		// track down.
 		// It works by setting the value of deleted neurons to something they can
 		// never naturally attain, and then asserting if a neuron with those values
 		// is ever accessed.

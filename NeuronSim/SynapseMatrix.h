@@ -10,29 +10,46 @@
 
 class Layer;
 
+// A SynapseMatrix is a 2D array of Synapse objects, each of which has a weight and
+// a delay. It can be thought of as being overlayed over a Layer with the center of
+// the matrix on a neuron which is firing. Each Synapse is a connection to another
+// neuron which will receive the spike.
+// A SynapseMatrix is expected to be an odd number width and height to make the 
+// meaning of the center clear. Even it has an even width or height the center
+// will be rounded down to the lower row and column coordinates.
 class SynapseMatrix
 {
 public:
+	// A listener to inform owners of a SynapseMatrix that it has changed in a way
+	// that might require action (such as a change in size or maximum delay)
 	class Listener
 	{
 	public:
 		virtual void synapseMatrixChanged(SynapseMatrix * matrix) = 0;
 	};
+	// The delay functions that can be applied to a matrix
 	enum Delay
 	{
+		// No delay - spikes are received in the next time step
 		DELAY_NONE = 0,
+		// Linear delay - spikes travel at a fixed speed
 		DELAY_LINEAR,
+		// Grid delay - spikes travel along one axis at once at fixed speed
 		DELAY_GRID,
+		// One - spikes are reived after a delay of one time step
 		DELAY_ONE,
 
+		// The number of available delay functions
 		DELAY_COUNT
 	};
 public:
+	// Constrcutor
 	SynapseMatrix(Listener * listener);
+	// Constructor
 	SynapseMatrix(Listener * listener, int width, int height);
+	// Destructor
 	~SynapseMatrix();
 
-	void setListener(Listener * listener);
 	void setSize(int width, int height);
 	inline int height() { return mHeight; }
 	inline int width() { return mWidth; }

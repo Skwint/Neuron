@@ -7,15 +7,15 @@
 #include <cstdint>
 
 // The neuron type used by the LIF (Leaky Integrate and Fire) automaton types.
-// Synapses feed into the input, are integrated into the potential, and cause
-// a spike if the refractory period is not blocking.
+// Synapses feed into the input, are integrated into the potential.
 // @see LinearLif
 struct NeuronLif : public Cell
 {
-	NeuronLif() : potential(0.0f), refractory(0) {	}
+	// Constructor.
+	NeuronLif() : potential(0.0f) {	}
 
+	// Membrane potential.
 	float potential;
-	int refractory;
 };
 
 #endif

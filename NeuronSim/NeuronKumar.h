@@ -6,14 +6,11 @@
 #include <algorithm>
 #include <stdint.h>
 
+// The cells used for the Kumar networks.
+// These have the generic data of the Cell structure and an
+// internal state of u and v.
 struct NeuronKumar : public Cell
 {
-	inline NeuronKumar() :
-		u(0.0f),
-		v(0.0f)
-	{
-	}
-
 	float u; //< membrane potential
 	float v; //< membrane recovery variable
 };

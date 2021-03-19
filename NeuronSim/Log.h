@@ -12,18 +12,27 @@
 class Log
 {
 public:
-	Log(); // unimplmented;
+	Log(); // intentionally unimplmented;
+	// Initialise the logging system with a log file path.
+	// Call this function once at startup.
 	static void to(const std::string & path);
+	// Close the file initialised in to().
+	// Call this function once before exiting.
 	static void finish();
+	// Return a stream into which information can be logged.
 	static std::stringstream & begin();
+	// Write the contents of the stream returned by begin()
+	// into the log file.
 	static void end();
 
 private:
+	// A stream for collecting information to be logged
 	static std::stringstream mStream;
+	// A stream into which to put log messages to write them
 	static std::ofstream mFile;
 };
 
-// While we would prefer to avoid the use of macros in C++, we do not know a way to
+// While I would prefer to avoid the use of macros in C++, I do not know a way to
 // achieve an interface as neat as this one without them.
 #ifndef NDEBUG
 #define LOGDEBUG(msg) LOG(msg)
@@ -32,6 +41,7 @@ private:
 #endif
 // LOG can be used with any number of arguments in stream form, i.e.
 // LOG("example " << message << " number " << n);
+// provided that each argument has an appropriate << operator.
 #define LOG(msg) { Log::begin() << msg; Log::end(); }
 
 #endif
