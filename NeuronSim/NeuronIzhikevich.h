@@ -11,8 +11,8 @@
 // internal state of u and v.
 struct NeuronIzhikevich : public Cell
 {
-	float u; //< membrane potential
-	float v; //< membrane recovery variable
+	float v; //< membrane potential
+	float u; //< membrane recovery variable
 };
 
 #endif

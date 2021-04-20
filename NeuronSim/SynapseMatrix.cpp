@@ -126,8 +126,8 @@ void SynapseMatrix::loadImage(uint32_t * synapseMap, int width, int height, floa
 	{
 		for (int w = 0; w < width; ++w)
 		{
-			uint32_t gb = (*data & 0x000000FF);
-			synapse->weight = weight * (float(gb) / 0xFF);
+			uint32_t b = (*data & 0x000000FF);
+			synapse->weight = weight * (float(b) / 0xFF);
 			++data;
 			++synapse;
 		}

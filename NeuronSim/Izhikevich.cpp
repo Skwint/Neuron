@@ -106,7 +106,7 @@ void Izhikevich::tick()
 			float v = cell->v;
 			float u = cell->u;
 			cell->v += V2 * v * v + V1 * v + V0 - u + cell->input;
-			cell->u += mA * (mB * v - u);
+			cell->u += mA * (mB * cell->v - u); // use of new version of V intentional
 			cell->input = 0.0f;
 			if (cell->v >= 30)
 			{

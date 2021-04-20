@@ -36,6 +36,8 @@ private:
 	int mDataPoint;
 	QLineSeries * mSeries;
 	QChart * mChart;
+	QLineSeries * mInputSeries;
+	QChart * mInputChart;
 };
 
 #endif
