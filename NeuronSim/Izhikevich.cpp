@@ -126,9 +126,12 @@ void Izhikevich::tick()
 
 void Izhikevich::paintState(uint32_t * image)
 {
+	// We draw the reset variable instead of the potential here.
+	// The potential tends to a lot more short lived and less indicative of
+	// a contiuously changing state than u.
 	for (auto cell = begin(); cell != end(); ++cell)
 	{
-		uint32_t col = uint32_t(clamp((128.0f + 4.0f * cell->u), 0.0f, 255.0f));
+		uint32_t col = uint32_t(clamp((64.0f + 16.0f * cell->u), 0.0f, 255.0f));
 		*image++ = 0xFF000000 | col | (col << 8) | (col << 16);
 	}
 }

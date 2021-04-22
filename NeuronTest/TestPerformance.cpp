@@ -26,16 +26,18 @@ void TestPerformance::run()
 {
 	Test::run();
 
+	// Currently this is 8 layers, 6 excitatory, 1 inhibitory and 1 shunting,
+	// connected by 18 3x3 synapse matrices.
+	// This can always be changed by replacing the files
 	performance("Data/Saves/performance.neuron");
+
+	// An alternative test to stress different aspects of the code
 	performance("Data/Saves/performance2.neuron");
 }
 
 void TestPerformance::performance(const std::filesystem::path file)
 {
 	// Load the performance automaton
-	// Currently this is 8 layers, 6 excitatory, 1 inhibitory and 1 shunting,
-	// connected by 18 3x3 synapse matrices.
-	// This can always be changed by replacing the files
 	mAutomaton->load(file);
 
 	// Run 10 frames to get going
