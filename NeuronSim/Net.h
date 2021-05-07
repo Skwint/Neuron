@@ -331,7 +331,7 @@ void Net<Neuron>::paintSpikes(uint32_t * image)
 	uint32_t * pixel = image;
 	for (Neuron * neuron = begin(); neuron != end(); neuron++)
 	{
-		*pixel++ = neuron->firing * 0xFFFFFFFF;
+		*pixel++ = 0xFF000000 | (neuron->firing * 0xFFFFFFFF);
 	}
 }
 
