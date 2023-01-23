@@ -2,6 +2,7 @@
 #define RESPONSE_GRAPH_H
 
 #include <QWidget>
+#include <qlineseries.h>
 #include "ui_ResponseGraph.h"
 #include "NeuronSim/Spiker.h"
 #include "NeuronSim/SynapseMatrix.h"

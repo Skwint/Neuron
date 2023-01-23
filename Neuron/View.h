@@ -99,9 +99,9 @@ private:
 	void createDonutStyle();
 	void createStackedStyle();
 	void paintTexture();
-	void checkGlError(char * fun, int line);
+	void checkGlError(const char * fun, int line);
 	void createTextureForLayer(std::shared_ptr<Layer> layer);
-	inline QPoint View::layerCoords(const QPoint & pos);
+	inline QPoint layerCoords(const QPoint & pos);
 
 private:
 	Ui::View ui;

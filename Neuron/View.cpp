@@ -570,7 +570,7 @@ void View::setZoom(float zoom)
 	update();
 }
 
-void View::checkGlError(char * fun, int line)
+void View::checkGlError(const char * fun, int line)
 {
 	GLenum errCode;
 	const GLubyte *errString;

@@ -2,6 +2,7 @@
 #define SPIKE_H
 
 #include <vector>
+#include <ostream>
 
 // A spike object represents a type of spike that can be fired, rather than
 // an actual voltage spike that is in the process of being transmitted.
